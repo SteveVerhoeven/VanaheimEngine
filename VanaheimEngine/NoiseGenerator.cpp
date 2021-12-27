@@ -106,10 +106,7 @@ void NoiseGenerator::onNotify(ObserverEvent event)
 		m_Settings.persistence -= 0.1f;
 
 	if (event == ObserverEvent::REBUILD_LANDSCAPE)
-	{
 		GenerateNoiseMap({ 0,0,0 });
-		//Locator::GetGeneratorManagerService()->GetGenerator<TerrainGenerator>()->GenerateColorMap(m_NoiseMap);
-	}
 }
 
 // General

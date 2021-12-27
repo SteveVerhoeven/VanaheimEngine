@@ -26,6 +26,8 @@ int Game::GameLoop()
 	const float timeEachUpdate{ pTimer->GetMsEachUpdate() };
 
 	MSG msg{};
+	InputManager* pInputManager{ Locator::GetInputManagerService() };
+	SceneManager* sceneManager{ Locator::GetSceneManagerService() };
 	while (msg.message != WM_QUIT)
 	{
 		// Update engine
@@ -34,11 +36,9 @@ int Game::GameLoop()
 		const float elapsedSec{ pTimer->GetElapsedTime() };
 
 		// Update input
-		InputManager* pInputManager{ Locator::GetInputManagerService() };
 		msg = pInputManager->ProcessInput(elapsedSec);
 
 		// Update game
-		SceneManager* sceneManager{ Locator::GetSceneManagerService() };
 		while (pTimer->GetLag() >= timeEachUpdate)
 		{
 			sceneManager->FixedUpdate(timeEachUpdate);
