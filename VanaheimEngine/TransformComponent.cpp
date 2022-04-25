@@ -1,5 +1,7 @@
-#include "pch.h"
+#include "VanaheimPCH.h"
 #include "TransformComponent.h"
+
+#include "yaml-cpp\yaml.h"
 
 TransformComponent::TransformComponent(const DirectX::XMFLOAT3& position, 
 									   const DirectX::XMFLOAT4& rotation, 
@@ -87,7 +89,7 @@ void TransformComponent::Rotate(const float x, const float y, const float z, con
 		XMStoreFloat4(&m_WorldRotation, rotationVector);
 
 		// Store the values -- TODO: Fix quaternion to euler to store them
-		Locator::GetDebugLoggerService()->Log(ErrorLevel::LOG_WARNING, "TransformComponent: Rotate - Fix quaternion to euler to store them");
+		LOG(ErrorLevel::LOG_WARNING, "TransformComponent: Rotate - Fix quaternion to euler to store them");
 		m_Pitch += x;
 		m_Yaw += y;
 		m_Roll += z;
@@ -167,3 +169,30 @@ DirectX::XMFLOAT4X4 TransformComponent::GetWorld()
 
 	return m_World;
 }
+
+//void TransformComponent::Serialize(YAML::Emitter& out)
+//{
+//	out << YAML::Key << "TransformComponent";
+//	out << YAML::BeginMap;
+//
+//	out << YAML::Key << "Pitch" << YAML::Value << m_Pitch;
+//	out << YAML::Key << "Yaw" << YAML::Value << m_Yaw;
+//	out << YAML::Key << "Roll" << YAML::Value << m_Roll;
+//
+//	out << YAML::Key << "LocalPosition" << YAML::Value << m_Position;
+//	out << YAML::Key << "LocalRotation" << YAML::Value << m_Rotation;
+//	out << YAML::Key << "LocalScale" << YAML::Value << m_Scale;
+//
+//	out << YAML::Key << "WorldPosition" << YAML::Value << m_WorldPosition;
+//	out << YAML::Key << "WorldRotation" << YAML::Value << m_WorldRotation;
+//	out << YAML::Key << "WorldScale" << YAML::Value << m_WorldScale;
+//
+//	out << YAML::Key << "Forward" << YAML::Value << m_Forward;
+//	out << YAML::Key << "Right" << YAML::Value << m_Right;
+//	out << YAML::Key << "Up" << YAML::Value << m_Up;
+//	out << YAML::Key << "WorldUp" << YAML::Value << m_WorldUp;
+//
+//	out << YAML::Key << "World" << YAML::Value << m_World;
+//
+//	out << YAML::EndMap;
+//}

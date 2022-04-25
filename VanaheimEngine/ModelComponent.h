@@ -20,10 +20,13 @@ class ModelComponent final : public Component
 		void Render();
 		
 		void AddMaterial(Material* pMaterial);
-		void AddTexture(Texture* pTexture) { m_pTextures.push_back(pTexture); }
 
+		const std::string& GetFilePath() const { return m_FilePath; }
 		Mesh* GetMesh() const { return m_pMesh; }
 		Material* GetMaterial() const { return m_pMaterial; }
+
+		// Serialization
+		//void Serialize(YAML::Emitter& out) override;
 
 	protected:
 		virtual void Initialize(Scene* pParentScene) override;

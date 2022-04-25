@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "VanaheimPCH.h"
 #include "Material.h"
 
 #include "GameObject.h"
@@ -18,13 +18,13 @@ Material::Material(const std::string& assetPath, const std::string& name)
 {}
 Material::~Material()
 {
-	DELETE_RESOURCE_VALID(m_pMat_WorldViewProjVariable);
+	if (m_pMat_WorldViewProjVariable) DELETE_RESOURCE_VALID(m_pMat_WorldViewProjVariable);
 	DELETE_RESOURCE(m_pSamplerState_Point);
 	DELETE_RESOURCE(m_pSamplerState_Linear);
 	DELETE_RESOURCE(m_pSamplerState_Anisotropic);
-	DELETE_RESOURCE_VALID(m_pSamplerVariable);
-	DELETE_RESOURCE_VALID(m_pDefaultTechnique);
-	DELETE_RESOURCE_VALID(m_pDirectXEffect);
+	if (m_pSamplerVariable) DELETE_RESOURCE_VALID(m_pSamplerVariable);
+	if (m_pDefaultTechnique) DELETE_RESOURCE_VALID(m_pDefaultTechnique);
+	if (m_pDirectXEffect) DELETE_RESOURCE_VALID(m_pDirectXEffect);
 }
 
 void Material::Initialize(ID3D11Device* pDevice)
@@ -38,7 +38,7 @@ void Material::Initialize(ID3D11Device* pDevice)
 	m_pDirectXEffect = LoadEffect(pDevice, m_AssetPath);
 	if (!m_pDirectXEffect->IsValid())
 	{
-		Locator::GetDebugLoggerService()->Log(ErrorLevel::LOG_FATAL, "Effect not loaded! \n File: Effect.cpp \n Line: 30;");
+		LOG(ErrorLevel::LOG_FATAL, "Effect not loaded! \n File: Effect.cpp \n Line: 30;");
 	}
 
 	// ********************************
@@ -47,7 +47,7 @@ void Material::Initialize(ID3D11Device* pDevice)
 	m_pSamplerVariable = m_pDirectXEffect->GetVariableByName("gSamplerState")->AsSampler();
 	if (!m_pDirectXEffect->IsValid())
 	{
-		Locator::GetDebugLoggerService()->Log(ErrorLevel::LOG_FATAL, "Sampler variable not found! \n File: Effect.cpp \n Line: 37;");
+		LOG(ErrorLevel::LOG_FATAL, "Sampler variable not found! \n File: Effect.cpp \n Line: 37;");
 	}
 
 	// ********************************
@@ -85,7 +85,7 @@ void Material::Update(GameObject* pParentGameObject)
 
 	HRESULT hr{ m_pMat_WorldViewProjVariable->SetMatrix((float*)&wvp) };
 	if (FAILED(hr))
-		Locator::GetDebugLoggerService()->LogHRESULT(hr, "Material::Update", __FILE__, std::to_string(__LINE__));
+		LOG_HRESULT(hr, "Material::Update", __FILE__, std::to_string(__LINE__));
 }
 
 // ------------------------------------
@@ -119,7 +119,7 @@ ID3DX11Effect* Material::LoadEffect(ID3D11Device* pDevice, const std::string& ef
 		// -------------
 		// Log the error
 		// -------------
-		Locator::GetDebugLoggerService()->LogHRESULT(result, "Material::LoadEffect", __FILE__, std::to_string(__LINE__));
+		LOG_HRESULT(result, "Material::LoadEffect", __FILE__, std::to_string(__LINE__));
 		if (pErrorBlob != nullptr)
 		{
 			char* pErrors = (char*)pErrorBlob->GetBufferPointer();
@@ -159,7 +159,7 @@ ID3DX11EffectTechnique* Material::BindTechniqueVariable(const std::string& techn
 		message += "Name: " + techniqueName + '\n';
 		message += "Line: 129";
 
-		Locator::GetDebugLoggerService()->Log(ErrorLevel::LOG_FATAL, message);
+		LOG(ErrorLevel::LOG_FATAL, message);
 	}
 
 
@@ -179,9 +179,8 @@ ID3DX11EffectMatrixVariable* Material::BindMatrixVariable(const std::string& mat
 		message += "Name: " + matrixName + '\n';
 		message += "Line: 152";
 
-		Locator::GetDebugLoggerService()->Log(ErrorLevel::LOG_FATAL, message);
+		LOG(ErrorLevel::LOG_FATAL, message);
 	}
-
 
 	return pMatrix;
 }
@@ -199,7 +198,7 @@ ID3DX11EffectShaderResourceVariable* Material::BindTextureVariable(const std::st
 		message += "Name: " + textureName + '\n';
 		message += "Line: 175";
 
-		Locator::GetDebugLoggerService()->Log(ErrorLevel::LOG_FATAL, message);
+		LOG(ErrorLevel::LOG_FATAL, message);
 	}
 
 	return pTexture;
@@ -218,7 +217,7 @@ ID3DX11EffectRasterizerVariable* Material::BindRasterizerStateVariable(const std
 		message += "Name: " + rasterizerName + '\n';
 		message += "Line: 197";
 
-		Locator::GetDebugLoggerService()->Log(ErrorLevel::LOG_FATAL, message);
+		LOG(ErrorLevel::LOG_FATAL, message);
 	}
 
 	return pRasterizerState;
@@ -247,5 +246,5 @@ void Material::CreateSamplerStates(ID3D11Device* pDevice, const D3D11_FILTER& fi
 	// Explanation for all parameters in link below
 	// Reference: https://docs.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createsamplerstate
 	HRESULT hr{ pDevice->CreateSamplerState(pSamplerStateDesc, ppSamplerState) };
-	Locator::GetDebugLoggerService()->LogHRESULT(hr, "Material::CreateSamplerStates", __FILE__, std::to_string(__LINE__));
+	LOG_HRESULT(hr, "Material::CreateSamplerStates", std::string(__FILE__), std::to_string(__LINE__));
 }

@@ -1,26 +1,31 @@
-#include "pch.h"
+#include "VanaheimPCH.h"
 #include "Scene.h"
 
 #include "Material.h"
+#include "Material_GPUInstance.h"
 #include "GameObject.h"
+
+#include "Line.h"
 
 #include "ResourceManager.h"
 
 Scene::Scene()
-	  : m_IsActive(false)
+	  : m_Cleanup(false)
+	  , m_IsActive(false)
 	  , m_Name("")
+	  , m_pMainCameraGO(nullptr)
 	  , m_pGameObjects(std::vector<GameObject*>())
 {}
 Scene::~Scene()
 {
-	for (GameObject* pGameObject : m_pGameObjects)
-		DELETE_POINTER(pGameObject);
-
-	m_pGameObjects.clear();
+	DELETE_POINTERS(m_pGameObjects, m_pGameObjects.size());
+	DELETE_POINTER(m_pMainCameraGO);
 }
 
 void Scene::Initialize()
 {
+	CreateSceneCamera();
+
 	for (GameObject* pObject : m_pGameObjects)
 		pObject->Initialize();
 }
@@ -48,7 +53,12 @@ void Scene::FixedUpdate(const float timeEachUpdate)
 		pObject->FixedUpdate(timeEachUpdate);
 }
 void Scene::LateUpdate()
-{}
+{
+	if (!m_IsActive)
+		return;
+
+	CleanScene();
+}
 void Scene::Render() const
 {
 	if (!m_IsActive)
@@ -56,40 +66,87 @@ void Scene::Render() const
 
 	for (GameObject* pObject : m_pGameObjects)
 		pObject->Render();
-
-	// After rendering all objects, reset the meshes that are rendered with GPU instancing
-
 }
 
 void Scene::AddGameObject(GameObject* pObject)
 {
 	pObject->SetParentScene(this);
+
+	// Find duplicates
+	auto comp = pObject->GetComponent<LineComponent>();
+	if (comp)
+	{
+		auto mesh = comp->GetMesh();
+		if (mesh)
+		{
+			if (!Locator::GetResourceManagerService()->Load3DMesh(dynamic_cast<Mesh_Base*>(mesh), pObject))
+			{
+				DELETE_POINTER(pObject);
+				return;
+			}
+		}		
+	}	
+
 	m_pGameObjects.push_back(pObject);
+}
+void Scene::RemoveGameObject(GameObject* pObject)
+{
+	auto object = std::find(m_pGameObjects.begin(), m_pGameObjects.end(), pObject);
+	if (object != m_pGameObjects.end())
+	{
+		auto distance{ std::distance(m_pGameObjects.begin(), object) };
+		m_pGameObjects.erase(m_pGameObjects.begin() + distance);
+	}
+	
+	DELETE_POINTER(pObject);
 }
 GameObject* Scene::GetObjectByName(const std::string& name) const
 {
 	for (GameObject* pGameObject : m_pGameObjects)
 	{
 		if (pGameObject)
-			if (pGameObject->GetName() == name)
+			if (pGameObject->GetComponent<NameComponent>()->GetName() == name)
 				return pGameObject;
 	}
 	return nullptr;
 }
-void Scene::CreateCamera(const std::string& name, const DirectX::XMFLOAT3& position)
+
+void Scene::CreateCamera(const std::string& name, const DirectX::XMFLOAT3& position, const bool isMainCamera)
 {
 	// Game Object
-	GameObject* pMesh{ new GameObject() };
+	GameObject* pMesh{ new GameObject(position, {}, {}, name) };
 
 	// Camera
 	CameraComponent* pCameraComponent{ new CameraComponent() };
+	pCameraComponent->SetIsMainCamera(isMainCamera);
 
 	// Adding to game object
 	pMesh->AddComponent(pCameraComponent);
 
 	// Add to scene
 	AddGameObject(pMesh);
-	pMesh->SetName(name);
+
+	// Set as the main camera
+	if (isMainCamera)
+		SetMainCamera(pMesh);
+
+	// Edit game object in scene
+	pMesh->GetComponent<TransformComponent>()->Translate(position, false);
+}
+void Scene::CreateViewportCamera(const std::string& name, const DirectX::XMFLOAT3& position)
+{
+	// Game Object
+	GameObject* pMesh{ new GameObject(position, {}, {}, name) };
+
+	// Camera
+	CameraComponent* pCameraComponent{ new CameraComponent() };
+	pCameraComponent->SetIsMainCamera(true);
+
+	// Adding to game object
+	pMesh->AddComponent(pCameraComponent);
+
+	// Set as the main camera
+	SetMainCamera(pMesh);
 
 	// Edit game object in scene
 	pMesh->GetComponent<TransformComponent>()->Translate(position, false);
@@ -97,7 +154,7 @@ void Scene::CreateCamera(const std::string& name, const DirectX::XMFLOAT3& posit
 void Scene::Create3DObject(const std::string& name, const DirectX::XMFLOAT3& position, const std::string& meshPath, Material* pMaterial)
 {
 	// Game Object
-	GameObject* pMeshGO{ new GameObject() };				
+	GameObject* pMeshGO{ new GameObject(position, {}, {}, name) };
 
 	// Model
 	ModelComponent* pModelComponent{ new ModelComponent(meshPath) };
@@ -105,7 +162,6 @@ void Scene::Create3DObject(const std::string& name, const DirectX::XMFLOAT3& pos
 
 	// Adding to game object
 	pMeshGO->AddComponent(pModelComponent);
-	pMeshGO->SetName(name);
 
 	// Add to scene
 	AddGameObject(pMeshGO);
@@ -116,7 +172,7 @@ void Scene::Create3DObject(const std::string& name, const DirectX::XMFLOAT3& pos
 void Scene::Create3DObject(const std::string& name, const DirectX::XMFLOAT3& position, Mesh* pMesh, Material* pMaterial)
 {
 	// Game Object
-	GameObject* pMeshGO{ new GameObject() };
+	GameObject* pMeshGO{ new GameObject(position, {}, {}, name) };
 
 	// Model
 	ModelComponent* pModelComponent{ new ModelComponent(pMesh) };
@@ -124,13 +180,30 @@ void Scene::Create3DObject(const std::string& name, const DirectX::XMFLOAT3& pos
 
 	// Adding to game object
 	pMeshGO->AddComponent(pModelComponent);
-	pMeshGO->SetName(name);
 
 	// Add to scene
 	AddGameObject(pMeshGO);
 
 	// Edit game object in scene
 	pMeshGO->GetComponent<TransformComponent>()->Translate(position, false);
+}
+void Scene::CreateLineObject(const std::string& name, const DirectX::XMFLOAT3& position, Line* pLine)
+{
+	// Game Object
+	GameObject* pLineGO{ new GameObject(position, {}, {}, name) };
+
+	// Model
+	LineComponent* pLineComponent{ new LineComponent(pLine) };
+	pLineComponent->AddMaterial(new Material_GPUInstance());
+
+	// Adding to game object
+	pLineGO->AddComponent(pLineComponent);
+	
+	// Edit game object in scene
+	pLineGO->GetComponent<TransformComponent>()->Translate(position, false);
+
+	// Add to scene
+	AddGameObject(pLineGO);
 }
 void Scene::CreateUI()
 {
@@ -142,8 +215,42 @@ void Scene::CreateUI()
 
 	// Adding to game object
 	pUIGO->AddComponent(pUIComponent);
-	pUIGO->SetName("UI");
 
 	// Add to scene
 	AddGameObject(pUIGO);
+}
+
+void Scene::CreateSceneCamera()
+{
+	const std::string name{ "Camera-Main" };
+	const DirectX::XMFLOAT3 pos{ 55, 10, -125 };
+	CreateViewportCamera(name, pos);
+}
+void Scene::CleanScene()
+{
+	if (m_Cleanup == true)
+	{
+		for (GameObject* pObject : m_pGameObjects)
+		{
+			if (pObject->GetToBeRemoved())
+			{
+				// Find the object
+				auto object = std::find(m_pGameObjects.begin(), m_pGameObjects.end(), pObject);
+				
+				// Check if the object that is found is not the end of the vector
+				if (object != m_pGameObjects.end())
+				{
+					// Calculate the distance (index position)
+					auto distance{ std::distance(m_pGameObjects.begin(), object) };
+
+					// Remove from the vector
+					m_pGameObjects.erase(m_pGameObjects.begin() + distance);
+				}
+
+				DELETE_POINTER(pObject);
+			}
+		}
+
+		m_Cleanup = false;
+	}
 }

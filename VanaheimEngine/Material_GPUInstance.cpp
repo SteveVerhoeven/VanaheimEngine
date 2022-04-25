@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "VanaheimPCH.h"
 #include "Material_GPUInstance.h"
 
 #include "GameObject.h"
@@ -33,5 +33,5 @@ void Material_GPUInstance::Update(GameObject* pParentGameObject)
 
 	HRESULT hr{ m_pMat_WorldViewProjVariable->SetMatrix((float*)&wvp) };
 	if (FAILED(hr))
-		Locator::GetDebugLoggerService()->LogHRESULT(hr, "Material::Update", __FILE__, std::to_string(__LINE__));
+		LOG_HRESULT(hr, "Material::Update", __FILE__, std::to_string(__LINE__));
 }

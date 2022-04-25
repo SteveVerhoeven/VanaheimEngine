@@ -2,7 +2,7 @@
 // > Copyright 2021 - Vanaheim Engine < //
 // > Author: Steve Verhoeven		  < //
 // >----------------------------------< //
-#include "pch.h"
+#include "VanaheimPCH.h"
 #include "VanaheimEngine.h"
 
 // Vanaheim includes
@@ -15,6 +15,14 @@
 #include "InputManager.h"
 #include "ResourceManager.h"
 #include "GeneratorManager.h"
+
+#include "InspectorUI.h"
+#include "ConsoleUI.h"
+#include "ViewportUI.h"
+#include "HierarchyUI.h"
+
+#include "NoiseGenerator.h"
+#include "TerrainGenerator.h"
 
 VanaheimEngine::VanaheimEngine()
 			   : m_pTimer(nullptr)
@@ -42,12 +50,13 @@ VanaheimEngine::~VanaheimEngine()
 
 void VanaheimEngine::Initialize(HINSTANCE instance)
 {
-	int width{ 2560 }, height{ 1080 };
+	int width{ 1600 }, height{ 900 };
 
 	m_pWindow = new Window("Vanaheim Engine", width, height, instance);
 	m_pGraphics = new Graphics(m_pWindow->GetWindowHandle(), width, height);
 
 	InitializeLocator();
+	InitializeEngineUI();
 }
 void VanaheimEngine::Update()
 {
@@ -59,7 +68,7 @@ void VanaheimEngine::InitializeLocator()
 	Locator::ProvideGraphicsService(m_pGraphics);
 	Locator::ProvideWindowService(m_pWindow);
 	
-	m_pUIManager = new UIManager(m_pWindow, m_pGraphics);
+	m_pUIManager = new UIManager(m_pWindow);
 	Locator::ProvideUIManagerService(m_pUIManager);
 
 	m_pTimer = new Timer();
@@ -80,6 +89,22 @@ void VanaheimEngine::InitializeLocator()
 
 	m_pGeneratorManager = new GeneratorManager();
 	Locator::ProvideGeneratorManagerService(m_pGeneratorManager);
+}
+void VanaheimEngine::InitializeEngineUI()
+{
+	InspectorUI* pInspectorUI{ new InspectorUI() };
+	m_pUIManager->AddUI(pInspectorUI);
+	pInspectorUI->AddObserver(m_pGeneratorManager->GetGenerator<NoiseGenerator>());
+	pInspectorUI->AddObserver(m_pGeneratorManager->GetGenerator<TerrainGenerator>());
+
+	ConsoleUI* pConsoleUI{ new ConsoleUI() };
+	m_pUIManager->AddUI(pConsoleUI);
+
+	ViewportUI* pViewportUI{ new ViewportUI() };
+	m_pUIManager->AddUI(pViewportUI);
+
+	HierarchyUI* pHierarchyUI{ new HierarchyUI() };
+	m_pUIManager->AddUI(pHierarchyUI);
 }
 
 void VanaheimEngine::Render()

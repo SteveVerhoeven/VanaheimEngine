@@ -1,9 +1,10 @@
-#include "pch.h"
+#include "VanaheimPCH.h"
 #include "Game.h"
 
 #include "Timer.h"
 #include "InputManager.h"
 #include "SceneManager.h"
+#include "UIManager.h"
 
 #include "VanaheimEngine.h"
 
@@ -19,6 +20,14 @@ Game::~Game()
 void Game::Initialize(HINSTANCE hInstance)
 {
 	m_pEngine->Initialize(hInstance);
+
+	UIManager* pUIManager{ Locator::GetUIManagerService() };
+	pUIManager->Initialize();
+}
+void Game::PostInitialize()
+{
+	UIManager* pUIManager{ Locator::GetUIManagerService() };
+	pUIManager->PostInitialize();
 }
 int Game::GameLoop()
 {
@@ -26,8 +35,6 @@ int Game::GameLoop()
 	const float timeEachUpdate{ pTimer->GetMsEachUpdate() };
 
 	MSG msg{};
-	InputManager* pInputManager{ Locator::GetInputManagerService() };
-	SceneManager* sceneManager{ Locator::GetSceneManagerService() };
 	while (msg.message != WM_QUIT)
 	{
 		// Update engine
@@ -36,15 +43,18 @@ int Game::GameLoop()
 		const float elapsedSec{ pTimer->GetElapsedTime() };
 
 		// Update input
+		InputManager* pInputManager{ Locator::GetInputManagerService() };
 		msg = pInputManager->ProcessInput(elapsedSec);
 
 		// Update game
+		SceneManager* sceneManager{ Locator::GetSceneManagerService() };
 		while (pTimer->GetLag() >= timeEachUpdate)
 		{
 			sceneManager->FixedUpdate(timeEachUpdate);
 			pTimer->SubtractFixedUpdateFromLag();
 		}
 		sceneManager->Update(elapsedSec);
+		sceneManager->LateUpdate();
 
 		// Render game
 		sceneManager->Render();

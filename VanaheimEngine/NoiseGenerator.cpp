@@ -1,11 +1,13 @@
-#include "pch.h"
+#include "VanaheimPCH.h"
 #include "NoiseGenerator.h"
 
 #include "MathHelper.h"
 #include "GeneratorManager.h"
 
 #include "UIManager.h"
-#include "GeneratorUI.h"
+#include "InspectorUI.h"
+#include "ConsoleUI.h"
+#include "UIData.h"
 
 NoiseGenerator::NoiseGenerator()
 			   : Generator("NoiseGenerator")
@@ -16,6 +18,7 @@ NoiseGenerator::NoiseGenerator()
 {
 	Initialize();
 }
+
 void NoiseGenerator::Initialize()
 {
 	// Hash lookup table as defined by Ken Perlin.  This is a randomly
@@ -38,12 +41,14 @@ void NoiseGenerator::Initialize()
 	const int doubleHashtableSize{ 512 };
 	for (int i = 0; i < doubleHashtableSize; ++i)
 		m_Permutation[i] = m_HashTable[i % 256];
-
+}
+void NoiseGenerator::PostInitialize()
+{
 	CreateUIData();
 }
 
 // Generating
-std::vector<std::vector<float>> NoiseGenerator::GenerateNoiseMap(const DirectX::XMFLOAT3& personalOffset)
+const std::vector<std::vector<float>>& NoiseGenerator::GenerateNoiseMap(const DirectX::XMFLOAT3& personalOffset)
 {
 	// Check if the scale is lower then or equal to zero to prevent division by 0
 	if (!Validate(m_Settings.mapSize, m_Settings.scale))
@@ -58,7 +63,7 @@ std::vector<std::vector<float>> NoiseGenerator::GenerateNoiseMap(const DirectX::
 
 	// recalculate the noise
 	if (m_NoiseMap.empty())
-		CalculateFractalNoises(offsets);
+		CalculateNoises(offsets);
 	else
 		RecalculateFractalNoises(offsets);
 
@@ -71,42 +76,13 @@ std::vector<std::vector<float>> NoiseGenerator::GenerateNoiseMap(const DirectX::
 	return m_NoiseMap;
 }
 
-// Settings
-void NoiseGenerator::EditSettings(NoiseGenSettings& settings)
-{
-	m_Settings.seed = settings.seed;
-	m_Settings.octaves = settings.octaves;
-	m_Settings.lacunarity = settings.lacunarity;
-	m_Settings.persistence = settings.persistence;
-	m_Settings.mapSize = settings.mapSize;
-	m_Settings.scale = settings.scale;
-}
-
 void NoiseGenerator::onNotify(ObserverEvent event)
 {
-	if (event == ObserverEvent::INCREASE_SEED)
-		m_Settings.seed++;
-	else if (event == ObserverEvent::DECREASE_SEED)
-		m_Settings.seed--;
-	else if (event == ObserverEvent::INCREASE_OCTAVES)
-		m_Settings.octaves++;
-	else if (event == ObserverEvent::DECREASE_OCTAVES)
-		m_Settings.octaves--;
-	else if (event == ObserverEvent::INCREASE_SCALE)
-		m_Settings.scale += 20.f;
-	else if (event == ObserverEvent::DECREASE_SCALE)
-		m_Settings.scale -= 1.f;
-	else if (event == ObserverEvent::INCREASE_LACUNARITY)
-		m_Settings.lacunarity += 0.1f;
-	else if (event == ObserverEvent::DECREASE_LACUNARITY)
-		m_Settings.lacunarity -= 0.1f;
-	else if (event == ObserverEvent::INCREASE_PERSISTENCE)
-		m_Settings.persistence += 0.1f;
-	else if (event == ObserverEvent::DECREASE_PERSISTENCE)
-		m_Settings.persistence -= 0.1f;
-
 	if (event == ObserverEvent::REBUILD_LANDSCAPE)
+	{
 		GenerateNoiseMap({ 0,0,0 });
+		//Locator::GetGeneratorManagerService()->GetGenerator<TerrainGenerator>()->GenerateColorMap(m_NoiseMap);
+	}
 }
 
 // General
@@ -128,40 +104,38 @@ bool NoiseGenerator::Validate(DirectX::XMFLOAT2& mapSize, float& scale)
 }
 void NoiseGenerator::CreateUIData()
 {
-	// Inspector
-	std::vector<ObserverEvent> events_scale{};
-	events_scale.push_back(ObserverEvent::DECREASE_SCALE);
-	events_scale.push_back(ObserverEvent::INCREASE_SCALE);
+	STInspectorVariable* InspectorVarSeed{ new STInspectorVariable() };
+	STInspectorVariable* InspectorVarOctaves{ new STInspectorVariable() };
+	FInspectorVariable* InspectorVarLacunarity{ new FInspectorVariable() };
+	FInspectorVariable* InspectorVarScale{ new FInspectorVariable() };
+	FInspectorVariable* InspectorVarPersistence{ new FInspectorVariable() };
 
-	std::vector<ObserverEvent> events_seed{};
-	events_seed.push_back(ObserverEvent::DECREASE_SEED);
-	events_seed.push_back(ObserverEvent::INCREASE_SEED);
-
-	std::vector<ObserverEvent> events_octaves{};
-	events_octaves.push_back(ObserverEvent::DECREASE_OCTAVES);
-	events_octaves.push_back(ObserverEvent::INCREASE_OCTAVES);
-
-	std::vector<ObserverEvent> events_lacunarity{};
-	events_lacunarity.push_back(ObserverEvent::DECREASE_LACUNARITY);
-	events_lacunarity.push_back(ObserverEvent::INCREASE_LACUNARITY);
-
-	std::vector<ObserverEvent> events_persistence{};
-	events_persistence.push_back(ObserverEvent::DECREASE_PERSISTENCE);
-	events_persistence.push_back(ObserverEvent::INCREASE_PERSISTENCE);
-
-	const GeneratorVariable iv_scale(GeneratorType::NOISE, UIButtonType::SLIDER_FLOAT, "Scale", events_scale, { 0, 100 });
-	const GeneratorVariable iv_seed(GeneratorType::NOISE, UIButtonType::SLIDER_INT, "Seed", events_seed, { 0, 10 });
-	const GeneratorVariable iv_octaves(GeneratorType::NOISE, UIButtonType::SLIDER_INT, "Octaves", events_octaves, { 1, 8 });
-	const GeneratorVariable iv_lacunarity(GeneratorType::NOISE, UIButtonType::SLIDER_FLOAT, "Lacunarity", events_lacunarity, { 1, 10 });
-	const GeneratorVariable iv_persistence(GeneratorType::NOISE, UIButtonType::SLIDER_FLOAT, "Persistence", events_persistence, { 0, 1 });
+	InspectorVarSeed->name = "Seed";
+	InspectorVarSeed->value = &m_Settings.seed;
+	InspectorVarSeed->varRange = { 0, 1000 };
+	InspectorVarOctaves->name = "Octaves";
+	InspectorVarOctaves->value = &m_Settings.octaves;
+	InspectorVarOctaves->varRange = { 1, 8 };
+	InspectorVarLacunarity->name = "Lacunarity";
+	InspectorVarLacunarity->value = &m_Settings.lacunarity;
+	InspectorVarLacunarity->varRange = { 1, 10 };
+	InspectorVarScale->name = "Scale";
+	InspectorVarScale->value = &m_Settings.scale;
+	InspectorVarScale->varRange = { 0, 100 };
+	InspectorVarPersistence->name = "Persistence";
+	InspectorVarPersistence->value = &m_Settings.persistence;
+	InspectorVarPersistence->varRange = { 0, 1 };
 
 	UIManager* pUIManager{ Locator::GetUIManagerService() };
-	GeneratorUI* pGenUI{ pUIManager->GetUI<GeneratorUI>() };
-	pGenUI->StoreVariable(iv_scale);
-	pGenUI->StoreVariable(iv_seed);
-	pGenUI->StoreVariable(iv_octaves);
-	pGenUI->StoreVariable(iv_lacunarity);
-	pGenUI->StoreVariable(iv_persistence);
+	InspectorUI* pVanaheimUI{ pUIManager->GetUI<InspectorUI>() };
+	if (pVanaheimUI )
+	{
+		pVanaheimUI->StoreVariable(InspectorVarSeed);
+		pVanaheimUI->StoreVariable(InspectorVarOctaves);
+		pVanaheimUI->StoreVariable(InspectorVarLacunarity);
+		pVanaheimUI->StoreVariable(InspectorVarScale);
+		pVanaheimUI->StoreVariable(InspectorVarPersistence);
+	}
 }
 
 // Fractal Noise
@@ -177,7 +151,7 @@ void NoiseGenerator::GenerateOffsets(std::vector<DirectX::XMFLOAT3>& offsets, co
 		offsets.push_back(offset);
 	}
 }
-void NoiseGenerator::CalculateFractalNoises(const std::vector<DirectX::XMFLOAT3>& offsets)
+void NoiseGenerator::CalculateNoises(const std::vector<DirectX::XMFLOAT3>& offsets)
 {
 	for (size_t y{}; y < m_Settings.mapSize.y; ++y)
 	{
@@ -185,7 +159,9 @@ void NoiseGenerator::CalculateFractalNoises(const std::vector<DirectX::XMFLOAT3>
 		for (size_t x{}; x < m_Settings.mapSize.x; ++x)
 		{
 			const float fractalNoise{ GetFractalNoise((float)x, 1, (float)y, m_Settings.scale, offsets) };
-			vector.push_back(fractalNoise);
+			const float billowNoise{ GetBillowNoise(fractalNoise) };
+			const float ridgedNoise{ GetRidgedNoise(billowNoise) };
+			vector.push_back(ridgedNoise);
 		}
 		m_NoiseMap.push_back(vector);
 	}
@@ -196,7 +172,10 @@ void NoiseGenerator::RecalculateFractalNoises(const std::vector<DirectX::XMFLOAT
 	{
 		for (size_t x{}; x < m_Settings.mapSize.x; ++x)
 		{
-			m_NoiseMap[y][x] = GetFractalNoise((float)x, 1, (float)y, m_Settings.scale, offsets);
+			const float fractalNoise{ GetFractalNoise((float)x, 1, (float)y, m_Settings.scale, offsets) };
+			const float billowNoise{ GetBillowNoise(fractalNoise) };
+			const float ridgedNoise{ GetRidgedNoise(billowNoise) };
+			m_NoiseMap[y][x] = ridgedNoise;
 		}
 	}
 }
@@ -344,4 +323,14 @@ float NoiseGenerator::Gradient(const bool useOriginalPerlinFunction,
 float NoiseGenerator::Lerp(const float a, const float b, const float x)
 {
 	return a + x * (b - a);
+}
+
+float NoiseGenerator::GetBillowNoise(const float fractalNoise)
+{
+	return abs(fractalNoise);
+}
+
+float NoiseGenerator::GetRidgedNoise(const float billowNoise)
+{
+	return 1 - billowNoise;
 }

@@ -36,6 +36,7 @@ class Material
 
 		void SetName(const std::string& name) { m_Name = name; }
 		std::string GetName() const { return m_Name; }
+		std::string GetFilePath() const { return m_AssetPath; }
 
 	protected:
 		bool m_IsInitialized;

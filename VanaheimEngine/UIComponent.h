@@ -14,6 +14,9 @@ class UIComponent final : public Component
 
 		void Render();
 
+		// Serialization
+		//void Serialize(YAML::Emitter& out) override;
+
 	protected:
 		virtual void Initialize(Scene* pParentScene) override;
 		virtual void PostInitialize(Scene* pParentScene) override;

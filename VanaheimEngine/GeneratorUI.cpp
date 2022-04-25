@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "VanaheimPCH.h"
 #include "GeneratorUI.h"
 
 // Vanaheim Includes
@@ -12,14 +12,7 @@ GeneratorUI::GeneratorUI(const std::string& windowName, const DirectX::XMFLOAT2&
 
 void GeneratorUI::ShowWindow()
 {
-	bool windowActive = true;
-	ImGui::SetNextWindowPos(ImVec2(m_Position.x, m_Position.y));
-	ImGui::SetNextWindowSize(ImVec2(m_Size.x, m_Size.y));
-	ImGuiWindowFlags window_flags = 0;
-
-	ImGui::Begin(m_Name.c_str(), &windowActive, window_flags);
-	ImGui::PushAllowKeyboardFocus(false);
-	ImGui::SetWindowFocus();
+	CreateWindowBase();
 
 	ImGui::Text("VARIABLES");
 	ImGui::Indent();
@@ -39,9 +32,7 @@ void GeneratorUI::ShowWindow()
 	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
 	ImGui::Unindent();
 
-	//End
-	ImGui::PopAllowKeyboardFocus();
-	ImGui::End();
+	EndWindowBase();
 }
 
 void GeneratorUI::DisplayVariables()
@@ -98,47 +89,47 @@ void GeneratorUI::UseListBox(const std::string& name, int type, const std::vecto
 		return;
 	}
 }
-void GeneratorUI::UseSliderFloat(const std::string& name, const GeneratorType& genType, const DirectX::XMFLOAT2& range, const std::vector<ObserverEvent>& events)
+void GeneratorUI::UseSliderFloat(const std::string& /*name*/, const GeneratorType& /*genType*/, const DirectX::XMFLOAT2& /*range*/, const std::vector<ObserverEvent>& /*events*/)
 {
-	GeneratorManager* pGeneratorManager{ Locator::GetGeneratorManagerService() };
+	//GeneratorManager* pGeneratorManager{ Locator::GetGeneratorManagerService() };
 
-	float value{};
-	if (genType == GeneratorType::NOISE)
-		value = pGeneratorManager->GetGenerator<NoiseGenerator>()->GetValueByName<float>(name);
-	else
-		value = pGeneratorManager->GetGenerator<TerrainGenerator>()->GetValueByName<float>(name);
+	//float value{};
+	//if (genType == GeneratorType::NOISE)
+	//	value = pGeneratorManager->GetGenerator<NoiseGenerator>()->GetValueByName<float>(name);
+	//else
+	//	value = pGeneratorManager->GetGenerator<TerrainGenerator>()->GetValueByName<float>(name);
 
-	const float OldValue{ value };
-	if (ImGui::SliderFloat(name.c_str(), &value, range.x, range.y, "ratio = %.1f"))
-	{
-		if (OldValue < value)
-			Notify(events[1]);
-		else if (value < OldValue)
-			Notify(events[0]);
+	//const float OldValue{ value };
+	//if (ImGui::SliderFloat(name.c_str(), &value, range.x, range.y, "ratio = %.1f"))
+	//{
+	//	if (OldValue < value)
+	//		Notify(events[1]);
+	//	else if (value < OldValue)
+	//		Notify(events[0]);
 
-		Notify(ObserverEvent::REBUILD_LANDSCAPE);
-	}
+	//	Notify(ObserverEvent::REBUILD_LANDSCAPE);
+	//}
 }
-void GeneratorUI::UseSliderInt(const std::string& name, const GeneratorType& genType, const DirectX::XMFLOAT2& range, const std::vector<ObserverEvent>& events)
+void GeneratorUI::UseSliderInt(const std::string& /*name*/, const GeneratorType& /*genType*/, const DirectX::XMFLOAT2& /*range*/, const std::vector<ObserverEvent>& /*events*/)
 {
-	GeneratorManager* pGeneratorManager{ Locator::GetGeneratorManagerService() };
+	//GeneratorManager* pGeneratorManager{ Locator::GetGeneratorManagerService() };
 
-	int value{};
-	if (genType == GeneratorType::NOISE)
-		value = pGeneratorManager->GetGenerator<NoiseGenerator>()->GetValueByName<int>(name);
-	else
-		value = pGeneratorManager->GetGenerator<TerrainGenerator>()->GetValueByName<int>(name);
-	
-	const int OldValue{ value };
-	if (ImGui::SliderInt(name.c_str(), &value, (int)range.x, (int)range.y, "%d"))
-	{
-		if (OldValue < value)
-			Notify(events[1]);
-		else if (value < OldValue)
-			Notify(events[0]);
+	//int value{};
+	//if (genType == GeneratorType::NOISE)
+	//	value = pGeneratorManager->GetGenerator<NoiseGenerator>()->GetValueByName<int>(name);
+	//else
+	//	value = pGeneratorManager->GetGenerator<TerrainGenerator>()->GetValueByName<int>(name);
+	//
+	//const int OldValue{ value };
+	//if (ImGui::SliderInt(name.c_str(), &value, (int)range.x, (int)range.y, "%d"))
+	//{
+	//	if (OldValue < value)
+	//		Notify(events[1]);
+	//	else if (value < OldValue)
+	//		Notify(events[0]);
 
-		Notify(ObserverEvent::REBUILD_LANDSCAPE);
-	}
+	//	Notify(ObserverEvent::REBUILD_LANDSCAPE);
+	//}
 }
 
 bool GeneratorUI::DisplayArrows(const std::string& name, const std::vector<ObserverEvent>& events)

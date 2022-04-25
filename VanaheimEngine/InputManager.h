@@ -3,6 +3,7 @@
 #include "InputData.h"
 #include <unordered_map>
 
+class Mouse;
 class Command;
 class InputManager final
 {
@@ -14,15 +15,8 @@ class InputManager final
 
 		void AddKeyToMap(const ControllerButton& cButton, const KeyboardButton& kButton, const ButtonPressType& pressType, const std::string& name, Command* const pCommand);
 
-		POINT GetMousePosition();
-		POINT GetMouseMovement() const;
-
 	private:
-		bool m_MouseInputAccepted = false;
-
-		// Mouse position
-		POINT m_MousePosition;
-		POINT m_OldMousePosition;
+		Mouse* m_pMouse;
 
 		// Information about the controller/keyboard
 		XINPUT_STATE m_ControllerState;

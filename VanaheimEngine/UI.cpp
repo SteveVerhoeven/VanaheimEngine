@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "VanaheimPCH.h"
 #include "UI.h"
 
 // Vanaheim Includes
@@ -7,4 +7,15 @@ UI::UI(const std::string& windowName, const DirectX::XMFLOAT2& position, const D
    : m_Name(windowName)
    , m_Position(position)
    , m_Size(size)
+   , m_RenderUI(true)
 {}
+
+void UI::CreateWindowBase()
+{
+	ImGui::Begin(m_Name.c_str(), &m_RenderUI);
+}
+
+void UI::EndWindowBase()
+{
+	ImGui::End();
+}

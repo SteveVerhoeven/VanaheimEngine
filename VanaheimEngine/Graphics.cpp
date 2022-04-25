@@ -1,22 +1,25 @@
-#include "pch.h"
+#include "VanaheimPCH.h"
 #include "Graphics.h"
 
 #include "backends\imgui_impl_dx11.h"
 #include "backends\imgui_impl_win32.h"
 
 Graphics::Graphics(HWND hWnd, const int width, const int height)
-	: m_Window(hWnd)
-	, m_Width((UINT)width)
-	, m_Height((UINT)height)
+		 : m_Window(hWnd)
+		 , m_Width((UINT)width)
+		 , m_Height((UINT)height)
 {
 	HRESULT hr{ InitializeDirectX() };
 	if (hr != S_OK)
-		Locator::GetDebugLoggerService()->LogHRESULT(hr, "Graphics::InitializeDirectX", __FILE__, std::to_string(__LINE__));
+		LOG_HRESULT(hr, "Graphics::InitializeDirectX", __FILE__, std::to_string(__LINE__));
 }
 Graphics::~Graphics()
 {
-	DELETE_RESOURCE(m_pRenderTargetView);
-	DELETE_RESOURCE(m_pRenderTargetBuffer);
+	DELETE_RESOURCE(m_pRenderTargetView_Main);
+	DELETE_RESOURCE(m_pRenderTargetView_Game);
+	DELETE_RESOURCE(m_pRenderTargetBuffer_Main);
+	DELETE_RESOURCE(m_pRenderTargetBuffer_Game);
+	DELETE_RESOURCE(m_pShaderResourceView_Game);
 	DELETE_RESOURCE(m_pDepthStencilView);
 	DELETE_RESOURCE(m_pDepthStencilBuffer);
 	DELETE_RESOURCE(m_pSwapChain);
@@ -63,10 +66,31 @@ HRESULT Graphics::InitializeDirectX()
 		return hr;
 
 	// *************************************************************
+	// Create Render target Buffer - Main window
+	// *************************************************************
+	hr = CreateRenderTarget_Main();
+	if (FAILED(hr))
+		return hr;
+
+	// *************************************************************
+	// Create Render target Buffer - Main window
+	// *************************************************************
+	hr = CreateRenderTarget_Game(m_Width, m_Height);
+	if (FAILED(hr))
+		return hr;
+
+	//// *************************************************************
+	//// Create Depth/Stencil Buffer and View
+	//// *************************************************************
+	hr = CreateShaderResourceView();
+	if (FAILED(hr))
+		return hr;
+
+	// *************************************************************
 	// Bind the views to the output merger stage
 	// *************************************************************
-	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
-
+	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView_Main, m_pDepthStencilView);
+	
 	// *************************************************************
 	// Set Viewport
 	// *************************************************************
@@ -88,6 +112,8 @@ HRESULT Graphics::CreateDevice_Context()
 	#if defined(DEBUG) || defined(_DEBUG)
 		createDeviceFlags = D3D11_CREATE_DEVICE_DEBUG;
 	#endif
+
+	// Creating device
 	/* D3D11CreateDevice - Parameters */
 	IDXGIAdapter* pAdapter{ 0 };
 	D3D_DRIVER_TYPE driverType{ D3D_DRIVER_TYPE_HARDWARE };
@@ -188,15 +214,17 @@ HRESULT Graphics::CreateDepth_Stencil_Resources()
 
 	// Explanation for all parameters in link below
 	// Reference: https://docs.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createdepthstencilview
-	hr = m_pDevice->CreateDepthStencilView(pDepthStencilBuffer, pDepthStencilViewDesc, ppDepthStencilView);
-	if (FAILED(hr))
-		return hr;
+	return m_pDevice->CreateDepthStencilView(pDepthStencilBuffer, pDepthStencilViewDesc, ppDepthStencilView);
+}
+HRESULT Graphics::CreateRenderTarget_Main()
+{
+	HRESULT hr{};
 
 	// Create RenderTargetBuffer
-	/* CreateDXGIFactory - Parameters */
+	/* GetBuffer - Parameters */
 	UINT buffer{ 0 };
 	REFIID riid2{ __uuidof(ID3D11Texture2D) };
-	void** ppSurface{ reinterpret_cast<void**>(&m_pRenderTargetBuffer) };
+	void** ppSurface{ reinterpret_cast<void**>(&m_pRenderTargetBuffer_Main) };
 
 	// Explanation for all parameters in link below
 	// Reference: https://docs.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgiswapchain-getbuffer
@@ -205,22 +233,85 @@ HRESULT Graphics::CreateDepth_Stencil_Resources()
 		return hr;
 
 	// Create RendertargetView
-	/* CreateDXGIFactory - Parameters */
-	ID3D11Resource* pRenderTargetBuffer{ m_pRenderTargetBuffer };
+	/* CreateRenderTargetView - Parameters */
+	ID3D11Resource* pRenderTargetBuffer{ m_pRenderTargetBuffer_Main };
 	const D3D11_RENDER_TARGET_VIEW_DESC* pRenderTargetViewDesc{ NULL };
-	ID3D11RenderTargetView** ppRTView{ &m_pRenderTargetView };
+	ID3D11RenderTargetView** ppRTView{ &m_pRenderTargetView_Main };
 
 	// Explanation for all parameters in link below
 	// Reference: https://docs.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createrendertargetview
 	return m_pDevice->CreateRenderTargetView(pRenderTargetBuffer, pRenderTargetViewDesc, ppRTView);
 }
+HRESULT Graphics::CreateRenderTarget_Game(const int width, const int height)
+{
+	HRESULT hr{};
+
+	// Create texture descriptor
+	D3D11_TEXTURE2D_DESC textureDesc;
+	ZeroMemory(&textureDesc, sizeof(textureDesc));
+	textureDesc.Width = width;
+	textureDesc.Height = height;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Quality = 0;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
+
+	// Create Shader resource view
+	/* CreateShaderResourceView - Parameters */
+	const D3D11_TEXTURE2D_DESC* pDesc{ &textureDesc };
+	const D3D11_SUBRESOURCE_DATA* pInitialData{ nullptr };
+	ID3D11Texture2D** ppTexture2D{ &m_pRenderTargetBuffer_Game };
+
+	// Explanation for all parameters in link below
+	// Reference: https://docs.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createtexture2d
+	hr = m_pDevice->CreateTexture2D(pDesc, pInitialData, ppTexture2D);
+	if (FAILED(hr))
+		return hr;
+
+	// Create render target view
+	/* CreateRenderTargetView - Parameters */
+	ID3D11Resource* pResource{ m_pRenderTargetBuffer_Game };
+	const D3D11_RENDER_TARGET_VIEW_DESC* pDescRTV{ nullptr };
+	ID3D11RenderTargetView** ppRTView{ &m_pRenderTargetView_Game };
+	// Explanation for all parameters in link below
+	// Reference: https://docs.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createrendertargetview
+	return m_pDevice->CreateRenderTargetView(pResource, pDescRTV, ppRTView);
+}
+HRESULT Graphics::CreateShaderResourceView()
+{
+	// Create Shader resource view
+	/* CreateShaderResourceView - Parameters */
+	ID3D11Resource* pResource{ m_pRenderTargetBuffer_Game };
+	const D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc{ nullptr };
+	ID3D11ShaderResourceView** ppSRView{ &m_pShaderResourceView_Game };
+
+	// Explanation for all parameters in link below
+	// Reference: https://docs.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createshaderresourceview
+	return m_pDevice->CreateShaderResourceView(pResource, pDesc, ppSRView);
+}
 
 void Graphics::ClearBackbuffer()
 {
-	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, reinterpret_cast<const float*>(&DirectX::Colors::CornflowerBlue));
+	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView_Main, reinterpret_cast<const float*>(&DirectX::Colors::Black));
+	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView_Game, reinterpret_cast<const float*>(&DirectX::Colors::Black));
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 void Graphics::PresentBackbuffer()
 {
 	m_pSwapChain->Present(0, 0);
+}
+
+void Graphics::SetMainRenderTarget()
+{
+	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView_Main, m_pDepthStencilView);
+}
+void Graphics::SetGameRenderTarget()
+{
+	m_pDeviceContext->PSSetShaderResources(0, 0, &m_pShaderResourceView_Game);
+	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView_Game, m_pDepthStencilView);
 }

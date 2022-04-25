@@ -1,5 +1,6 @@
 #pragma once
 #include "../Libs/IMGUI/imgui.h"
+#include "../Libs/IMGUI/imgui_internal.h"
 #include <vector>
 
 #include "Subject.h"
@@ -24,13 +25,22 @@ class UI : public Subject
 		UI(UI&&) = delete;
 		UI& operator=(UI&&) = delete;
 
+		virtual void Initialize() = 0;
+		virtual void ShowWindow() = 0;
+		
+		void ActivateUI() { m_RenderUI = true; }
+		void DeactivateUI() { m_RenderUI = false; }
+
+		bool* CanRenderUI() { return &m_RenderUI; }
+
 	protected:
+		bool m_RenderUI;
 		std::string m_Name;
 		DirectX::XMFLOAT2 m_Position;
 		DirectX::XMFLOAT2 m_Size;
-		
-		virtual void ShowWindow() = 0;
 
-	private:
+		void CreateWindowBase();
+		void EndWindowBase();
 		
+	private:
 };

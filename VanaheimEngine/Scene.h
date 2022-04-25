@@ -1,6 +1,7 @@
 #pragma once
 
 class Mesh;
+class Line;
 class Material;
 class Material_ProcGen;
 class GameObject;
@@ -24,20 +25,34 @@ class Scene
 		virtual void Render() const;
 
 		void AddGameObject(GameObject* pObject);
+		void RemoveGameObject(GameObject* pObject);
 		GameObject* GetObjectByName(const std::string& name) const;
-		std::vector<GameObject*> GetObjects() const { return m_pGameObjects; }
+		const std::vector<GameObject*>& GetObjects() const { return m_pGameObjects; }
 
 		void ActivateScene() { m_IsActive = true; }
 		void DeactivateScene() { m_IsActive = false; }
+		
+		void CreateLineObject(const std::string& name, const DirectX::XMFLOAT3& possition, Line* pLine);
+
+		void SetMainCamera(GameObject* pCamera) { m_pMainCameraGO = pCamera; }
+		GameObject* GetMainCamera() const { return m_pMainCameraGO; }
+
+		void SetCleanSeneFlag() { m_Cleanup = true; }
 
 	protected:
-		void CreateCamera(const std::string& name, const DirectX::XMFLOAT3& position);
+		void CreateCamera(const std::string& name, const DirectX::XMFLOAT3& position, const bool isMainCamera);
+		void CreateViewportCamera(const std::string& name, const DirectX::XMFLOAT3& position);
 		void Create3DObject(const std::string& name, const DirectX::XMFLOAT3& position, const std::string& meshPath, Material* pMaterial);
-		void Create3DObject(const std::string& name, const DirectX::XMFLOAT3& position, Mesh* pMesh, Material* pMaterial);
+		void Create3DObject(const std::string& name, const DirectX::XMFLOAT3& possition, Mesh* pMesh, Material* pMaterial);
 		void CreateUI();
 
 	private:
+		bool m_Cleanup;
 		bool m_IsActive;
 		std::string m_Name;
+		GameObject* m_pMainCameraGO;
 		std::vector<GameObject*> m_pGameObjects{};
+
+		void CreateSceneCamera();
+		void CleanScene();
 };
