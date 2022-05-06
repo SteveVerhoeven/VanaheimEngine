@@ -70,7 +70,7 @@ void Material::Update(GameObject* pParentGameObject)
 {
 	using namespace DirectX;
 
-	CameraComponent* pCameraComponent{ Locator::GetCameraService() };
+	CameraComponent* pCameraComponent{ Locator::GetSceneCameraService() };
 	TransformComponent* pTransformComponent{ pParentGameObject->GetComponent<TransformComponent>() };
 
 	DirectX::XMFLOAT4X4 world{ pTransformComponent->GetWorld() };

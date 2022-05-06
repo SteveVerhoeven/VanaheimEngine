@@ -1,4 +1,9 @@
 #pragma once
+#include <vector>
+#include <string>
+
+class Material;
+struct Vertex_Input;
 class Mesh_Base
 {
 	public:

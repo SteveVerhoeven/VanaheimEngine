@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+#include <vector>
 #include <XInput.h>
 #include "InputData.h"
 #include <unordered_map>

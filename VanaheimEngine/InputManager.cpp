@@ -4,13 +4,7 @@
 
 #include "Command.h"
 #include "RotateCameraCommand.h"
-
 #include "Window.h"
-#include "imgui.h"
-
-#include "UIManager.h"
-#include "ConsoleUI.h"
-
 #include "Mouse.h"
 
 InputManager::InputManager()
@@ -31,8 +25,6 @@ MSG InputManager::ProcessInput(const float /*elapsedSec*/)
 {
 	MSG msg{};
 	ZeroMemory(&msg, sizeof(msg));
-
-	
 
 	if (!ProcessWindowsEvents(msg))
 		return msg;

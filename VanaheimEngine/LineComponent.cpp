@@ -2,12 +2,8 @@
 #include "LineComponent.h"
 
 #include "Line.h"
-#include "GameObject.h"
 #include "Material.h"
 #include "Graphics.h"
-#include "ResourceManager.h"
-
-#include "yaml-cpp\yaml.h"
 
 LineComponent::LineComponent(Line* pLine)
 				: Component()
@@ -46,8 +42,3 @@ void LineComponent::AddMaterial(Material* pMaterial)
 	m_pMaterial = Locator::GetResourceManagerService()->LoadMaterial(pMaterial);
 	m_pMaterial->Initialize(Locator::GetGraphicsService()->GetDevice());
 }
-
-//void LineComponent::Serialize(YAML::Emitter& out)
-//{
-//
-//}

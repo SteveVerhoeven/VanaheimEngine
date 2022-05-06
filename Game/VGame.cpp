@@ -27,8 +27,4 @@ void VGame::PostInitialize()
 
 	SceneManager* pSceneManager{ Locator::GetSceneManagerService() };
 	pSceneManager->PostInitialize();
-
-	GeneratorManager* pGeneratorManager{ Locator::GetGeneratorManagerService() };
-	NoiseGenerator* pNoiseGenerator{ pGeneratorManager->GetGenerator<NoiseGenerator>() };
-	pNoiseGenerator->PostInitialize();
 }

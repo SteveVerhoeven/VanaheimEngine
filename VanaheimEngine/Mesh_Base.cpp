@@ -3,13 +3,8 @@
 
 #include "Graphics.h"
 #include "OBJParser.h"
-
 #include "Scene.h"
 #include "Material.h"
-#include "GameObject.h"
-#include "SceneManager.h"
-
-#include "DebugLogger.h"
 
 Mesh_Base::Mesh_Base()
 		  : Mesh_Base("")

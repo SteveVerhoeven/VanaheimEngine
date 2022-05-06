@@ -33,7 +33,19 @@ class Component
 			
 	protected:
 		GameObject* m_pParentObject;
+		
+		template <class T>
+		T* RequiresComponent();
 
 	private:
 
 };
+
+template<class T>
+inline T* Component::RequiresComponent()
+{
+	T* pComponent = new T();
+	m_pParentObject->AddComponent(pComponent);
+
+	return pComponent;
+}

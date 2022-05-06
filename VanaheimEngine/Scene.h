@@ -5,7 +5,6 @@ class Line;
 class Material;
 class Material_ProcGen;
 class GameObject;
-struct ProcGenSettings;
 class Scene
 {
 	public:
@@ -34,8 +33,8 @@ class Scene
 		
 		void CreateLineObject(const std::string& name, const DirectX::XMFLOAT3& possition, Line* pLine);
 
-		void SetMainCamera(GameObject* pCamera) { m_pMainCameraGO = pCamera; }
-		GameObject* GetMainCamera() const { return m_pMainCameraGO; }
+		void SetMainCamera(GameObject* pCamera) { m_pSceneCameraGO = pCamera; }
+		GameObject* GetMainCamera() const { return m_pSceneCameraGO; }
 
 		void SetCleanSeneFlag() { m_Cleanup = true; }
 
@@ -44,13 +43,12 @@ class Scene
 		void CreateViewportCamera(const std::string& name, const DirectX::XMFLOAT3& position);
 		void Create3DObject(const std::string& name, const DirectX::XMFLOAT3& position, const std::string& meshPath, Material* pMaterial);
 		void Create3DObject(const std::string& name, const DirectX::XMFLOAT3& possition, Mesh* pMesh, Material* pMaterial);
-		void CreateUI();
 
 	private:
 		bool m_Cleanup;
 		bool m_IsActive;
 		std::string m_Name;
-		GameObject* m_pMainCameraGO;
+		GameObject* m_pSceneCameraGO;
 		std::vector<GameObject*> m_pGameObjects{};
 
 		void CreateSceneCamera();

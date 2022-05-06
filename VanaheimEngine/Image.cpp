@@ -1,8 +1,6 @@
 #include "VanaheimPCH.h"
 #include "Image.h"
 
-#include <fstream>
-
 Image::Image(const DirectX::XMFLOAT2& dimensions)
 	  : m_Dimensions(dimensions)
 	  , m_Colors(std::vector<DirectX::XMFLOAT3>(size_t(dimensions.x * dimensions.y)))

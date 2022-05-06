@@ -1,8 +1,6 @@
 #include "VanaheimPCH.h"
 #include "NameComponent.h"
 
-#include "yaml-cpp\yaml.h"
-
 NameComponent::NameComponent(const std::string& name)
 			  : m_Name(name)
 {}

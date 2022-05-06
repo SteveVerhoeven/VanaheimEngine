@@ -6,23 +6,9 @@
 #include "VanaheimEngine.h"
 
 // Vanaheim includes
-#include "UIManager.h"
 #include "Timer.h"
 #include "Window.h"
 #include "Graphics.h"
-#include "Locator.h"
-#include "SceneManager.h"
-#include "InputManager.h"
-#include "ResourceManager.h"
-#include "GeneratorManager.h"
-
-#include "InspectorUI.h"
-#include "ConsoleUI.h"
-#include "ViewportUI.h"
-#include "HierarchyUI.h"
-
-#include "NoiseGenerator.h"
-#include "TerrainGenerator.h"
 
 VanaheimEngine::VanaheimEngine()
 			   : m_pTimer(nullptr)
@@ -94,8 +80,6 @@ void VanaheimEngine::InitializeEngineUI()
 {
 	InspectorUI* pInspectorUI{ new InspectorUI() };
 	m_pUIManager->AddUI(pInspectorUI);
-	pInspectorUI->AddObserver(m_pGeneratorManager->GetGenerator<NoiseGenerator>());
-	pInspectorUI->AddObserver(m_pGeneratorManager->GetGenerator<TerrainGenerator>());
 
 	ConsoleUI* pConsoleUI{ new ConsoleUI() };
 	m_pUIManager->AddUI(pConsoleUI);

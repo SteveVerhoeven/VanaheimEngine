@@ -1,6 +1,8 @@
 #pragma once
 #include "Component.h"
+#include <string>
 
+class Scene;
 class NameComponent final : public Component
 {
 	public:
@@ -26,6 +28,4 @@ class NameComponent final : public Component
 
 	private:
 		std::string m_Name;
-		
 };
-

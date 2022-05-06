@@ -1,5 +1,6 @@
 #pragma once
 #include "Component.h"
+#include <string>
 
 class Mesh;
 class Scene;
@@ -8,6 +9,7 @@ class Material;
 class ModelComponent final : public Component
 {
 	public:
+		ModelComponent();
 		ModelComponent(const std::string& path);
 		ModelComponent(Mesh* pMesh);
 		virtual ~ModelComponent() = default;
@@ -20,6 +22,7 @@ class ModelComponent final : public Component
 		void Render();
 		
 		void AddMaterial(Material* pMaterial);
+		void SetMesh(Mesh* pMesh) { m_pMesh = pMesh; };
 
 		const std::string& GetFilePath() const { return m_FilePath; }
 		Mesh* GetMesh() const { return m_pMesh; }

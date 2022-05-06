@@ -1,9 +1,8 @@
 #pragma once
 #include "UI.h"
-#include "UIData.h"
+#include <string>
 
-#include "GameObject.h"
-
+class GameObject;
 class InspectorUI final : public UI
 {
 	public:
@@ -17,20 +16,17 @@ class InspectorUI final : public UI
 
 		void SetGameObject(GameObject* pGameObject) { m_pGameObject = pGameObject; }
 
-		void StoreVariable(InspectorVariable* inspectorVar) { m_Variables.push_back(inspectorVar); }
-
 	protected:
 		void Initialize() override;
 		void ShowWindow() override;
 	
 	private:
 		GameObject* m_pGameObject;
-		std::vector<InspectorVariable*> m_Variables;
 		
-		void DisplayInspectorVariables();
-
 		void Draw();
+		bool DrawXMFlOAT2Controlls(const std::string& label, float* values, const float columnWidth = 100.f, const float resetValue = 0.f);
 		bool DrawXMFlOAT3Controlls(const std::string& label, float* values, const float columnWidth = 100.f, const float resetValue = 0.f);
+		bool DrawXMINT3Controlls(const std::string& label, int* values, const float columnWidth = 100.f, const int resetValue = 10);
 		void DrawComponents();
 		void AddComponent();
 

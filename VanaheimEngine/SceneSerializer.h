@@ -7,6 +7,17 @@ namespace YAML
 		struct iterator_value;
 	}
 }
+
+class Mesh;
+class Scene;
+class Texture;
+class Material;
+class GameObject;
+class NameComponent;
+class TransformComponent;
+class CameraComponent;
+class RenderComponent;
+class ModelComponent;
 class SceneSerializer final
 {
 	public:

@@ -24,8 +24,31 @@
 // ----------------------------
 // Vanaheim includes
 // ----------------------------
-#include <Locator.h>
-#include <DebugLogger.h>
+#include "Locator.h"
+
+#include "DebugLogger.h"
+
+#include "ConsoleUI.h"
+#include "InspectorUI.h"
+#include "HierarchyUI.h"
+#include "ViewportUI.h"
+
+#include "ResourceManager.h"
+#include "SceneManager.h"
+#include "UIManager.h"
+#include "InputManager.h"
+#include "GeneratorManager.h"
+#include "NoiseGenerator.h"
+#include "ImageGenerator.h"
+
+#include "GameObject.h"
+#include "ModelComponent.h"
+#include "CameraComponent.h"
+#include "RenderComponent.h"
+#include "TransformComponent.h"
+#include "LineComponent.h"
+#include "NameComponent.h"
+#include "TerrainGeneratorComponent.h"
 #pragma endregion
 
 #pragma region Macro

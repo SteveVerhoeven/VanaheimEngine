@@ -1,13 +1,6 @@
 #include "VanaheimPCH.h"
 #include "OBJParser.h"
 
-// General includes
-#include <string>
-#include <fstream>
-#include <iostream>
-#include <vector>
-#include <sstream>
-
 struct VertexCheck
 {
 	bool found{ false };

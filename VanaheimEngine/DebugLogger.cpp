@@ -1,9 +1,6 @@
 #include "VanaheimPCH.h"
 #include "DebugLogger.h"
 
-#include "UIManager.h"
-#include "ConsoleUI.h"
-
 #include <string>
 #if defined(DEBUG) || defined(_DEBUG)
 #include <dxerr.h>

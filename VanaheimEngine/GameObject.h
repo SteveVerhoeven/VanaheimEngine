@@ -43,6 +43,8 @@ class GameObject final
 		bool HasComponent() const;
 		template <class T>
 		void RemoveComponent();
+		template <class T>
+		T* RequiresComponent();
 
 	protected:
 
@@ -104,4 +106,13 @@ inline void GameObject::RemoveComponent()
 
 		DELETE_POINTER(pTComponent);
 	}
+}
+
+template<class T>
+inline T* GameObject::RequiresComponent()
+{
+	T* pComponent = new T();
+	AddComponent(pComponent);
+
+	return pComponent;
 }

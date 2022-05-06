@@ -1,12 +1,6 @@
 #include "VanaheimPCH.h"
 #include "HierarchyUI.h"
-
-#include "SceneManager.h"
 #include "Scene.h"
-
-#include "GameObject.h"
-#include "UIManager.h"
-#include "InspectorUI.h"
 
 HierarchyUI::HierarchyUI()
 			: UI("Hierarchy", DirectX::XMFLOAT2{ 0.f, 0.f }, DirectX::XMFLOAT2{ 0.f, 0.f })

@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+
 class UI;
 class Window;
 class Graphics;

@@ -3,12 +3,12 @@
 
 #include "Mesh.h"
 #include "Texture.h"
-
 #include "Material.h"
 #include "Graphics.h"
-#include "GameObject.h"
-#include "ResourceManager.h"
 
+ModelComponent::ModelComponent()
+			   : ModelComponent(nullptr)
+{}
 ModelComponent::ModelComponent(const std::string& path)
 			   : Component()
 			   , m_pMesh(nullptr)
@@ -31,13 +31,26 @@ void ModelComponent::Initialize(Scene* /*pParentScene*/)
 	m_pParentObject->GetComponent<RenderComponent>()->EnableRenderComponent();
 }
 void ModelComponent::PostInitialize(Scene* /*pParentScene*/)
-{ m_pMesh->PostInitialize(m_pMaterial); }
+{ 
+	if (!m_pMesh)
+		return;
+
+	m_pMesh->PostInitialize(m_pMaterial); 
+}
 void ModelComponent::Update(const float /*elapsedSec*/)
-{ m_pMaterial->Update(m_pParentObject); }
+{ 
+	if (!m_pMaterial)
+		return; 
+	
+	m_pMaterial->Update(m_pParentObject); 
+}
 void ModelComponent::FixedUpdate(const float /*timeEachUpdate*/)
 {}
 void ModelComponent::Render()
 {
+	if (!m_pMesh || !m_pMaterial)
+		return;
+
 	RenderComponent* pRenderComponent{ m_pParentObject->GetComponent<RenderComponent>() };
 	pRenderComponent->Render3DMesh(Locator::GetGraphicsService()->GetDeviceContext(), m_pMesh, m_pMaterial);
 }

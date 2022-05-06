@@ -1,9 +1,11 @@
 #pragma once
 #include "Component.h"
 
-class Mesh_Base;
+class Mesh;
 class Line;
+class Scene;
 class Material;
+class Mesh_Base;
 class RenderComponent final : public Component
 {
 	public:

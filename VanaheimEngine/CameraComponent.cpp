@@ -5,33 +5,6 @@
 #include "Window.h"
 #include "Scene.h"
 
-#include "yaml-cpp\yaml.h"
-
-//YAML::Emitter& operator<<(YAML::Emitter& out, const DirectX::XMFLOAT3& f)
-//{
-//	out << YAML::Flow;
-//	out << YAML::BeginSeq << f.x << f.y << f.z << YAML::EndSeq;
-//
-//	return out;
-//}
-//YAML::Emitter& operator<<(YAML::Emitter& out, const DirectX::XMFLOAT4& f)
-//{
-//	out << YAML::Flow;
-//	out << YAML::BeginSeq << f.x << f.y << f.z << f.w << YAML::EndSeq;
-//
-//	return out;
-//}
-//YAML::Emitter& operator<<(YAML::Emitter& out, const DirectX::XMFLOAT4X4& f)
-//{
-//	out << YAML::Flow;
-//	out << YAML::BeginSeq << f._11 << f._12 << f._13 << f._14
-//		<< f._21 << f._22 << f._23 << f._24
-//		<< f._31 << f._32 << f._33 << f._34
-//		<< f._41 << f._42 << f._43 << f._44 << YAML::EndSeq;
-//
-//	return out;
-//}
-
 CameraComponent::CameraComponent()
 				: Component()
 				, m_IsMainCamera(false)
@@ -57,29 +30,6 @@ CameraComponent::CameraComponent()
 	DirectX::XMStoreFloat4x4(&m_ViewProjection, DirectX::XMMatrixIdentity());
 	DirectX::XMStoreFloat4x4(&m_ViewInverse, DirectX::XMMatrixIdentity());
 	DirectX::XMStoreFloat4x4(&m_ViewProjectionInverse, DirectX::XMMatrixIdentity());
-}
-
-void CameraComponent::SetIsMainCamera(const bool isMainCamera)
-{
-	m_IsMainCamera = isMainCamera;
-
-	if (isMainCamera)
-	{
-		Locator::ProvideCameraService(this);
-		if (m_pParentObject && m_pParentObject->GetParentScene())
-		{
-			GameObject* pOldCameraObject{ m_pParentObject->GetParentScene()->GetMainCamera() };
-			m_pParentObject->GetParentScene()->SetMainCamera(m_pParentObject);
-			pOldCameraObject->GetComponent<CameraComponent>()->SetIsMainCamera(false);
-		}
-	}
-	else
-	{
-		if (m_pParentObject == m_pParentObject->GetParentScene()->GetMainCamera())
-		{
-			m_IsMainCamera = true;
-		}
-	}
 }
 
 void CameraComponent::Initialize(Scene* /*pParentScene*/)
@@ -234,6 +184,30 @@ const DirectX::XMFLOAT4X4& CameraComponent::GetViewProjectionInverse()
 
 	return m_ViewProjectionInverse;
 }
+
+void CameraComponent::SetIsMainCamera(const bool isMainCamera)
+{
+	m_IsMainCamera = isMainCamera;
+
+	if (isMainCamera)
+	{
+		Locator::ProvideSceneCameraService(this);
+		if (m_pParentObject && m_pParentObject->GetParentScene())
+		{
+			GameObject* pOldCameraObject{ m_pParentObject->GetParentScene()->GetMainCamera() };
+			m_pParentObject->GetParentScene()->SetMainCamera(m_pParentObject);
+			pOldCameraObject->GetComponent<CameraComponent>()->SetIsMainCamera(false);
+		}
+	}
+	else
+	{
+		if (m_pParentObject == m_pParentObject->GetParentScene()->GetMainCamera())
+		{
+			m_IsMainCamera = true;
+		}
+	}
+}
+
 
 //void CameraComponent::Serialize(YAML::Emitter& out)
 //{

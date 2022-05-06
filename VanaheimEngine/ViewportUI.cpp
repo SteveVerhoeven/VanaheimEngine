@@ -4,10 +4,6 @@
 #include "Graphics.h"
 #include "Window.h"
 
-// Vanaheim Includes
-#include "UIManager.h"
-#include "InspectorUI.h"
-
 ViewportUI::ViewportUI()
 		   : UI("Viewport", DirectX::XMFLOAT2{ 0.f, 0.f }, DirectX::XMFLOAT2{ 0.f, 0.f })
 {}

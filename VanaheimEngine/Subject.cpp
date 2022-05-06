@@ -1,8 +1,6 @@
 #include "VanaheimPCH.h"
 #include "Subject.h"
 
-#include "Observer.h"
-
 Subject::~Subject()
 {
     m_pObservers.clear();

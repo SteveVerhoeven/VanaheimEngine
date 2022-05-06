@@ -39,7 +39,7 @@ void GameObject::Update(const float elapsedSec)
 void GameObject::FixedUpdate(const float timeEachUpdate)
 {
 	for (Component* pComp : m_pComponents)
-		pComp->Update(timeEachUpdate);
+		pComp->FixedUpdate(timeEachUpdate);
 }
 void GameObject::Render() const
 {
@@ -49,13 +49,6 @@ void GameObject::Render() const
 		if (pModelComponent)
 		{
 			pModelComponent->Render();
-			return;
-		}
-
-		UIComponent* pUIComponent = dynamic_cast<UIComponent*>(pComp);
-		if (pUIComponent)
-		{
-			pUIComponent->Render();
 			return;
 		}
 

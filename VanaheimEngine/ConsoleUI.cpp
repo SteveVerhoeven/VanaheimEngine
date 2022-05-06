@@ -2,10 +2,6 @@
 #include "ConsoleUI.h"
 
 #include "Window.h"
-#include "UIManager.h"
-#include "InspectorUI.h"
-
-#include "InputManager.h"
 #include "Mouse.h"
 
 ConsoleUI::ConsoleUI()

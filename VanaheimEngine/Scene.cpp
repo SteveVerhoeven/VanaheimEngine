@@ -3,23 +3,20 @@
 
 #include "Material.h"
 #include "Material_GPUInstance.h"
-#include "GameObject.h"
 
 #include "Line.h"
-
-#include "ResourceManager.h"
 
 Scene::Scene()
 	  : m_Cleanup(false)
 	  , m_IsActive(false)
 	  , m_Name("")
-	  , m_pMainCameraGO(nullptr)
+	  , m_pSceneCameraGO(nullptr)
 	  , m_pGameObjects(std::vector<GameObject*>())
 {}
 Scene::~Scene()
 {
 	DELETE_POINTERS(m_pGameObjects, m_pGameObjects.size());
-	DELETE_POINTER(m_pMainCameraGO);
+	DELETE_POINTER(m_pSceneCameraGO);
 }
 
 void Scene::Initialize()
@@ -136,20 +133,20 @@ void Scene::CreateCamera(const std::string& name, const DirectX::XMFLOAT3& posit
 void Scene::CreateViewportCamera(const std::string& name, const DirectX::XMFLOAT3& position)
 {
 	// Game Object
-	GameObject* pMesh{ new GameObject(position, {}, {}, name) };
+	GameObject* pCameraObject{ new GameObject(position, {}, {}, name) };
 
 	// Camera
 	CameraComponent* pCameraComponent{ new CameraComponent() };
 	pCameraComponent->SetIsMainCamera(true);
 
 	// Adding to game object
-	pMesh->AddComponent(pCameraComponent);
+	pCameraObject->AddComponent(pCameraComponent);
 
 	// Set as the main camera
-	SetMainCamera(pMesh);
+	SetMainCamera(pCameraObject);
 
 	// Edit game object in scene
-	pMesh->GetComponent<TransformComponent>()->Translate(position, false);
+	pCameraObject->GetComponent<TransformComponent>()->Translate(position, false);
 }
 void Scene::Create3DObject(const std::string& name, const DirectX::XMFLOAT3& position, const std::string& meshPath, Material* pMaterial)
 {
@@ -204,20 +201,6 @@ void Scene::CreateLineObject(const std::string& name, const DirectX::XMFLOAT3& p
 
 	// Add to scene
 	AddGameObject(pLineGO);
-}
-void Scene::CreateUI()
-{
-	// Game Object
-	GameObject* pUIGO{ new GameObject() };
-
-	// Model
-	UIComponent* pUIComponent{ new UIComponent() };
-
-	// Adding to game object
-	pUIGO->AddComponent(pUIComponent);
-
-	// Add to scene
-	AddGameObject(pUIGO);
 }
 
 void Scene::CreateSceneCamera()

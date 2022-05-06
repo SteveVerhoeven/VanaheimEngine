@@ -1,8 +1,6 @@
 #include "VanaheimPCH.h"
 #include "Material_GPUInstance.h"
 
-#include "GameObject.h"
-
 Material_GPUInstance::Material_GPUInstance()
 					 : Material("./Resources/Shaders/PosCol3D_GPU_Instance.fx", "GPUInstance")
 {}
@@ -17,7 +15,7 @@ void Material_GPUInstance::Update(GameObject* pParentGameObject)
 {
 	using namespace DirectX;
 
-	CameraComponent* pCameraComponent{ Locator::GetCameraService() };
+	CameraComponent* pCameraComponent{ Locator::GetSceneCameraService() };
 	TransformComponent* pTransformComponent{ pParentGameObject->GetComponent<TransformComponent>() };
 
 	DirectX::XMFLOAT4X4 world{ pTransformComponent->GetWorld() };

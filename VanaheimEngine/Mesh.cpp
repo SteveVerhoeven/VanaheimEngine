@@ -7,12 +7,7 @@
 
 #include "Graphics.h"
 #include "OBJParser.h"
-
 #include "Scene.h"
-#include "GameObject.h"
-#include "SceneManager.h"
-
-#include "DebugLogger.h"
 
 Mesh::Mesh()
 	 : Mesh("")

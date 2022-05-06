@@ -1,10 +1,6 @@
 #include "VanaheimPCH.h"
 #include "SceneManager.h"
 #include "Scene.h"
-
-#include "UIManager.h"
-#include "GeneratorUI.h"
-#include "DemoUI.h"
 #include "Graphics.h"
 
 SceneManager::SceneManager()

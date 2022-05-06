@@ -3,24 +3,12 @@
 
 #include "Window.h"
 
-// Vanaheim Includes
-#include "GeneratorManager.h"
-#include "NoiseGenerator.h"
-#include "TerrainGenerator.h"
-#include "UIData.h"
-#include "ResourceManager.h"
-#include "GameObject.h"
-
-
 InspectorUI::InspectorUI()
 		   : UI("Inspector", DirectX::XMFLOAT2{ 0.f, 0.f }, DirectX::XMFLOAT2{ 0.f, 0.f })
 		   , m_pGameObject(nullptr)
-		   , m_Variables(std::vector<InspectorVariable*>())
 {}
 InspectorUI::~InspectorUI()
-{
-	DELETE_POINTERS(m_Variables, m_Variables.size());
-}
+{}
 
 void InspectorUI::Initialize()
 {}
@@ -75,8 +63,8 @@ void InspectorUI::DrawComponents()
 
 		if (DrawXMFlOAT3Controlls("Rotation", rotation))
 			pComponent->SetWorldRotation({ DirectX::XMConvertToRadians(rotation[0]),
-									 DirectX::XMConvertToRadians(rotation[1]),
-									 DirectX::XMConvertToRadians(rotation[2]), rotF4.w });
+										   DirectX::XMConvertToRadians(rotation[1]),
+										   DirectX::XMConvertToRadians(rotation[2]), rotF4.w });
 
 		/** Scale */
 		const DirectX::XMFLOAT3& scaleF3{ pComponent->GetWorldScale() };
@@ -116,7 +104,73 @@ void InspectorUI::DrawComponents()
 		if (ImGui::Checkbox("Render mesh", &renderComponent))
 			pComponent->SetCanRenderComponent(renderComponent);
 	});
+	DrawSingleComponent<TerrainGeneratorComponent>("Terrain Generator", [this](auto* pComponent)
+	{
+		bool rebuildLandscape{ false };
 
+		const DirectX::XMINT3 resolutionI3{ pComponent->GetResolution() };
+		int resolution[] = { resolutionI3.x, resolutionI3.y, resolutionI3.z };
+
+		if (DrawXMINT3Controlls("Resolution", resolution, 100, 10))
+			pComponent->SetResolution({ resolution[0], resolution[1], resolution[2] });
+
+		ImGui::Spacing();
+		ImGui::Text("Noise generator settings");
+
+		int seed = pComponent->GetSeed();
+		int octaves = pComponent->GetOctaves();
+		float lacunarity = pComponent->GetLacunarity();
+		float scale = pComponent->GetScale();
+		float persistence = pComponent->GetPersistence();
+		const DirectX::XMFLOAT2 mapSizeF2{ pComponent->GetMapsize() };
+		float mapSize[] = { mapSizeF2.x, mapSizeF2.y };
+
+		if (ImGui::DragInt("Seed", &seed, 1.f, 0, 1000))
+		{
+			pComponent->SetSeed(seed);
+			rebuildLandscape = true;
+		}
+
+		if (ImGui::DragInt("Octaves", &octaves, 0, 8, 180))
+		{
+			pComponent->SetOctaves(octaves);
+			rebuildLandscape = true;
+		}
+
+		if (ImGui::DragFloat("Lacunarity", &lacunarity, 0.1f, 1.f, 180.f))
+		{
+			pComponent->SetLacunarity(lacunarity);
+			rebuildLandscape = true;
+		}
+
+		if (ImGui::DragFloat("Scale", &scale, 0.1f, 0.f, 180.f))
+		{
+			pComponent->SetScale(scale);
+			rebuildLandscape = true;
+		}
+
+		if (ImGui::DragFloat("Persistence", &persistence, 0.1f, 0.f, 180.f))
+		{
+			pComponent->SetPersistence(persistence);
+			rebuildLandscape = true;
+		}
+
+		if (DrawXMFlOAT2Controlls("Mapsize", mapSize, 100.f, 0.f))
+		{
+			pComponent->SetMapsize({mapSize[0], mapSize[1]});
+			rebuildLandscape = true;
+		}
+
+		if (ImGui::Button("GenerateTerrain"))
+		{
+			pComponent->GenerateTerrain();
+		}
+
+		if (rebuildLandscape)
+		{
+			Notify(ObserverEvent::REBUILD_LANDSCAPE);
+		}
+	});
 }
 void InspectorUI::AddComponent()
 {
@@ -140,6 +194,79 @@ void InspectorUI::AddComponent()
 	ImGui::PopItemWidth();
 }
 
+bool InspectorUI::DrawXMFlOAT2Controlls(const std::string& label, float* values, const float columnWidth, const float resetValue)
+{
+	ImGuiIO& io{ ImGui::GetIO() };
+	ImFont* pBoldFont{ io.Fonts->Fonts[0] };
+
+	ImGui::PushID(label.c_str());
+
+	bool valueChanged{ false };
+	ImGui::Columns(2);
+
+	ImGui::SetColumnWidth(0, columnWidth);
+	ImGui::Text(label.c_str());
+	ImGui::NextColumn();
+
+	ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
+
+	float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.f;
+	ImVec2 buttonSize{ lineHeight + 3.f, lineHeight };
+
+
+	/** X value - Begin */
+	/** Buttoncolors */
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.f });
+
+	ImGui::PushFont(pBoldFont);
+	if (ImGui::Button("X", buttonSize))
+	{
+		values[0] = resetValue;
+		valueChanged = true;
+	}
+	ImGui::PopFont();
+
+	ImGui::SameLine();
+	if (ImGui::DragFloat("##X", &values[0], 0.1f))
+		valueChanged = true;
+	ImGui::PopItemWidth();
+	ImGui::SameLine();
+	ImGui::PopStyleColor(3);
+
+	/** X value - End */
+	/** Y value - Begin */
+	/** Buttoncolors */
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.f });
+
+	ImGui::PushFont(pBoldFont);
+	if (ImGui::Button("Y", buttonSize))
+	{
+		values[1] = resetValue;
+		valueChanged = true;
+	}
+	ImGui::PopFont();
+
+	ImGui::SameLine();
+	if (ImGui::DragFloat("##Y", &values[1], 0.1f))
+		valueChanged = true;
+	ImGui::PopItemWidth();
+	ImGui::SameLine();
+	ImGui::PopStyleColor(3);
+	/** Y value - End */
+
+	ImGui::PopStyleVar();
+
+	ImGui::Columns(1);
+
+	ImGui::PopID();
+
+	return valueChanged;
+}
 bool InspectorUI::DrawXMFlOAT3Controlls(const std::string& label, float* values, const float columnWidth, const float resetValue)
 {
 	ImGuiIO& io{ ImGui::GetIO() };
@@ -221,6 +348,100 @@ bool InspectorUI::DrawXMFlOAT3Controlls(const std::string& label, float* values,
 
 	ImGui::SameLine();
 	if (ImGui::DragFloat("##Z", &values[2], 0.1f))
+		valueChanged = true;
+	ImGui::PopItemWidth();
+	ImGui::PopStyleColor(3);
+	/** Z value - End */
+
+	ImGui::PopStyleVar();
+
+	ImGui::Columns(1);
+
+	ImGui::PopID();
+
+	return valueChanged;
+}
+bool InspectorUI::DrawXMINT3Controlls(const std::string& label, int* values, const float columnWidth, const int resetValue)
+{
+	ImGuiIO& io{ ImGui::GetIO() };
+	ImFont* pBoldFont{ io.Fonts->Fonts[0] };
+
+	ImGui::PushID(label.c_str());
+
+	bool valueChanged{ false };
+	ImGui::Columns(2);
+
+	ImGui::SetColumnWidth(0, columnWidth);
+	ImGui::Text(label.c_str());
+	ImGui::NextColumn();
+
+	ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
+
+	float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.f;
+	ImVec2 buttonSize{ lineHeight + 3.f, lineHeight };
+
+
+	/** X value - Begin */
+	/** Buttoncolors */
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.f });
+
+	ImGui::PushFont(pBoldFont);
+	if (ImGui::Button("X", buttonSize))
+	{
+		values[0] = resetValue;
+		valueChanged = true;
+	}
+	ImGui::PopFont();
+
+	ImGui::SameLine();
+	if (ImGui::DragInt("##X", &values[0], 1.f, 10, 100))
+		valueChanged = true;
+	ImGui::PopItemWidth();
+	ImGui::SameLine();
+	ImGui::PopStyleColor(3);
+
+	/** X value - End */
+	/** Y value - Begin */
+	/** Buttoncolors */
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.f });
+
+	ImGui::PushFont(pBoldFont);
+	if (ImGui::Button("Y", buttonSize))
+	{
+		values[1] = resetValue;
+		valueChanged = true;
+	}
+	ImGui::PopFont();
+
+	ImGui::SameLine();
+	if (ImGui::DragInt("##Y", &values[1], 1.f, 10, 100))
+		valueChanged = true;
+	ImGui::PopItemWidth();
+	ImGui::SameLine();
+	ImGui::PopStyleColor(3);
+
+	/** Y value - End */
+	/** Z value - Begin */
+	/** Buttoncolors */
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.f });
+
+	ImGui::PushFont(pBoldFont);
+	if (ImGui::Button("Z", buttonSize))
+	{
+		values[2] = resetValue;
+		valueChanged = true;
+	}
+	ImGui::PopFont();
+
+	ImGui::SameLine();
+	if (ImGui::DragInt("##Z", &values[2], 1.f, 10, 100))
 		valueChanged = true;
 	ImGui::PopItemWidth();
 	ImGui::PopStyleColor(3);

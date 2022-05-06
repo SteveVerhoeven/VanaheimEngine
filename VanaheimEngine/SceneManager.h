@@ -2,6 +2,8 @@
 #include <vector>
 
 class Scene;
+class Graphics;
+class UIManager;
 class SceneManager final
 {
 	public:

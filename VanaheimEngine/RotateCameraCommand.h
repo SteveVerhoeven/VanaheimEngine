@@ -1,6 +1,7 @@
 #pragma once
 #include "Command.h"
 
+class GameObject;
 class RotateCameraCommand final : public Command
 {
 	public:

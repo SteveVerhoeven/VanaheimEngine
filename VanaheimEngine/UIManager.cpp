@@ -9,15 +9,8 @@
 #include "Window.h"
 #include "Graphics.h"
 #include "SceneSerializer.h"
-#include "SceneManager.h"
 #include "Scene.h"
-
 #include "UI.h"
-#include "ViewportUI.h"
-#include "ConsoleUI.h"
-#include "InspectorUI.h"
-#include "HierarchyUI.h"
-
 
 UIManager::UIManager(Window* pWindow)
 		  : m_pWindow(pWindow)

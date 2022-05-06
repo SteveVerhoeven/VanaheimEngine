@@ -2,6 +2,7 @@
 #include "../Libs/IMGUI/imgui.h"
 #include "../Libs/IMGUI/imgui_internal.h"
 #include <vector>
+#include <string>
 
 #include "Subject.h"
 

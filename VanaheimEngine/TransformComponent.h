@@ -1,6 +1,7 @@
 #pragma once
 #include "Component.h"
 
+class Scene;
 class TransformComponent final : public Component
 {
 	public:

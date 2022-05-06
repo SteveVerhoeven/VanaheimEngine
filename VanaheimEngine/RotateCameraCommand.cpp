@@ -1,10 +1,7 @@
 #include "VanaheimPCH.h"
 #include "RotateCameraCommand.h"
 
-#include "SceneManager.h"
 #include "Scene.h"
-#include "GameObject.h"
-#include "TransformComponent.h"
 #include "Timer.h"
 
 RotateCameraCommand::RotateCameraCommand()
@@ -13,12 +10,13 @@ RotateCameraCommand::RotateCameraCommand()
 					, m_pCameraObject(nullptr)
 					, m_TotalYaw(0)
 					, m_TotalPitch(0)
-{
-	SetCameraObject();
-}
+{}
 
 void RotateCameraCommand::Execute()
 {
+	if (m_pCameraObject == nullptr)
+		SetCameraObject();
+
 	Rotate();
 }
 

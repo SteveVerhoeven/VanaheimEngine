@@ -1,17 +1,13 @@
 #include "VanaheimPCH.h"
 #include "RenderComponent.h"
 
-#include "Mesh_Base.h"
 #include "Mesh.h"
 #include "Line.h"
-#include "Material.h"
-
 #include "Timer.h"
-#include "MathHelper.h"
-
 #include "Graphics.h"
-
-#include "yaml-cpp\yaml.h"
+#include "Material.h"
+#include "Mesh_Base.h"
+#include "MathHelper.h"
 
 RenderComponent::RenderComponent()
 				: Component()

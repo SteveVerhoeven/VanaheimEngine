@@ -18,9 +18,6 @@
     <ClCompile Include="Component.cpp">
       <Filter>Patterns\Components</Filter>
     </ClCompile>
-    <ClCompile Include="UIComponent.cpp">
-      <Filter>Patterns\Components</Filter>
-    </ClCompile>
     <ClCompile Include="TransformComponent.cpp">
       <Filter>Patterns\Components</Filter>
     </ClCompile>
@@ -165,6 +162,12 @@
     <ClCompile Include="OBJWriter.cpp">
       <Filter>Geometry\OBJ</Filter>
     </ClCompile>
+    <ClCompile Include="TerrainGeneratorComponent.cpp">
+      <Filter>Patterns\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageGenerator.cpp">
+      <Filter>Generator</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VanaheimEngine.h" />
@@ -184,9 +187,6 @@
     <ClInclude Include="Component.h">
       <Filter>Patterns\Components</Filter>
     </ClInclude>
-    <ClInclude Include="UIComponent.h">
-      <Filter>Patterns\Components</Filter>
-    </ClInclude>
     <ClInclude Include="TransformComponent.h">
       <Filter>Patterns\Components</Filter>
     </ClInclude>
@@ -203,9 +203,6 @@
       <Filter>Patterns\Components</Filter>
     </ClInclude>
     <ClInclude Include="UI.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="UIData.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="Command.h">
@@ -313,9 +310,6 @@
     <ClInclude Include="Generator.h">
       <Filter>Generator</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratorData.h">
-      <Filter>Generator</Filter>
-    </ClInclude>
     <ClInclude Include="GeneratorSettings.h">
       <Filter>Generator</Filter>
     </ClInclude>
@@ -354,6 +348,12 @@
     </ClInclude>
     <ClInclude Include="OBJWriter.h">
       <Filter>Geometry\OBJ</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainGeneratorComponent.h">
+      <Filter>Patterns\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageGenerator.h">
+      <Filter>Generator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

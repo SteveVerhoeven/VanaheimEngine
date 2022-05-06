@@ -5,7 +5,6 @@
 #include <fstream>
 
 #include "Scene.h"
-#include "GameObject.h"
 #include "Mesh.h"
 #include "Graphics.h"
 
@@ -16,9 +15,6 @@
 
 #include "OBJWriter.h"
 #include "Texture.h"
-
-#include "ResourceManager.h"
-#include "SceneManager.h"
 
 namespace YAML
 {

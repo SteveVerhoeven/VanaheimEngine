@@ -1,5 +1,6 @@
 #pragma once
 #include "Observer.h"
+#include <string>
 
 class Texture final : public Observer
 {

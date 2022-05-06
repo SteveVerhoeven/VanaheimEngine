@@ -1,6 +1,7 @@
 #pragma once
 #include "Component.h"
 
+class Scene;
 class CameraComponent final : public Component
 {
 	public:
