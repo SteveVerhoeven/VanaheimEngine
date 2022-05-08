@@ -58,6 +58,8 @@ HRESULT Graphics::InitializeDirectX()
 	if (FAILED(hr))
 		return hr;
 
+	m_pSwapChain->SetFullscreenState(true, NULL);
+
 	// *************************************************************
 	// Create Depth/Stencil Buffer and View
 	// *************************************************************

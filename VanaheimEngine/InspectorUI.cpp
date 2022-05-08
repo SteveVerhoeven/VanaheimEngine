@@ -99,6 +99,10 @@ void InspectorUI::DrawComponents()
 	});
 	DrawSingleComponent<RenderComponent>("Renderer", [](auto* pComponent)
 	{
+		ModelComponent* pModelComponent{ pComponent->GetParentObject()->GetComponent<ModelComponent>() };
+		if (!pModelComponent)
+			return;
+
 		bool renderComponent{ pComponent->GetCanRenderComponent() };
 
 		if (ImGui::Checkbox("Render mesh", &renderComponent))
@@ -108,12 +112,6 @@ void InspectorUI::DrawComponents()
 	{
 		bool rebuildLandscape{ false };
 
-		const DirectX::XMINT3 resolutionI3{ pComponent->GetResolution() };
-		int resolution[] = { resolutionI3.x, resolutionI3.y, resolutionI3.z };
-
-		if (DrawXMINT3Controlls("Resolution", resolution, 100, 10))
-			pComponent->SetResolution({ resolution[0], resolution[1], resolution[2] });
-
 		ImGui::Spacing();
 		ImGui::Text("Noise generator settings");
 
@@ -122,8 +120,8 @@ void InspectorUI::DrawComponents()
 		float lacunarity = pComponent->GetLacunarity();
 		float scale = pComponent->GetScale();
 		float persistence = pComponent->GetPersistence();
-		const DirectX::XMFLOAT2 mapSizeF2{ pComponent->GetMapsize() };
-		float mapSize[] = { mapSizeF2.x, mapSizeF2.y };
+		const DirectX::XMINT2 mapSizeF2{ pComponent->GetMapsize() };
+		int mapSize[] = { mapSizeF2.x, mapSizeF2.y };
 
 		if (ImGui::DragInt("Seed", &seed, 1.f, 0, 1000))
 		{
@@ -131,32 +129,37 @@ void InspectorUI::DrawComponents()
 			rebuildLandscape = true;
 		}
 
-		if (ImGui::DragInt("Octaves", &octaves, 0, 8, 180))
+		if (ImGui::DragInt("Octaves", &octaves, 1, 1, 8))
 		{
 			pComponent->SetOctaves(octaves);
 			rebuildLandscape = true;
 		}
 
-		if (ImGui::DragFloat("Lacunarity", &lacunarity, 0.1f, 1.f, 180.f))
+		if (ImGui::DragFloat("Lacunarity", &lacunarity, 0.1f, 1.f, 10.f))
 		{
 			pComponent->SetLacunarity(lacunarity);
 			rebuildLandscape = true;
 		}
 
-		if (ImGui::DragFloat("Scale", &scale, 0.1f, 0.f, 180.f))
+		if (ImGui::DragFloat("Scale", &scale, 0.1f, 1.f, 50.f))
 		{
 			pComponent->SetScale(scale);
 			rebuildLandscape = true;
 		}
 
-		if (ImGui::DragFloat("Persistence", &persistence, 0.1f, 0.f, 180.f))
+		if (ImGui::DragFloat("Persistence", &persistence, 0.001f, 0.f, 1.f))
 		{
 			pComponent->SetPersistence(persistence);
 			rebuildLandscape = true;
 		}
 
-		if (DrawXMFlOAT2Controlls("Mapsize", mapSize, 100.f, 0.f))
+		if (DrawXMINT2Controlls("Mapsize", mapSize, 100.f, 0, 5, 400))
 		{
+			if (mapSize[0] != mapSizeF2.x)
+				mapSize[1] = mapSize[0];
+			if (mapSize[1] != mapSizeF2.y)
+				mapSize[0] = mapSize[1];
+
 			pComponent->SetMapsize({mapSize[0], mapSize[1]});
 			rebuildLandscape = true;
 		}
@@ -182,11 +185,18 @@ void InspectorUI::AddComponent()
 
 	if (ImGui::BeginPopup("Add component"))
 	{
-		if (ImGui::MenuItem("Camera"))
+		// TODO: WIP
+		/*if (ImGui::MenuItem("Camera"))
 		{
 			m_pGameObject->AddComponent(new CameraComponent());
 			ImGui::CloseCurrentPopup();
 		}
+		if (ImGui::MenuItem("Terrain generator"))
+		{
+			m_pGameObject->AddComponent(new ModelComponent());
+			m_pGameObject->AddComponent(new TerrainGeneratorComponent());
+			ImGui::CloseCurrentPopup();
+		}*/
 
 		ImGui::EndPopup();
 	}
@@ -194,7 +204,7 @@ void InspectorUI::AddComponent()
 	ImGui::PopItemWidth();
 }
 
-bool InspectorUI::DrawXMFlOAT2Controlls(const std::string& label, float* values, const float columnWidth, const float resetValue)
+bool InspectorUI::DrawXMFlOAT2Controlls(const std::string& label, float* values, const float columnWidth, const float resetValue, const float min, const float max)
 {
 	ImGuiIO& io{ ImGui::GetIO() };
 	ImFont* pBoldFont{ io.Fonts->Fonts[0] };
@@ -230,7 +240,7 @@ bool InspectorUI::DrawXMFlOAT2Controlls(const std::string& label, float* values,
 	ImGui::PopFont();
 
 	ImGui::SameLine();
-	if (ImGui::DragFloat("##X", &values[0], 0.1f))
+	if (ImGui::DragFloat("##X", &values[0], 0.1f, min, max))
 		valueChanged = true;
 	ImGui::PopItemWidth();
 	ImGui::SameLine();
@@ -252,7 +262,7 @@ bool InspectorUI::DrawXMFlOAT2Controlls(const std::string& label, float* values,
 	ImGui::PopFont();
 
 	ImGui::SameLine();
-	if (ImGui::DragFloat("##Y", &values[1], 0.1f))
+	if (ImGui::DragFloat("##Y", &values[1], 0.1f, min, max))
 		valueChanged = true;
 	ImGui::PopItemWidth();
 	ImGui::SameLine();
@@ -267,7 +277,7 @@ bool InspectorUI::DrawXMFlOAT2Controlls(const std::string& label, float* values,
 
 	return valueChanged;
 }
-bool InspectorUI::DrawXMFlOAT3Controlls(const std::string& label, float* values, const float columnWidth, const float resetValue)
+bool InspectorUI::DrawXMFlOAT3Controlls(const std::string& label, float* values, const float columnWidth, const float resetValue, const float min, const float max)
 {
 	ImGuiIO& io{ ImGui::GetIO() };
 	ImFont* pBoldFont{ io.Fonts->Fonts[0] };
@@ -303,7 +313,7 @@ bool InspectorUI::DrawXMFlOAT3Controlls(const std::string& label, float* values,
 	ImGui::PopFont();
 
 	ImGui::SameLine();
-	if (ImGui::DragFloat("##X", &values[0], 0.1f))
+	if (ImGui::DragFloat("##X", &values[0], 0.1f, min, max))
 		valueChanged = true;
 	ImGui::PopItemWidth();
 	ImGui::SameLine();
@@ -325,7 +335,7 @@ bool InspectorUI::DrawXMFlOAT3Controlls(const std::string& label, float* values,
 	ImGui::PopFont();
 
 	ImGui::SameLine();
-	if (ImGui::DragFloat("##Y", &values[1], 0.1f))
+	if (ImGui::DragFloat("##Y", &values[1], 0.1f, min, max))
 		valueChanged = true;
 	ImGui::PopItemWidth();
 	ImGui::SameLine();
@@ -347,7 +357,7 @@ bool InspectorUI::DrawXMFlOAT3Controlls(const std::string& label, float* values,
 	ImGui::PopFont();
 
 	ImGui::SameLine();
-	if (ImGui::DragFloat("##Z", &values[2], 0.1f))
+	if (ImGui::DragFloat("##Z", &values[2], 0.1f, min, max))
 		valueChanged = true;
 	ImGui::PopItemWidth();
 	ImGui::PopStyleColor(3);
@@ -361,7 +371,7 @@ bool InspectorUI::DrawXMFlOAT3Controlls(const std::string& label, float* values,
 
 	return valueChanged;
 }
-bool InspectorUI::DrawXMINT3Controlls(const std::string& label, int* values, const float columnWidth, const int resetValue)
+bool InspectorUI::DrawXMINT2Controlls(const std::string& label, int* values, const float columnWidth, const int resetValue, const int min, const int max)
 {
 	ImGuiIO& io{ ImGui::GetIO() };
 	ImFont* pBoldFont{ io.Fonts->Fonts[0] };
@@ -397,7 +407,7 @@ bool InspectorUI::DrawXMINT3Controlls(const std::string& label, int* values, con
 	ImGui::PopFont();
 
 	ImGui::SameLine();
-	if (ImGui::DragInt("##X", &values[0], 1.f, 10, 100))
+	if (ImGui::DragInt("##X", &values[0], 1.f, min, max))
 		valueChanged = true;
 	ImGui::PopItemWidth();
 	ImGui::SameLine();
@@ -419,7 +429,80 @@ bool InspectorUI::DrawXMINT3Controlls(const std::string& label, int* values, con
 	ImGui::PopFont();
 
 	ImGui::SameLine();
-	if (ImGui::DragInt("##Y", &values[1], 1.f, 10, 100))
+	if (ImGui::DragInt("##Y", &values[1], 1.f, min, max))
+		valueChanged = true;
+	ImGui::PopItemWidth();
+	ImGui::SameLine();
+	ImGui::PopStyleColor(3);
+	/** Y value - End */
+
+	ImGui::PopStyleVar();
+
+	ImGui::Columns(1);
+
+	ImGui::PopID();
+
+	return valueChanged;
+}
+bool InspectorUI::DrawXMINT3Controlls(const std::string& label, int* values, const float columnWidth, const int resetValue, const int min, const int max)
+{
+	ImGuiIO& io{ ImGui::GetIO() };
+	ImFont* pBoldFont{ io.Fonts->Fonts[0] };
+
+	ImGui::PushID(label.c_str());
+
+	bool valueChanged{ false };
+	ImGui::Columns(2);
+
+	ImGui::SetColumnWidth(0, columnWidth);
+	ImGui::Text(label.c_str());
+	ImGui::NextColumn();
+
+	ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
+
+	float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.f;
+	ImVec2 buttonSize{ lineHeight + 3.f, lineHeight };
+
+
+	/** X value - Begin */
+	/** Buttoncolors */
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.f });
+
+	ImGui::PushFont(pBoldFont);
+	if (ImGui::Button("X", buttonSize))
+	{
+		values[0] = resetValue;
+		valueChanged = true;
+	}
+	ImGui::PopFont();
+
+	ImGui::SameLine();
+	if (ImGui::DragInt("##X", &values[0], 1.f, min, max))
+		valueChanged = true;
+	ImGui::PopItemWidth();
+	ImGui::SameLine();
+	ImGui::PopStyleColor(3);
+
+	/** X value - End */
+	/** Y value - Begin */
+	/** Buttoncolors */
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.f });
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.f });
+
+	ImGui::PushFont(pBoldFont);
+	if (ImGui::Button("Y", buttonSize))
+	{
+		values[1] = resetValue;
+		valueChanged = true;
+	}
+	ImGui::PopFont();
+
+	ImGui::SameLine();
+	if (ImGui::DragInt("##Y", &values[1], 1.f, min, max))
 		valueChanged = true;
 	ImGui::PopItemWidth();
 	ImGui::SameLine();
@@ -441,7 +524,7 @@ bool InspectorUI::DrawXMINT3Controlls(const std::string& label, int* values, con
 	ImGui::PopFont();
 
 	ImGui::SameLine();
-	if (ImGui::DragInt("##Z", &values[2], 1.f, 10, 100))
+	if (ImGui::DragInt("##Z", &values[2], 1.f, min, max))
 		valueChanged = true;
 	ImGui::PopItemWidth();
 	ImGui::PopStyleColor(3);

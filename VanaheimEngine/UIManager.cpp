@@ -179,6 +179,22 @@ void UIManager::OpenDockSpace()
         }
         if (ImGui::BeginMenu("Edit"))
         {
+            if (ImGui::BeginMenu("Window size"))
+            {
+                if (ImGui::MenuItem("1920x1080"))
+                {
+                    
+                }
+                if (ImGui::MenuItem("2560x1080"))
+                {
+                    
+                }
+                ImGui::EndMenu();
+            }
+            if (ImGui::MenuItem("Fullscreen"))
+            {
+
+            }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Window"))

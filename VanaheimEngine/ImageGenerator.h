@@ -13,8 +13,8 @@ class ImageGenerator final
 		ImageGenerator& operator=(const ImageGenerator&) = delete;
 		ImageGenerator& operator=(ImageGenerator&&) noexcept = delete;
 
-		static void GenerateImage(const std::vector<std::vector<DirectX::XMFLOAT3>>& map, const std::string& filePath, const DirectX::XMFLOAT2& mapSize);
-		static void GenerateImage(const std::vector<std::vector<float>>& map, const std::string& filePath, const DirectX::XMFLOAT2& mapSize);
+		static void GenerateImage(const std::vector<std::vector<DirectX::XMFLOAT3>>& map, const std::string& filePath, const DirectX::XMINT2& mapSize);
+		static void GenerateImage(const std::vector<std::vector<float>>& map, const std::string& filePath, const DirectX::XMINT2& mapSize);
 
 	protected:
 

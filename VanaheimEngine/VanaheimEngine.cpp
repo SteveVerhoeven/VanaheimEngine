@@ -36,7 +36,7 @@ VanaheimEngine::~VanaheimEngine()
 
 void VanaheimEngine::Initialize(HINSTANCE instance)
 {
-	int width{ 1600 }, height{ 900 };
+	int width{ 2560 }, height{ 1080 };
 
 	m_pWindow = new Window("Vanaheim Engine", width, height, instance);
 	m_pGraphics = new Graphics(m_pWindow->GetWindowHandle(), width, height);

@@ -165,6 +165,11 @@ HRESULT Mesh_Base::CreateVertex_InputLayout(ID3D11Device* pDevice, Material* pMa
 }
 HRESULT Mesh_Base::CreateIndexBuffer(ID3D11Device* pDevice, const std::vector<uint32_t>& iBuffer)
 {
+	if (m_pIBuffer)
+	{
+		DELETE_RESOURCE(m_pIBuffer);
+	}
+
 	// ********************************
 	// Create Index Buffer
 	// ********************************
@@ -192,6 +197,11 @@ HRESULT Mesh_Base::CreateIndexBuffer(ID3D11Device* pDevice, const std::vector<ui
 }
 HRESULT Mesh_Base::CreateVertexBuffer(ID3D11Device* pDevice, const std::vector<Vertex_Input>& vBuffer)
 {
+	if (m_pVBuffer)
+	{
+		DELETE_RESOURCE(m_pVBuffer);
+	}
+
 	// ********************************
 	// Create vertex buffer
 	// ********************************

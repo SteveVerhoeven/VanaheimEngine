@@ -24,9 +24,10 @@ class InspectorUI final : public UI
 		GameObject* m_pGameObject;
 		
 		void Draw();
-		bool DrawXMFlOAT2Controlls(const std::string& label, float* values, const float columnWidth = 100.f, const float resetValue = 0.f);
-		bool DrawXMFlOAT3Controlls(const std::string& label, float* values, const float columnWidth = 100.f, const float resetValue = 0.f);
-		bool DrawXMINT3Controlls(const std::string& label, int* values, const float columnWidth = 100.f, const int resetValue = 10);
+		bool DrawXMFlOAT2Controlls(const std::string& label, float* values, const float columnWidth = 100.f, const float resetValue = 0.f, const float min = 0.f, const float max = 0.f);
+		bool DrawXMFlOAT3Controlls(const std::string& label, float* values, const float columnWidth = 100.f, const float resetValue = 0.f, const float min = 0.f, const float max = 0.f);
+		bool DrawXMINT2Controlls(const std::string& label, int* values, const float columnWidth = 100.f, const int resetValue = 0, const int min = 0.f, const int max = 0.f);
+		bool DrawXMINT3Controlls(const std::string& label, int* values, const float columnWidth = 100.f, const int resetValue = 10, const int min = 0.f, const int max = 0.f);
 		void DrawComponents();
 		void AddComponent();
 

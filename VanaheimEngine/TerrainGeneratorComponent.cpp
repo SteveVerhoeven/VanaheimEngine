@@ -16,14 +16,12 @@
 TerrainGeneratorComponent::TerrainGeneratorComponent()
 						  : Component()
 						  , m_pModelComponent()
-						  , m_Resolution(100, -50, 100)
 						  , m_Seed(1)
 						  , m_Octaves(5)
 						  , m_Lacunarity(2.3f)
 						  , m_Scale(32.24f)
 						  , m_Persistence(0.448f)
 						  , m_MapSize(100, 100)
-						  , m_NoiseMap(std::vector<std::vector<float>>())
 {
 	m_pNoiseGenerator = Locator::GetGeneratorManagerService()->GetGenerator<NoiseGenerator>();
 
@@ -48,14 +46,30 @@ void TerrainGeneratorComponent::onNotify(ObserverEvent event)
 {
 	if (event == ObserverEvent::REBUILD_LANDSCAPE)
 	{
-		GenerateNoiseMap();
-		GenerateColorMap();
+		// Generate up to date noise
+		std::vector<std::vector<float>> noiseMap{};
+		GenerateNoiseMap(noiseMap);
+		GenerateColorMap(noiseMap);
+
+		// 
+		ModelComponent* pModelComponent = m_pParentObject->GetComponent<ModelComponent>();
+		Mesh* pMesh{ pModelComponent->GetMesh() };
+		if (pMesh)
+		{
+			CreateVertices();
+			CreateIndices();
+
+			Material* pMaterial{ m_pModelComponent->GetMaterial() };
+			pMesh->Initialize(m_Vertices, m_Indices);
+			pMesh->PostInitialize(pMaterial);
+		}	
 	}
 }
 void TerrainGeneratorComponent::GenerateTerrain()
 {
-	GenerateNoiseMap();
-	GenerateColorMap();
+	std::vector<std::vector<float>> noiseMap{};
+	GenerateNoiseMap(noiseMap);
+	GenerateColorMap(noiseMap);
 
 	CreateVertices();
 	CreateIndices();
@@ -80,62 +94,52 @@ void TerrainGeneratorComponent::GenerateTerrain()
 	pMaterial->AddTexture(pNormalTexture);
 	pMaterial->AddTexture(pColorTexture);
 
-	m_pModelComponent->SetMesh(pMesh);
-	m_pModelComponent->AddMaterial(pMaterial);
+	ModelComponent* pModelComponent{ m_pParentObject->GetComponent<ModelComponent>() };
+	pModelComponent->SetMesh(pMesh);
+	pModelComponent->AddMaterial(pMaterial);
 
 	pMesh->PostInitialize(pMaterial);
 
 	m_pParentObject->GetComponent<RenderComponent>()->EnableRenderComponent();
 }
 
-void TerrainGeneratorComponent::GenerateNoiseMap()
+void TerrainGeneratorComponent::GenerateNoiseMap(std::vector<std::vector<float>>& noiseMap)
 {
-	// Check if the scale is lower then or equal to zero to prevent division by 0
-	if (!Validate(m_MapSize, m_Scale))
-	{
-		m_NoiseMap.clear();
-	}
-
 	// Create a collection of offsets to offset the samples ;)
 	std::vector<DirectX::XMFLOAT3> offsets{};
 	GenerateOffsets(offsets, {});
 
 	// Noise
-	m_NoiseMap.clear();
-	for (size_t y{}; y < m_MapSize.y; ++y)
+	for (int y{}; y < m_MapSize.y; ++y)
 	{
 		std::vector<float> vector{};
-		for (size_t x{}; x < m_MapSize.x; ++x)
+		for (int x{}; x < m_MapSize.x; ++x)
 		{			
 			const float fractalNoise{ m_pNoiseGenerator->FractalNoise({(float)x, 1, (float)y}, m_Scale, offsets, (float)m_Octaves, m_Lacunarity, m_Persistence) };
 			const float billowNoise{ m_pNoiseGenerator->BillowNoise(fractalNoise) };
 			const float ridgedNoise{ m_pNoiseGenerator->RidgedNoise(billowNoise) };
 			vector.push_back(ridgedNoise);
 		}
-		m_NoiseMap.push_back(vector);
+		noiseMap.push_back(vector);
 	}
 
 	// Normalize the values back to [0,1]
-	m_NoiseMap = Normalize2DVector(m_NoiseMap);
+	noiseMap = Normalize2DVector(noiseMap);
 
 	// Texture
-	ImageGenerator::GenerateImage(m_NoiseMap, "./Resources/Textures/Landscape/noiseMap.bmp", m_MapSize);
-	//Image image(m_MapSize);
-	//image.SetColor(m_NoiseMap);
-	//image.ExportImage("./Resources/Textures/Landscape/noiseMap.bmp");
+	ImageGenerator::GenerateImage(noiseMap, "./Resources/Textures/Landscape/noiseMap.bmp", m_MapSize);
 }
-void TerrainGeneratorComponent::GenerateColorMap()
+void TerrainGeneratorComponent::GenerateColorMap(const std::vector<std::vector<float>>& noiseMap)
 {
-	const DirectX::XMFLOAT2 mapSize{ m_MapSize };
 	std::vector<std::vector<DirectX::XMFLOAT3>> colorMap{};
-	for (size_t y{}; y < mapSize.y; ++y)
+	for (int y{}; y < m_MapSize.y; ++y)
 	{
 		std::vector<DirectX::XMFLOAT3> row{};
-		for (size_t x{}; x < mapSize.x; ++x)
+		for (int x{}; x < m_MapSize.x; ++x)
 		{
-			const float currentHeight{ m_NoiseMap[y][x] };
+			const float currentHeight{ noiseMap[(size_t)y][(size_t)x] };
 
-			/*const size_t nbrOfRegions{ m_TerrainRegions.size() };
+			const size_t nbrOfRegions{ m_TerrainRegions.size() };
 			for (size_t r{}; r < nbrOfRegions; ++r)
 			{
 				if (currentHeight <= m_TerrainRegions[r].height)
@@ -143,34 +147,15 @@ void TerrainGeneratorComponent::GenerateColorMap()
 					row.push_back(m_TerrainRegions[r].color);
 					break;
 				}
-			}*/
+			}
 		}
 		colorMap.push_back(row);
 	}
 
 	// Texture
-	ImageGenerator::GenerateImage(colorMap, "./Resources/Textures/Landscape/colorMap.bmp", { (float)m_Resolution.x, (float)m_Resolution.z });
-	//Image image({ (float)m_Resolution.x, (float)m_Resolution.z });
-	//image.SetColor(colorMap);
-	//image.ExportImage("./Resources/Textures/Landscape/colorMap.bmp");
+	ImageGenerator::GenerateImage(colorMap, "./Resources/Textures/Landscape/colorMap.bmp", m_MapSize);
 }
 
-bool TerrainGeneratorComponent::Validate(DirectX::XMFLOAT2& mapSize, float& scale)
-{
-	const float minScale{ 0.0001f };
-	if (scale <= 0.f)
-		scale = minScale;
-
-	if (mapSize.x < 0 || mapSize.y < 0)
-		return false;
-
-	if (0 < mapSize.x && mapSize.x < 1.f)
-		mapSize.x = 1.f;
-	if (0 < mapSize.y && mapSize.y < 1.f)
-		mapSize.y = 1.f;
-
-	return true;
-}
 void TerrainGeneratorComponent::GenerateOffsets(std::vector<DirectX::XMFLOAT3>& offsets, const DirectX::XMFLOAT3& personalOffset)
 {
 	srand(m_Seed);
@@ -186,8 +171,10 @@ void TerrainGeneratorComponent::GenerateOffsets(std::vector<DirectX::XMFLOAT3>& 
 
 void TerrainGeneratorComponent::CreateVertices()
 {
-	const int width{ m_Resolution.x };
-	const int depth{ m_Resolution.z };
+	m_Vertices.clear();
+
+	const int width{ m_MapSize.x };
+	const int depth{ m_MapSize.y };
 
 	for (int z{}; z < depth; ++z)
 	{
@@ -199,14 +186,14 @@ void TerrainGeneratorComponent::CreateVertices()
 			m_Vertices.push_back(vertex);
 		}
 	}
-
-	//FindArrayTimings();
 }
 void TerrainGeneratorComponent::CreateIndices()
 {
+	m_Indices.clear();
+
 	uint32_t vertexIndex{};
-	const int width{ m_Resolution.x };
-	const int height{ m_Resolution.z };
+	const int width{ (int)m_MapSize.x };
+	const int height{ (int)m_MapSize.y };
 	for (int z{}; z < height; ++z)
 	{
 		for (int x{}; x < width; ++x)
@@ -235,11 +222,11 @@ void TerrainGeneratorComponent::CreateIndices()
 }
 void TerrainGeneratorComponent::CreateTerrainRegions()
 {
-	//m_TerrainRegions.push_back({ TerrainType::WATER_DEEP   , 0.2f, DirectX::Colors::DarkBlue });
-	//m_TerrainRegions.push_back({ TerrainType::WATER_SHALLOW, 0.4f, DirectX::Colors::Blue });
-	//m_TerrainRegions.push_back({ TerrainType::SAND		   , 0.45f, DirectX::Colors::LightGoldenrodYellow });
-	//m_TerrainRegions.push_back({ TerrainType::GRASS		   , 0.50f, DirectX::Colors::LightGreen });
-	//m_TerrainRegions.push_back({ TerrainType::GRASS_DENSE  , 0.6f, DirectX::Colors::DarkGreen });
-	//m_TerrainRegions.push_back({ TerrainType::ROCK		   , 0.85f, DirectX::Colors::Brown });
-	//m_TerrainRegions.push_back({ TerrainType::SNOW		   , 1.f , DirectX::Colors::White });
+	m_TerrainRegions.push_back({ TerrainType::WATER_DEEP   , 0.2f, DirectX::Colors::DarkBlue });
+	m_TerrainRegions.push_back({ TerrainType::WATER_SHALLOW, 0.4f, DirectX::Colors::Blue });
+	m_TerrainRegions.push_back({ TerrainType::SAND		   , 0.45f, DirectX::Colors::LightGoldenrodYellow });
+	m_TerrainRegions.push_back({ TerrainType::GRASS		   , 0.50f, DirectX::Colors::LightGreen });
+	m_TerrainRegions.push_back({ TerrainType::GRASS_DENSE  , 0.6f, DirectX::Colors::DarkGreen });
+	m_TerrainRegions.push_back({ TerrainType::ROCK		   , 0.85f, DirectX::Colors::Brown });
+	m_TerrainRegions.push_back({ TerrainType::SNOW		   , 1.f , DirectX::Colors::White });
 }
