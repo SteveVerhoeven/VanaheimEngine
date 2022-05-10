@@ -11,6 +11,7 @@ InputManager::InputManager()
 			 : m_ControllerState()
 			 , m_pInputs(std::vector<InputData*>())
 			 , m_pMouse(new Mouse())
+			 , m_QuitGame(false)
 {}
 InputManager::~InputManager()
 {
@@ -30,6 +31,12 @@ MSG InputManager::ProcessInput(const float /*elapsedSec*/)
 		return msg;
 
 	if (!ProcessGameInput(msg))
+	{
+		msg.message = WM_QUIT;
+		return msg;
+	}
+
+	if (m_QuitGame)
 	{
 		msg.message = WM_QUIT;
 		return msg;

@@ -174,6 +174,10 @@ void UIManager::OpenDockSpace()
                 SceneSerializer serializer{};
                 serializer.Deserialize("Scenes/Scene.Vanaheim", pScene);
             }
+            if (ImGui::MenuItem("Exit"))
+            {
+                Locator::GetInputManagerService()->QuitGame();
+            }
 
             ImGui::EndMenu();
         }
@@ -181,19 +185,23 @@ void UIManager::OpenDockSpace()
         {
             if (ImGui::BeginMenu("Window size"))
             {
+                //Graphics* pGraphics{ Locator::GetGraphicsService() };
                 if (ImGui::MenuItem("1920x1080"))
                 {
-                    
+                    //pGraphics->SetWindowDimensions(1920, 1080);
+                    //pGraphics->ResizeWindow({ 1920, 1080 });
                 }
                 if (ImGui::MenuItem("2560x1080"))
                 {
-                    
+                    //pGraphics->SetWindowDimensions(2560, 1080);
+                    //pGraphics->ResizeWindow({ 2560, 1080 });
                 }
                 ImGui::EndMenu();
             }
             if (ImGui::MenuItem("Fullscreen"))
             {
-
+                //Graphics* pGraphics{ Locator::GetGraphicsService() };
+                //pGraphics->SetFullScreen(true);
             }
             ImGui::EndMenu();
         }

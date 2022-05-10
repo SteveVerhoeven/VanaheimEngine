@@ -1,18 +1,31 @@
 #include "VanaheimPCH.h"
 #include "Graphics.h"
+#include "Window.h"
 
 #include "backends\imgui_impl_dx11.h"
 #include "backends\imgui_impl_win32.h"
 
 Graphics::Graphics(HWND hWnd, const int width, const int height)
 		 : m_Window(hWnd)
-		 , m_Width((UINT)width)
-		 , m_Height((UINT)height)
+		 , m_pDevice(nullptr)
+		 , m_pDeviceContext(nullptr)
+		 , m_pDXGIFactory(nullptr)
+		 , m_pSwapChain(nullptr)
+		 , m_pDepthStencilBuffer(nullptr)
+		 , m_pDepthStencilView(nullptr)
+		 , m_pRenderTargetBuffer_Main(nullptr)
+		 , m_pRenderTargetView_Main(nullptr)
+		 , m_pRenderTargetBuffer_Game(nullptr)
+		 , m_pRenderTargetView_Game(nullptr)
+		 , m_pShaderResourceView_Game(nullptr)
 {
-	HRESULT hr{ InitializeDirectX() };
+	HRESULT hr{ InitializeDirectX(width, height) };
 	if (hr != S_OK)
 		LOG_HRESULT(hr, "Graphics::InitializeDirectX", __FILE__, std::to_string(__LINE__));
 }
+Graphics::Graphics(Window* pWindow)
+		 : Graphics(pWindow->GetWindowHandle(), pWindow->GetWindowWidth(), pWindow->GetWindowHeight())
+{}
 Graphics::~Graphics()
 {
 	DELETE_RESOURCE(m_pRenderTargetView_Main);
@@ -32,11 +45,68 @@ Graphics::~Graphics()
 	}
 	DELETE_RESOURCE(m_pDXGIFactory);
 }
+//void Graphics::SetWindowDimensions(const UINT& x, const UINT& y)
+//{
+//	m_Width = x;
+//	m_Height = y;
+//}
+//void Graphics::SetFullScreen(const bool /*fullScreenOn*/)
+//{
+//	BOOL currentState{};
+//	m_pSwapChain->GetFullscreenState(&currentState, NULL);
+//
+//	bool newState = false;
+//	if (currentState == false)
+//		newState = true;
+//
+//	m_pSwapChain->SetFullscreenState(newState, NULL);
+//}
+//
+//void Graphics::ResizeWindow(const DirectX::XMINT2& /*dimensions*/)
+//{
+//	if (m_pSwapChain)
+//	{
+//		//m_pDeviceContext->OMSetRenderTargets(0, 0, 0);
+//
+//		//// Release all outstanding references to the swap chain's buffers.
+//		//m_pRenderTargetBuffer_Main->Release();
+//		//m_pRenderTargetBuffer_Game->Release();
+//
+//		//HRESULT hr;
+//		//// Preserve the existing buffer count and format.
+//		//// Automatically choose the width and height to match the client rect for HWNDs.
+//		//hr = m_pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+//
+//		//// Perform error handling here!
+//
+//		//// Get buffer and create a render-target-view.
+//		//ID3D11Texture2D* pBuffer;
+//		//hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D),
+//		//	(void**)&pBuffer);
+//		//// Perform error handling here!
+//
+//		//hr = m_pDevice->CreateRenderTargetView(pBuffer, NULL, &m_pRenderTargetBuffer_Main);
+//		//// Perform error handling here!
+//		//pBuffer->Release();
+//
+//		//g_pd3dDeviceContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
+//
+//		//// Set up the viewport.
+//		//D3D11_VIEWPORT vp;
+//		//vp.Width = width;
+//		//vp.Height = height;
+//		//vp.MinDepth = 0.0f;
+//		//vp.MaxDepth = 1.0f;
+//		//vp.TopLeftX = 0;
+//		//vp.TopLeftY = 0;
+//		//g_pd3dDeviceContext->RSSetViewports(1, &vp);
+//	}
+//}
 
-HRESULT Graphics::InitializeDirectX()
+HRESULT Graphics::InitializeDirectX(const int width, const int height)
 {
 	HRESULT hr{};
-
+	
 	// *************************************************************
 	// Create Device and Device context, using hardware acceleration
 	// *************************************************************
@@ -54,16 +124,16 @@ HRESULT Graphics::InitializeDirectX()
 	// *************************************************************
 	// Create SwapChain
 	// *************************************************************
-	hr = CreateSwapChain();
+	hr = CreateSwapChain(width, height);
 	if (FAILED(hr))
 		return hr;
 
-	m_pSwapChain->SetFullscreenState(true, NULL);
+	//m_pSwapChain->SetFullscreenState(true, NULL);
 
 	// *************************************************************
 	// Create Depth/Stencil Buffer and View
 	// *************************************************************
-	hr = CreateDepth_Stencil_Resources();
+	hr = CreateDepth_Stencil_Resources(width, height);
 	if (FAILED(hr))
 		return hr;
 
@@ -77,7 +147,7 @@ HRESULT Graphics::InitializeDirectX()
 	// *************************************************************
 	// Create Render target Buffer - Main window
 	// *************************************************************
-	hr = CreateRenderTarget_Game(m_Width, m_Height);
+	hr = CreateRenderTarget_Game(width, height);
 	if (FAILED(hr))
 		return hr;
 
@@ -97,8 +167,8 @@ HRESULT Graphics::InitializeDirectX()
 	// Set Viewport
 	// *************************************************************
 	D3D11_VIEWPORT viewPort{};
-	viewPort.Width = static_cast<float>(m_Width);
-	viewPort.Height = static_cast<float>(m_Height);
+	viewPort.Width = static_cast<float>(width);
+	viewPort.Height = static_cast<float>(height);
 	viewPort.TopLeftX = 0.f;
 	viewPort.TopLeftY = 0.f;
 	viewPort.MinDepth = 0.f;
@@ -142,12 +212,12 @@ HRESULT Graphics::CreateFactory()
 	// Reference: https://docs.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-createdxgifactory
 	return CreateDXGIFactory(riid1, ppFactory);
 }
-HRESULT Graphics::CreateSwapChain()
+HRESULT Graphics::CreateSwapChain(const int width, const int height)
 {
 	// Create SwapChain descriptor
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
-	swapChainDesc.BufferDesc.Width = m_Width;
-	swapChainDesc.BufferDesc.Height = m_Height;
+	swapChainDesc.BufferDesc.Width = width;
+	swapChainDesc.BufferDesc.Height = height;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 1;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 60;
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	// UNORM = unsigned normalized integer
@@ -172,14 +242,14 @@ HRESULT Graphics::CreateSwapChain()
 	// Reference: https://docs.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgifactory-createswapchain
 	return m_pDXGIFactory->CreateSwapChain(pDevice, pSwapChainDesc, ppSwapChain);
 }
-HRESULT Graphics::CreateDepth_Stencil_Resources()
+HRESULT Graphics::CreateDepth_Stencil_Resources(const int width, const int height)
 {
 	HRESULT hr{};
 
 	// Create SwapChain descriptor
 	D3D11_TEXTURE2D_DESC depthStencilDesc{};
-	depthStencilDesc.Width = m_Width;
-	depthStencilDesc.Height = m_Height;
+	depthStencilDesc.Width = width;
+	depthStencilDesc.Height = height;
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.ArraySize = 1;
 	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -197,7 +267,7 @@ HRESULT Graphics::CreateDepth_Stencil_Resources()
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 
 	// Create Texture2D
-	/* CreateDXGIFactory - Parameters */
+	/* CreateTexture2D - Parameters */
 	const D3D11_TEXTURE2D_DESC* pDepthStencilDesc{ &depthStencilDesc };
 	const D3D11_SUBRESOURCE_DATA* pInitialData{ NULL };
 	ID3D11Texture2D** ppTexture2D{ &m_pDepthStencilBuffer };

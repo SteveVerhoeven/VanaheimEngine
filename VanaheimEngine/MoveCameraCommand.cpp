@@ -71,5 +71,5 @@ void MoveCameraCommand::SetCameraObject()
 {
 	SceneManager* pSceneManager{ Locator::GetSceneManagerService() };
 	Scene* pScene{ pSceneManager->GetActiveGameScene() };
-	m_pCameraObject = pScene->GetMainCamera();
+	m_pCameraObject = pScene->GetSceneCamera();
 }

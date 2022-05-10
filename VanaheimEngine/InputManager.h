@@ -17,7 +17,10 @@ class InputManager final
 
 		void AddKeyToMap(const ControllerButton& cButton, const KeyboardButton& kButton, const ButtonPressType& pressType, const std::string& name, Command* const pCommand);
 
+		void QuitGame() { m_QuitGame = true; }
+
 	private:
+		bool m_QuitGame;
 		Mouse* m_pMouse;
 
 		// Information about the controller/keyboard

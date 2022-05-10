@@ -9,13 +9,12 @@
 #include "backends\imgui_impl_dx11.h"
 #include "backends\imgui_impl_win32.h"
 
-Window::Window(const std::string& name, const int width, const int height, HINSTANCE instance)
+Window::Window(const std::string& name, HINSTANCE instance)
 	   : m_pName(name.c_str())
-	   , m_Height(height)
-	   , m_Width(width)
 	   , m_Instance(instance)
 	   , m_Window()
 {
+	GetWidthHeight();
 	CreateClass();
 	CreateShowWindow();
 }
@@ -113,4 +112,15 @@ LRESULT Window::WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 		}
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+void Window::GetWidthHeight()
+{
+	HWND desktopWindowHandle = GetDesktopWindow();
+	HMONITOR monitor = MonitorFromWindow(desktopWindowHandle, MONITOR_DEFAULTTONEAREST);
+	MONITORINFO info;
+	info.cbSize = sizeof(MONITORINFO);
+	GetMonitorInfo(monitor, &info);
+	m_Width = info.rcMonitor.right - info.rcMonitor.left;
+	m_Height = info.rcMonitor.bottom - info.rcMonitor.top;
 }

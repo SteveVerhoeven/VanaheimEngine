@@ -125,12 +125,12 @@ void Scene::CreateCamera(const std::string& name, const DirectX::XMFLOAT3& posit
 
 	// Set as the main camera
 	if (isMainCamera)
-		SetMainCamera(pMesh);
+		SetSceneCamera(pMesh);
 
 	// Edit game object in scene
 	pMesh->GetComponent<TransformComponent>()->Translate(position, false);
 }
-void Scene::CreateViewportCamera(const std::string& name, const DirectX::XMFLOAT3& position)
+void Scene::CreateSceneCamera(const std::string& name, const DirectX::XMFLOAT3& position)
 {
 	// Game Object
 	GameObject* pCameraObject{ new GameObject(position, {}, {}, name) };
@@ -143,7 +143,7 @@ void Scene::CreateViewportCamera(const std::string& name, const DirectX::XMFLOAT
 	pCameraObject->AddComponent(pCameraComponent);
 
 	// Set as the main camera
-	SetMainCamera(pCameraObject);
+	SetSceneCamera(pCameraObject);
 
 	// Edit game object in scene
 	pCameraObject->GetComponent<TransformComponent>()->Translate(position, false);
@@ -207,7 +207,7 @@ void Scene::CreateSceneCamera()
 {
 	const std::string name{ "Camera-Main" };
 	const DirectX::XMFLOAT3 pos{ 55, 10, -125 };
-	CreateViewportCamera(name, pos);
+	CreateSceneCamera(name, pos);
 }
 void Scene::CleanScene()
 {

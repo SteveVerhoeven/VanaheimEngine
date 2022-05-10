@@ -42,5 +42,5 @@ void RotateCameraCommand::SetCameraObject()
 {
 	SceneManager* pSceneManager{ Locator::GetSceneManagerService() };
 	Scene* pScene{ pSceneManager->GetActiveGameScene() };
-	m_pCameraObject = pScene->GetObjectByName("Camera-Main");
+	m_pCameraObject = pScene->GetSceneCamera();
 }

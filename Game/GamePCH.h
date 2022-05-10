@@ -38,6 +38,7 @@
 #include "UIManager.h"
 #include "InputManager.h"
 #include "GeneratorManager.h"
+
 #include "NoiseGenerator.h"
 #include "ImageGenerator.h"
 

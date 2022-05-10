@@ -46,16 +46,15 @@ void TerrainGeneratorComponent::onNotify(ObserverEvent event)
 {
 	if (event == ObserverEvent::REBUILD_LANDSCAPE)
 	{
-		// Generate up to date noise
-		std::vector<std::vector<float>> noiseMap{};
-		GenerateNoiseMap(noiseMap);
-		GenerateColorMap(noiseMap);
-
-		// 
 		ModelComponent* pModelComponent = m_pParentObject->GetComponent<ModelComponent>();
 		Mesh* pMesh{ pModelComponent->GetMesh() };
 		if (pMesh)
 		{
+			// Generate up to date noise
+			std::vector<std::vector<float>> noiseMap{};
+			GenerateNoiseMap(noiseMap);
+			GenerateColorMap(noiseMap);
+
 			CreateVertices();
 			CreateIndices();
 

@@ -4,7 +4,7 @@
 class Window final
 {
 	public:
-		Window(const std::string& pName, const int width, const int height, HINSTANCE instance);
+		Window(const std::string& pName, HINSTANCE instance);
 		~Window();
 
 		Window(const Window&) = delete;
@@ -29,4 +29,6 @@ class Window final
 
 		static LRESULT CALLBACK WindowProcedureStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 		LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+		
+		void GetWidthHeight();
 };

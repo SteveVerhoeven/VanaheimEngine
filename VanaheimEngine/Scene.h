@@ -33,14 +33,14 @@ class Scene
 		
 		void CreateLineObject(const std::string& name, const DirectX::XMFLOAT3& possition, Line* pLine);
 
-		void SetMainCamera(GameObject* pCamera) { m_pSceneCameraGO = pCamera; }
-		GameObject* GetMainCamera() const { return m_pSceneCameraGO; }
+		void SetSceneCamera(GameObject* pCamera) { m_pSceneCameraGO = pCamera; }
+		GameObject* GetSceneCamera() const { return m_pSceneCameraGO; }
 
 		void SetCleanSeneFlag() { m_Cleanup = true; }
 
 	protected:
 		void CreateCamera(const std::string& name, const DirectX::XMFLOAT3& position, const bool isMainCamera);
-		void CreateViewportCamera(const std::string& name, const DirectX::XMFLOAT3& position);
+		void CreateSceneCamera(const std::string& name, const DirectX::XMFLOAT3& position);
 		void Create3DObject(const std::string& name, const DirectX::XMFLOAT3& position, const std::string& meshPath, Material* pMaterial);
 		void Create3DObject(const std::string& name, const DirectX::XMFLOAT3& possition, Mesh* pMesh, Material* pMaterial);
 
