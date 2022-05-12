@@ -36,7 +36,7 @@ VanaheimEngine::~VanaheimEngine()
 
 void VanaheimEngine::Initialize(HINSTANCE instance)
 {	
-	m_pWindow = new Window("Vanaheim Engine", instance);
+	m_pWindow = new Window("Test branch", instance);
 	m_pGraphics = new Graphics(m_pWindow);
 
 	InitializeLocator();
