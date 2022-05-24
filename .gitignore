@@ -4,8 +4,11 @@
 /[Bb]in
 /[Bb]in-int
 
-/[Llibs]/IMGUI/bin
-/[Llibs]/IMGUI/bin-int
+/[Ll]ibs/**/bin
+/[Ll]ibs/**/bin-int
+/[Ll]ibs/**/*.vcxproj
+/[Ll]ibs/**/*.vcxproj.filters
 
-*.unityproj
+*.vcxproj
+*.vcxproj.user
 *.sln
