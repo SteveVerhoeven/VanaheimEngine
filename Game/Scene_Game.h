@@ -20,5 +20,14 @@ class Scene_Game final : public Scene
 		virtual void Render() const override;
 
 	private:
-		
+		/** Function that creates a landscape from a 2D plane */
+		void CreateLandscape_2DPlane();
+		///** Function that creates a landscape with voxels on the CPU */
+		//void CreateLandscape_VoxelsCPU();
+		///** Function that creates a landscape with voxels on the GPU */
+		//void CreateLandscape_VoxelsGPU();
+		///** Function that creates a landscape from a 2D plane with the Octree data structure */
+		//void CreateLandscape_2DPlaneOctree(const bool visualizeDataStructure);
+		///** Function that creates a landscape from a 2D plane with the KDTree data structure */
+		//void CreateLandscape_2DPlaneKDtree();
 };
