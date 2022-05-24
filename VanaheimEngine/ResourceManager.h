@@ -22,16 +22,15 @@ class ResourceManager final
 
 		void Initialize();
 		
+		Mesh* LoadMesh(const std::string& path);
+
 		Mesh* Load3DMesh(const std::string& name, const std::string& path);
 		Mesh_Base* Load3DMesh(Mesh_Base* pMesh, GameObject* pParentGO);
 		template <class T>
 		T* LoadMaterial(T* material);
 		Texture* LoadTexture(const std::string& filePath);
-
 		void Store3DMesh(Mesh* pMesh, const std::string& name);
-
 		void ResetInstancedMeshes();
-
 		std::vector<TextureData*> GetTextures() { return m_pTextures; }
 
 	private:
@@ -43,6 +42,10 @@ class ResourceManager final
 		int m_MaterialFreeId;
 		int m_TextureFreeId;
 
+		//**// NEW
+		bool MeshExists(const std::string& name, size_t& index);
+		//**// NEW
+
 		bool MeshAlreadyParsed(const std::string& newName, int& meshID);
 		bool MeshAlreadyLoaded(Mesh_Base* pMesh, int& meshID);
 		bool MaterialAlreadyLoaded(const Material* material_in, int& materialID);
@@ -51,6 +54,8 @@ class ResourceManager final
 		int GetFreeMeshID() { return m_MeshFreeId++; }
 		int GetFreeMaterialID() { return m_MaterialFreeId++; }
 		int GetFreeTextureID() { return m_TextureFreeId++; }
+
+		const std::string GetFileNameFromFilePath(const std::string& filePath);
 };
 
 template<class T>

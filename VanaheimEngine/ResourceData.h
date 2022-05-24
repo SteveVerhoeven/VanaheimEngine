@@ -11,7 +11,7 @@ struct MeshData
 	MeshData()
 		: MeshData(0, "", nullptr)
 	{}
-	MeshData(const int ID, const std::string& name, Mesh* pMesh)
+	MeshData(const size_t ID, const std::string& name, Mesh* pMesh)
 		: ID(ID)
 		, name(name)
 		, pMesh(pMesh)
@@ -21,7 +21,7 @@ struct MeshData
 		DELETE_POINTER(pMesh); 
 	}
 
-	int ID{};
+	size_t ID{};
 	std::string name{};
 	Mesh_Base* pMesh{};
 };

@@ -33,16 +33,40 @@ ResourceManager::~ResourceManager()
 void ResourceManager::Initialize()
 {}
 
-//Mesh* ResourceManager::Get3DMesh(const std::string& name)
-//{
-//	auto result{ std::find_if(m_p3DMeshes.begin(), m_p3DMeshes.end(), [&](MeshData* pMeshData)
-//	{ return pMeshData->name == name; }) };
-//	
-//	// If the mesh is found return it
-//	if (result != m_p3DMeshes.end())
-//		return (*result)->pMesh;
-//	return nullptr;
-//}
+Mesh* ResourceManager::LoadMesh(const std::string& path)
+{
+	const std::string fileName{ GetFileNameFromFilePath(path) };
+	
+	size_t index{};
+	if (MeshExists(fileName, index))
+	{
+		Mesh* pMesh{ dynamic_cast<Mesh*>(m_p3DMeshes[index]->pMesh) };
+
+		// Check if the instance counter is on 0 if so set to 1 to start
+		if (pMesh->GetAmountInstances() <= 0)
+			pMesh->IncrementInstanceCount();
+
+		pMesh->IncrementInstanceCount();
+		return pMesh;
+	}
+
+	// If it does not exist
+	Mesh* pMesh{ new Mesh(path) };
+	pMesh->Initialize();
+
+	// Store the mesh
+	MeshData* pMeshData{ new MeshData() };
+	pMeshData->ID = GetFreeMeshID();
+	pMeshData->name = fileName;
+	pMeshData->pMesh = pMesh;
+	m_p3DMeshes.push_back(pMeshData);
+
+	// Return the pointer to the mesh
+	return pMesh;
+}
+
+
+
 
 Mesh* ResourceManager::Load3DMesh(const std::string& name, const std::string& path)
 {
@@ -114,7 +138,6 @@ Mesh_Base* ResourceManager::Load3DMesh(Mesh_Base* pMesh, GameObject* pParentGO)
 	// Return the pointer to the mesh
 	return pMesh;
 }
-
 Texture* ResourceManager::LoadTexture(const std::string& filePath)
 {
 	int textureID{};
@@ -134,7 +157,6 @@ Texture* ResourceManager::LoadTexture(const std::string& filePath)
 	// Return the pointer to the texture
 	return pTexture;
 }
-
 void ResourceManager::Store3DMesh(Mesh* pMesh, const std::string& name)
 {
 	// Store the mesh
@@ -143,6 +165,38 @@ void ResourceManager::Store3DMesh(Mesh* pMesh, const std::string& name)
 	pMeshData->name = name;
 	pMeshData->pMesh = pMesh;
 	m_p3DMeshes.push_back(pMeshData);
+}
+void ResourceManager::ResetInstancedMeshes()
+{
+	for (MeshData* pMeshData : m_p3DMeshes)
+		pMeshData->pMesh->SetIsRendered(false);
+}
+
+
+
+
+bool ResourceManager::MeshExists(const std::string& name, size_t& index)
+{
+	// Check if the map for 3D meshes is empty
+	if (m_p3DMeshes.empty())
+		return false;
+
+	// Check if you find the name in the map
+	auto result{ std::find_if(m_p3DMeshes.begin(), m_p3DMeshes.end(), [&](MeshData* pMeshData)
+	{
+		if (pMeshData->name == name)
+		{
+			index = pMeshData->ID;
+			return true;
+		}
+		return false;
+	}) };
+
+	// Did you find the mesh already of not
+	if (result != m_p3DMeshes.end())
+		return true;
+
+	return false;
 }
 
 bool ResourceManager::MeshAlreadyParsed(const std::string& newName, int& meshID)
@@ -165,6 +219,7 @@ bool ResourceManager::MeshAlreadyParsed(const std::string& newName, int& meshID)
 	// Did you find the mesh already of not
 	if (result != m_p3DMeshes.end())
 		return true;
+
 	return false;
 }
 bool ResourceManager::MeshAlreadyLoaded(Mesh_Base* pMeshBase, int& meshID)
@@ -246,8 +301,15 @@ bool ResourceManager::TextureAlreadyLoaded(const std::string& filePath, int& tex
 	return false;
 }
 
-void ResourceManager::ResetInstancedMeshes()
+const std::string ResourceManager::GetFileNameFromFilePath(const std::string& filePath)
 {
-	for (MeshData* pMeshData : m_p3DMeshes)
-		pMeshData->pMesh->SetIsRendered(false);
+	// Remove path
+	const size_t lastSlashPosition{ filePath.find_last_of("/\\") };
+	std::string completeFileName = filePath.substr(lastSlashPosition + 1);
+
+	// Remove extension
+	const size_t lastDotPosition{ completeFileName.find_last_of('.') };
+	std::string fileName = completeFileName.substr(0, lastDotPosition);
+
+	return fileName;
 }

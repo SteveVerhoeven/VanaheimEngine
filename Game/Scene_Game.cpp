@@ -9,6 +9,9 @@ Scene_Game::~Scene_Game()
 
 void Scene_Game::Initialize()
 {
+	Mesh* pMesh = Locator::GetResourceManagerService()->LoadMesh("./Resources/Meshes/lowpoly_bunny.obj");
+	
+
 	// Inputs
 	CreateBaseInputs();
 
