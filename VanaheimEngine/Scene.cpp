@@ -209,7 +209,7 @@ void Scene::CreateLineObject(const std::string& name, const DirectX::XMFLOAT3& p
 void Scene::CreateSceneCamera()
 {
 	const std::string name{ "Camera-Main" };
-	const DirectX::XMFLOAT3 pos{ 55, 10, -125 };
+	const DirectX::XMFLOAT3 pos{ 0, 0, -20 };
 	CreateSceneCamera(name, pos);
 }
 void Scene::CleanScene()

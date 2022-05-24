@@ -1,6 +1,8 @@
 #include "GamePCH.h"
 #include "Scene_Game.h"
 
+#include "Material_GPUInstance.h"
+
 Scene_Game::Scene_Game()
 		   : Scene()
 {}
@@ -9,6 +11,18 @@ Scene_Game::~Scene_Game()
 
 void Scene_Game::Initialize()
 {
+	// Bunny 1
+	const std::string name1{ "Bunny 1" };
+	const DirectX::XMFLOAT3 pos1{ 10, 0, 0 };
+	Material_GPUInstance* pMaterial1 = new Material_GPUInstance();
+	Create3DObject(name1, pos1, "./Resources/Meshes/lowpoly_bunny.obj", pMaterial1);
+
+	// Bunny 2
+	const std::string name2{ "Bunny 1" };
+	const DirectX::XMFLOAT3 pos2{ -10, 0, 0 };
+	Material_GPUInstance* pMaterial2 = new Material_GPUInstance();
+	Create3DObject(name2, pos2, "./Resources/Meshes/lowpoly_bunny.obj", pMaterial2);
+
 	// Inputs
 	CreateBaseInputs();
 
