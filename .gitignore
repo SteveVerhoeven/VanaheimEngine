@@ -9,6 +9,9 @@
 /[Ll]ibs/**/*.vcxproj
 /[Ll]ibs/**/*.vcxproj.filters
 
+/[Gg]ame/Resources/Textures/Landscape/*.bmp
+
 *.vcxproj
 *.vcxproj.user
 *.sln
+
