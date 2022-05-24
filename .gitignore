@@ -1,2 +1,11 @@
+.vs
+/[Dd]ebug
+/[Rr]elease
+/[Bb]in
+/[Bb]in-int
 
+/[Llibs]/IMGUI/bin
+/[Llibs]/IMGUI/bin-int
 
+*.unityproj
+*.sln
