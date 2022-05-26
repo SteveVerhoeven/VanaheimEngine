@@ -57,7 +57,7 @@ class GameObject final
 		TransformComponent* Check_AddComponent_TransformComponent(const DirectX::XMFLOAT3& position,
 																  const DirectX::XMFLOAT4& rotation,
 																  const DirectX::XMFLOAT3& scale);
-		ModelComponent* Check_AddComponent_ModelComponent(const std::string& path);
+		//ModelComponent* Check_AddComponent_ModelComponent(const std::string& path);
 		RenderComponent* Check_AddComponent_RenderComponent();
 		NameComponent* Check_AddComponent_NameComponent(const std::string& name);
 };

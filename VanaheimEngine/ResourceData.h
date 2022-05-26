@@ -47,15 +47,15 @@ struct TextureData
 	TextureData()
 		: TextureData(0, "", nullptr)
 	{}
-	TextureData(const int ID, const std::string& filePath, Texture* pTexture)
+	TextureData(const int ID, const std::string& fileName, Texture* pTexture)
 		: ID(ID)
-		, filePath(filePath)
+		, name(fileName)
 		, pTexture(pTexture)
 	{}
 	~TextureData()
 	{ DELETE_POINTER(pTexture); }
 
 	int ID{};
-	std::string filePath{};
+	std::string name{};
 	Texture* pTexture{};
 };

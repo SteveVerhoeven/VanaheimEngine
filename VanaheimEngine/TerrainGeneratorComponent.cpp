@@ -75,7 +75,7 @@ void TerrainGeneratorComponent::GenerateTerrain()
 
 	Mesh* pMesh{ new Mesh() };
 	pMesh->Initialize(m_Vertices, m_Indices);
-	Locator::GetResourceManagerService()->Store3DMesh(pMesh, "Landscape_1");
+	Locator::GetResourceManagerService()->Store3DMesh(pMesh, "Terrain");
 
 	ResourceManager* pResourceManager{ Locator::GetResourceManagerService() };
 	Texture* pNormalTexture{ pResourceManager->LoadTexture("./Resources/Textures/Landscape/noiseMap.bmp") };
@@ -95,7 +95,7 @@ void TerrainGeneratorComponent::GenerateTerrain()
 
 	ModelComponent* pModelComponent{ m_pParentObject->GetComponent<ModelComponent>() };
 	pModelComponent->SetMesh(pMesh);
-	pModelComponent->AddMaterial(pMaterial);
+	pModelComponent->SetMaterial(pMaterial);
 
 	pMesh->PostInitialize(pMaterial);
 

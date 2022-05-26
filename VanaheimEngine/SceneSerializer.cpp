@@ -645,8 +645,9 @@ void SceneSerializer::DeserializeModelComponent(const YAML::detail::iterator_val
 		}
 		
 		/** Create */
-		ModelComponent* pModelComponent{ new ModelComponent(filePath) };
-		pModelComponent->AddMaterial(CreateMaterial(classType, pTextures));
+		Mesh* pMesh{ Locator::GetResourceManagerService()->LoadMesh(filePath) };
+		ModelComponent* pModelComponent{ new ModelComponent(pMesh) };
+		pModelComponent->SetMaterial(CreateMaterial(classType, pTextures));
 
 		/** Add */
 		pGO->AddComponent(pModelComponent);

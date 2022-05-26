@@ -9,25 +9,14 @@
 ModelComponent::ModelComponent()
 			   : ModelComponent(nullptr)
 {}
-ModelComponent::ModelComponent(const std::string& path)
-			   : Component()
-			   , m_pMesh(nullptr)
-			   , m_pMaterial(nullptr)
-			   , m_FilePath(path)
-			   , m_pTextures(std::vector<Texture*>())
-{}
 ModelComponent::ModelComponent(Mesh* pMesh)
 			   : Component()
 			   , m_pMesh(pMesh)
 			   , m_pMaterial(nullptr)
-			   , m_FilePath("")
 {}
 
 void ModelComponent::Initialize(Scene* /*pParentScene*/)
 {	
-	if (!m_pMesh)
-		m_pMesh = Locator::GetResourceManagerService()->Load3DMesh(m_pParentObject->GetComponent<NameComponent>()->GetName(), m_FilePath);
-
 	m_pParentObject->GetComponent<RenderComponent>()->EnableRenderComponent();
 }
 void ModelComponent::PostInitialize(Scene* /*pParentScene*/)
@@ -55,10 +44,15 @@ void ModelComponent::Render()
 	pRenderComponent->Render3DMesh(Locator::GetGraphicsService()->GetDeviceContext(), m_pMesh, m_pMaterial);
 }
 
-void ModelComponent::AddMaterial(Material* pMaterial)
+void ModelComponent::SetMaterial(Material* pMaterial)
 {
 	m_pMaterial = Locator::GetResourceManagerService()->LoadMaterial(pMaterial);
 	m_pMaterial->Initialize(Locator::GetGraphicsService()->GetDevice());
+}
+
+const std::string& ModelComponent::GetFilePath() const
+{
+	return m_pMesh->GetFilePath();
 }
 
 //void ModelComponent::Serialize(YAML::Emitter& out)

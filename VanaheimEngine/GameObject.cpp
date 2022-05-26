@@ -79,18 +79,18 @@ TransformComponent* GameObject::Check_AddComponent_TransformComponent(const Dire
 
 	return GetComponent<TransformComponent>();
 }
-ModelComponent* GameObject::Check_AddComponent_ModelComponent(const std::string& path)
-{
-	if (!HasComponent<ModelComponent>())
-	{
-		ModelComponent* pModelComponent{ new ModelComponent(path) };
-		AddComponent(pModelComponent);
-
-		return pModelComponent;
-	}
-
-	return GetComponent<ModelComponent>();
-}
+//ModelComponent* GameObject::Check_AddComponent_ModelComponent(const std::string& path)
+//{
+//	if (!HasComponent<ModelComponent>())
+//	{
+//		ModelComponent* pModelComponent{ new ModelComponent(path) };
+//		AddComponent(pModelComponent);
+//
+//		return pModelComponent;
+//	}
+//
+//	return GetComponent<ModelComponent>();
+//}
 RenderComponent* GameObject::Check_AddComponent_RenderComponent()
 {
 	if (!HasComponent<RenderComponent>())

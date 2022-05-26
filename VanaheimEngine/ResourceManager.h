@@ -23,12 +23,10 @@ class ResourceManager final
 		void Initialize();
 		
 		Mesh* LoadMesh(const std::string& path);
-
-		Mesh* Load3DMesh(const std::string& name, const std::string& path);
-		Mesh_Base* Load3DMesh(Mesh_Base* pMesh, GameObject* pParentGO);
 		template <class T>
-		T* LoadMaterial(T* material);
-		Texture* LoadTexture(const std::string& filePath);
+		T* LoadMaterial(T* pMaterial);
+		Texture* LoadTexture(const std::string& path);
+		
 		void Store3DMesh(Mesh* pMesh, const std::string& name);
 		void ResetInstancedMeshes();
 		std::vector<TextureData*> GetTextures() { return m_pTextures; }
@@ -42,40 +40,63 @@ class ResourceManager final
 		int m_MaterialFreeId;
 		int m_TextureFreeId;
 
-		//**// NEW
 		bool MeshExists(const std::string& name, size_t& index);
-		//**// NEW
+		bool MaterialExists(const std::string& name, size_t& index);
+		bool TextureExists(const std::string& name, size_t& index);
 
-		bool MeshAlreadyParsed(const std::string& newName, int& meshID);
-		bool MeshAlreadyLoaded(Mesh_Base* pMesh, int& meshID);
-		bool MaterialAlreadyLoaded(const Material* material_in, int& materialID);
-		bool TextureAlreadyLoaded(const std::string& filePath, int& textureID);
 
 		int GetFreeMeshID() { return m_MeshFreeId++; }
 		int GetFreeMaterialID() { return m_MaterialFreeId++; }
 		int GetFreeTextureID() { return m_TextureFreeId++; }
 
 		const std::string GetFileNameFromFilePath(const std::string& filePath);
+		
+		// BACKUP (For now)
+		//bool MeshAlreadyLoaded(Mesh_Base* pMesh, int& meshID);
 };
 
+//template<class T>
+//inline T* ResourceManager::LoadMaterial(T* material)
+//{
+//	int materialID{ false };
+//	// Check if the Mesh exists already and return the id if it does
+//	if (MaterialAlreadyLoaded(material, materialID))
+//	{
+//		DELETE_POINTER(material);
+//		return static_cast<T*>(m_p3DMaterials[materialID]->pMaterial);
+//	}
+//
+//	// Store the material
+//	MaterialData* pMaterialData{ new MaterialData() };
+//	pMaterialData->ID = GetFreeMaterialID();
+//	pMaterialData->name = material->GetName();
+//	pMaterialData->pMaterial = material;
+//	m_p3DMaterials.push_back(pMaterialData);
+//
+//	// Return the pointer to the new material
+//	return material;
+//}
+
 template<class T>
-inline T* ResourceManager::LoadMaterial(T* material)
+inline T* ResourceManager::LoadMaterial(T* pMaterial)
 {
-	int materialID{ false };
+	const std::string name{ pMaterial->GetName() };
+
+	size_t index{};
 	// Check if the Mesh exists already and return the id if it does
-	if (MaterialAlreadyLoaded(material, materialID))
+	if (MaterialExists(name, index))
 	{
-		DELETE_POINTER(material);
-		return static_cast<T*>(m_p3DMaterials[materialID]->pMaterial);
+		DELETE_POINTER(pMaterial);
+		return static_cast<T*>(m_p3DMaterials[index]->pMaterial);
 	}
 
 	// Store the material
 	MaterialData* pMaterialData{ new MaterialData() };
 	pMaterialData->ID = GetFreeMaterialID();
-	pMaterialData->name = material->GetName();
-	pMaterialData->pMaterial = material;
+	pMaterialData->name = name;
+	pMaterialData->pMaterial = pMaterial;
 	m_p3DMaterials.push_back(pMaterialData);
 
 	// Return the pointer to the new material
-	return material;
+	return pMaterial;
 }
