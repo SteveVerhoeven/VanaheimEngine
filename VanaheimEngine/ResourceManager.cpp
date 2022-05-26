@@ -33,24 +33,14 @@ ResourceManager::~ResourceManager()
 void ResourceManager::Initialize()
 {}
 
-//Mesh* ResourceManager::Get3DMesh(const std::string& name)
-//{
-//	auto result{ std::find_if(m_p3DMeshes.begin(), m_p3DMeshes.end(), [&](MeshData* pMeshData)
-//	{ return pMeshData->name == name; }) };
-//	
-//	// If the mesh is found return it
-//	if (result != m_p3DMeshes.end())
-//		return (*result)->pMesh;
-//	return nullptr;
-//}
-
-Mesh* ResourceManager::Load3DMesh(const std::string& name, const std::string& path)
+Mesh* ResourceManager::LoadMesh(const std::string& path)
 {
-	int meshID{};
-	// Check if the Mesh exists already and return the id if it does
-	if (MeshAlreadyParsed(name, meshID))
+	const std::string fileName{ GetFileNameFromFilePath(path) };
+	
+	size_t index{};
+	if (MeshExists(fileName, index))
 	{
-		Mesh* pMesh{ dynamic_cast<Mesh*>(m_p3DMeshes[meshID]->pMesh) };
+		Mesh* pMesh{ dynamic_cast<Mesh*>(m_p3DMeshes[index]->pMesh) };
 
 		// Check if the instance counter is on 0 if so set to 1 to start
 		if (pMesh->GetAmountInstances() <= 0)
@@ -58,7 +48,6 @@ Mesh* ResourceManager::Load3DMesh(const std::string& name, const std::string& pa
 
 		pMesh->IncrementInstanceCount();
 		return pMesh;
-		//return m_p3DMeshes[meshID]->pMesh;
 	}
 
 	// If it does not exist
@@ -68,66 +57,30 @@ Mesh* ResourceManager::Load3DMesh(const std::string& name, const std::string& pa
 	// Store the mesh
 	MeshData* pMeshData{ new MeshData() };
 	pMeshData->ID = GetFreeMeshID();
-	pMeshData->name = name;
+	pMeshData->name = fileName;
 	pMeshData->pMesh = pMesh;
 	m_p3DMeshes.push_back(pMeshData);
 
 	// Return the pointer to the mesh
 	return pMesh;
 }
-Mesh_Base* ResourceManager::Load3DMesh(Mesh_Base* pMesh, GameObject* pParentGO)
+Texture* ResourceManager::LoadTexture(const std::string& path)
 {
-	int meshID{};
-	// Check if the Mesh exists already and return the id if it does
-	if (MeshAlreadyLoaded(pMesh, meshID))
+	const std::string fileName{ GetFileNameFromFilePath(path) };
+
+	size_t index{};
+	if (TextureExists(fileName, index))
 	{
-		Line* pLine{ dynamic_cast<Line*>(pMesh) };
-		if (pLine)
-		{
-			Line* pTempLine{ dynamic_cast<Line*>(m_p3DMeshes[meshID]->pMesh) };
-			pTempLine->StoreLengthsFromInstances(pLine->GetLength());
-			pTempLine->StorePositionsFromInstances(pParentGO->GetComponent<TransformComponent>()->GetWorldPosition());
-		}
-
-		DELETE_POINTER(pLine);
-
-		pMesh = m_p3DMeshes[meshID]->pMesh;
-
-		// Check if the instance counter is on 0 if so set to 1 to start
-		if (pMesh->GetAmountInstances() <= 0)
-			pMesh->IncrementInstanceCount();
-
-		pMesh->IncrementInstanceCount();
-		return nullptr;
-		//return pMesh;
+		return m_pTextures[index]->pTexture;
 	}
 
-	// Store the mesh
-	MeshData* pMeshData{ new MeshData() };
-	pMeshData->ID = GetFreeMeshID();
-	pMeshData->name = "";
-	pMeshData->pMesh = pMesh;
-	m_p3DMeshes.push_back(pMeshData);
-
-	dynamic_cast<Line*>(pMeshData->pMesh)->StorePositionsFromInstances(pParentGO->GetComponent<TransformComponent>()->GetWorldPosition());
-
-	// Return the pointer to the mesh
-	return pMesh;
-}
-
-Texture* ResourceManager::LoadTexture(const std::string& filePath)
-{
-	int textureID{};
-	if (TextureAlreadyLoaded(filePath, textureID))
-		return m_pTextures[textureID]->pTexture;
-
 	// If it does not exist
-	Texture* pTexture{ new Texture(filePath) };
+	Texture* pTexture{ new Texture(path) };
 
 	// Store the texture
 	TextureData* pTextureData{ new TextureData() };
 	pTextureData->ID = GetFreeTextureID();
-	pTextureData->filePath = filePath;
+	pTextureData->name = fileName;
 	pTextureData->pTexture = pTexture;
 	m_pTextures.push_back(pTextureData);
 
@@ -144,30 +97,13 @@ void ResourceManager::Store3DMesh(Mesh* pMesh, const std::string& name)
 	pMeshData->pMesh = pMesh;
 	m_p3DMeshes.push_back(pMeshData);
 }
-
-bool ResourceManager::MeshAlreadyParsed(const std::string& newName, int& meshID)
+void ResourceManager::ResetInstancedMeshes()
 {
-	// Check if the map for 3D meshes is empty
-	if (m_p3DMeshes.empty())
-		return false;
-
-	// Check if you find the name in the map
-	auto result{ std::find_if(m_p3DMeshes.begin(), m_p3DMeshes.end(), [&](MeshData* pMeshData)
-	{
-		if (pMeshData->name == newName)
-		{
-			meshID = pMeshData->ID;
-			return true;
-		}
-		return false;
-	}) };
-
-	// Did you find the mesh already of not
-	if (result != m_p3DMeshes.end())
-		return true;
-	return false;
+	for (MeshData* pMeshData : m_p3DMeshes)
+		pMeshData->pMesh->SetIsRendered(false);
 }
-bool ResourceManager::MeshAlreadyLoaded(Mesh_Base* pMeshBase, int& meshID)
+
+bool ResourceManager::MeshExists(const std::string& name, size_t& index)
 {
 	// Check if the map for 3D meshes is empty
 	if (m_p3DMeshes.empty())
@@ -176,19 +112,9 @@ bool ResourceManager::MeshAlreadyLoaded(Mesh_Base* pMeshBase, int& meshID)
 	// Check if you find the name in the map
 	auto result{ std::find_if(m_p3DMeshes.begin(), m_p3DMeshes.end(), [&](MeshData* pMeshData)
 	{
-		Line* pLine{ dynamic_cast<Line*>(pMeshData->pMesh) };
-		Line* pLineTest{ dynamic_cast<Line*>(pMeshBase) };
-		Mesh* pMesh{ dynamic_cast<Mesh*>(pMeshData->pMesh) };
-		Mesh* pMeshTest{ dynamic_cast<Mesh*>(pMeshBase) };
-
-		if (pLine && pLine->GetLineType() == pLineTest->GetLineType())
+		if (pMeshData->name == name)
 		{
-			meshID = pMeshData->ID;
-			return true;
-		}
-		if (pMesh && pMesh == pMeshTest)
-		{
-			meshID = pMeshData->ID;
+			index = pMeshData->ID;
 			return true;
 		}
 		return false;
@@ -200,54 +126,96 @@ bool ResourceManager::MeshAlreadyLoaded(Mesh_Base* pMeshBase, int& meshID)
 
 	return false;
 }
-bool ResourceManager::MaterialAlreadyLoaded(const Material* material_in, int& materialID)
+bool ResourceManager::MaterialExists(const std::string& name, size_t& index)
 {
-	// Check if the map for materials is empty
+	// Check if the map for 3D meshes is empty
 	if (m_p3DMaterials.empty())
 		return false;
 
 	// Check if you find the name in the map
 	auto result{ std::find_if(m_p3DMaterials.begin(), m_p3DMaterials.end(), [&](MaterialData* pMaterialData)
 	{
-		if (pMaterialData->name == material_in->GetName())
+		if (pMaterialData->name == name)
 		{
-			materialID = pMaterialData->ID;
+			index = pMaterialData->ID;
 			return true;
 		}
 		return false;
 	}) };
-		
-	// Did you find the material already of not
+
+	// Did you find the mesh already of not
 	if (result != m_p3DMaterials.end())
 		return true;
-	
+
 	return false;
 }
-bool ResourceManager::TextureAlreadyLoaded(const std::string& filePath, int& textureID)
+bool ResourceManager::TextureExists(const std::string& name, size_t& index)
 {
 	// Check if the map for 3D meshes is empty
 	if (m_pTextures.empty())
 		return false;
 
-	// Check if you find the filepath in the map
+	// Check if you find the name in the map
 	auto result{ std::find_if(m_pTextures.begin(), m_pTextures.end(), [&](TextureData* pTextureData)
-	{ 
-			if (pTextureData->filePath == filePath)
-			{
-				textureID = pTextureData->ID;
-				return true;
-			}
-			return false;
+	{
+		if (pTextureData->name == name)
+		{
+			index = pTextureData->ID;
+			return true;
+		}
+		return false;
 	}) };
 
-	// Did you find the texture already of not
+	// Did you find the mesh already of not
 	if (result != m_pTextures.end())
 		return true;
+
 	return false;
 }
 
-void ResourceManager::ResetInstancedMeshes()
+const std::string ResourceManager::GetFileNameFromFilePath(const std::string& filePath)
 {
-	for (MeshData* pMeshData : m_p3DMeshes)
-		pMeshData->pMesh->SetIsRendered(false);
+	// Remove path
+	const size_t lastSlashPosition{ filePath.find_last_of("/\\") };
+	std::string completeFileName = filePath.substr(lastSlashPosition + 1);
+
+	// Remove extension
+	const size_t lastDotPosition{ completeFileName.find_last_of('.') };
+	std::string fileName = completeFileName.substr(0, lastDotPosition);
+
+	return fileName;
 }
+
+//bool ResourceManager::MeshAlreadyLoaded(Mesh_Base* pMeshBase, int& meshID)
+//{
+//	// Check if the map for 3D meshes is empty
+//	if (m_p3DMeshes.empty())
+//		return false;
+//
+//	// Check if you find the name in the map
+//	auto result{ std::find_if(m_p3DMeshes.begin(), m_p3DMeshes.end(), [&](MeshData* pMeshData)
+//	{
+//		Line* pLine{ dynamic_cast<Line*>(pMeshData->pMesh) };
+//		Line* pLineTest{ dynamic_cast<Line*>(pMeshBase) };
+//		Mesh* pMesh{ dynamic_cast<Mesh*>(pMeshData->pMesh) };
+//		Mesh* pMeshTest{ dynamic_cast<Mesh*>(pMeshBase) };
+//
+//		if (pLine && pLine->GetLineType() == pLineTest->GetLineType())
+//		{
+//			meshID = pMeshData->ID;
+//			return true;
+//		}
+//		if (pMesh && pMesh == pMeshTest)
+//		{
+//			meshID = pMeshData->ID;
+//			return true;
+//		}
+//		return false;
+//	}) };
+//
+//	// Did you find the mesh already of not
+//	if (result != m_p3DMeshes.end())
+//		return true;
+//
+//	return false;
+//}

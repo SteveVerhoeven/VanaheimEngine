@@ -10,7 +10,6 @@ class ModelComponent final : public Component
 {
 	public:
 		ModelComponent();
-		ModelComponent(const std::string& path);
 		ModelComponent(Mesh* pMesh);
 		virtual ~ModelComponent() = default;
 
@@ -21,15 +20,12 @@ class ModelComponent final : public Component
 
 		void Render();
 		
-		void AddMaterial(Material* pMaterial);
+		void SetMaterial(Material* pMaterial);
 		void SetMesh(Mesh* pMesh) { m_pMesh = pMesh; };
 
-		const std::string& GetFilePath() const { return m_FilePath; }
 		Mesh* GetMesh() const { return m_pMesh; }
 		Material* GetMaterial() const { return m_pMaterial; }
-
-		// Serialization
-		//void Serialize(YAML::Emitter& out) override;
+		const std::string& GetFilePath() const;
 
 	protected:
 		virtual void Initialize(Scene* pParentScene) override;
@@ -40,6 +36,5 @@ class ModelComponent final : public Component
 	private:
 		Mesh* m_pMesh;
 		Material* m_pMaterial;
-		std::string m_FilePath;
 		std::vector<Texture*> m_pTextures;
 };

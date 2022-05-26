@@ -72,20 +72,21 @@ void Scene::AddGameObject(GameObject* pObject)
 {
 	pObject->SetParentScene(this);
 
-	// Find duplicates
-	auto comp = pObject->GetComponent<LineComponent>();
-	if (comp)
-	{
-		auto mesh = comp->GetMesh();
-		if (mesh)
-		{
-			if (!Locator::GetResourceManagerService()->Load3DMesh(dynamic_cast<Mesh_Base*>(mesh), pObject))
-			{
-				DELETE_POINTER(pObject);
-				return;
-			}
-		}		
-	}	
+	/** BACK UP (for now - refactor incoming) */
+	//// Find duplicates
+	//auto comp = pObject->GetComponent<LineComponent>();
+	//if (comp)
+	//{
+	//	auto mesh = comp->GetMesh();
+	//	if (mesh)
+	//	{
+	//		if (!Locator::GetResourceManagerService()->Load3DMesh(dynamic_cast<Mesh_Base*>(mesh), pObject))
+	//		{
+	//			DELETE_POINTER(pObject);
+	//			return;
+	//		}
+	//	}		
+	//}	
 
 	m_pGameObjects.push_back(pObject);
 }
@@ -157,8 +158,9 @@ void Scene::Create3DObject(const std::string& name, const DirectX::XMFLOAT3& pos
 	GameObject* pMeshGO{ new GameObject(position, {}, {}, name) };
 
 	// Model
-	ModelComponent* pModelComponent{ new ModelComponent(meshPath) };
-	pModelComponent->AddMaterial(pMaterial);
+	Mesh* pMesh{ Locator::GetResourceManagerService()->LoadMesh(meshPath) };
+	ModelComponent* pModelComponent{ new ModelComponent(pMesh) };
+	pModelComponent->SetMaterial(pMaterial);
 
 	// Adding to game object
 	pMeshGO->AddComponent(pModelComponent);
@@ -176,7 +178,7 @@ void Scene::Create3DObject(const std::string& name, const DirectX::XMFLOAT3& pos
 
 	// Model
 	ModelComponent* pModelComponent{ new ModelComponent(pMesh) };
-	pModelComponent->AddMaterial(pMaterial);
+	pModelComponent->SetMaterial(pMaterial);
 
 	// Adding to game object
 	pMeshGO->AddComponent(pModelComponent);
