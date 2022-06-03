@@ -15,11 +15,11 @@ class TransformComponent final : public Component
 		TransformComponent& operator=(const TransformComponent&) = delete;
 		TransformComponent& operator=(TransformComponent&&) noexcept = delete;
 
-		void Translate(const DirectX::XMFLOAT3& position, const bool localChange);
-		void Translate(const DirectX::XMVECTOR& position, const bool localChange);
-		void Translate(const float x, const float y, const float z, const bool localChange);
+		void Translate(const DirectX::XMFLOAT3& position);
+		void Translate(const DirectX::XMVECTOR& position);
+		void Translate(const float x, const float y, const float z);
 		void Rotate(const DirectX::XMFLOAT3& rotation, const bool isEuler);
-		void Rotate(const float x, const float y, const float z, const bool isEuler);
+		void Rotate(const float x, const float y, const float z, const float w = 0.f, const bool isEuler = false);
 		void Scale(const DirectX::XMFLOAT3& scale, const bool localChange);
 		void Scale(const float x, const float y, const float z, const bool localChange);
 
@@ -82,4 +82,5 @@ class TransformComponent final : public Component
 		DirectX::XMFLOAT4X4 m_World;
 
 		void UpdateVectors(const DirectX::XMVECTOR& rotationVector);
+		void UpdateWorld();
 };

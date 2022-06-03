@@ -66,6 +66,10 @@ void TerrainGeneratorComponent::onNotify(ObserverEvent event)
 }
 void TerrainGeneratorComponent::GenerateTerrain()
 {
+	// For now exit if there already is a mesh
+	if (m_pModelComponent->GetMesh() != nullptr)
+		return;
+
 	std::vector<std::vector<float>> noiseMap{};
 	GenerateNoiseMap(noiseMap);
 	GenerateColorMap(noiseMap);

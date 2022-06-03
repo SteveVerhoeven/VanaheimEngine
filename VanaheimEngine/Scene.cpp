@@ -31,6 +31,8 @@ void Scene::Initialize()
 }
 void Scene::PostInitialize()
 {
+	m_pSceneCameraGO->PostInitialize();
+
 	for (GameObject* pObject : m_pGameObjects)
 		pObject->PostInitialize();
 }
@@ -38,6 +40,8 @@ void Scene::Update(const float elapsedSec)
 {
 	if (!m_IsActive)
 		return;
+
+	m_pSceneCameraGO->Update(elapsedSec);
 
 	for (GameObject* pObject : m_pGameObjects)
 		pObject->Update(elapsedSec);
@@ -48,6 +52,8 @@ void Scene::FixedUpdate(const float timeEachUpdate)
 {
 	if (!m_IsActive)
 		return;
+
+	m_pSceneCameraGO->FixedUpdate(timeEachUpdate);
 
 	for (GameObject* pObject : m_pGameObjects)
 		pObject->FixedUpdate(timeEachUpdate);
@@ -131,7 +137,7 @@ void Scene::CreateCamera(const std::string& name, const DirectX::XMFLOAT3& posit
 		SetSceneCamera(pMesh);
 
 	// Edit game object in scene
-	pMesh->GetComponent<TransformComponent>()->Translate(position, false);
+	pMesh->GetComponent<TransformComponent>()->Translate(position);
 }
 void Scene::CreateSceneCamera(const std::string& name, const DirectX::XMFLOAT3& position)
 {
@@ -149,7 +155,7 @@ void Scene::CreateSceneCamera(const std::string& name, const DirectX::XMFLOAT3& 
 	SetSceneCamera(pCameraObject);
 
 	// Edit game object in scene
-	pCameraObject->GetComponent<TransformComponent>()->Translate(position, false);
+	pCameraObject->GetComponent<TransformComponent>()->Translate(position);
 }
 void Scene::Create3DObject(const std::string& name, const DirectX::XMFLOAT3& position, const std::string& meshPath, Material* pMaterial)
 {
@@ -167,7 +173,7 @@ void Scene::Create3DObject(const std::string& name, const DirectX::XMFLOAT3& pos
 	AddGameObject(pMeshGO);
 
 	// Edit game object in scene
-	pMeshGO->GetComponent<TransformComponent>()->Translate(position, false);
+	pMeshGO->GetComponent<TransformComponent>()->Translate(position);
 }
 void Scene::Create3DObject(const std::string& name, const DirectX::XMFLOAT3& position, Mesh* pMesh, Material* pMaterial)
 {
@@ -185,7 +191,7 @@ void Scene::Create3DObject(const std::string& name, const DirectX::XMFLOAT3& pos
 	AddGameObject(pMeshGO);
 
 	// Edit game object in scene
-	pMeshGO->GetComponent<TransformComponent>()->Translate(position, false);
+	pMeshGO->GetComponent<TransformComponent>()->Translate(position);
 }
 void Scene::CreateLineObject(const std::string& name, const DirectX::XMFLOAT3& position, Line* pLine)
 {
@@ -200,7 +206,7 @@ void Scene::CreateLineObject(const std::string& name, const DirectX::XMFLOAT3& p
 	pLineGO->AddComponent(pLineComponent);
 	
 	// Edit game object in scene
-	pLineGO->GetComponent<TransformComponent>()->Translate(position, false);
+	pLineGO->GetComponent<TransformComponent>()->Translate(position);
 
 	// Add to scene
 	AddGameObject(pLineGO);
@@ -209,7 +215,7 @@ void Scene::CreateLineObject(const std::string& name, const DirectX::XMFLOAT3& p
 void Scene::CreateSceneCamera()
 {
 	const std::string name{ "Camera-Main" };
-	const DirectX::XMFLOAT3 pos{ 0, 0, -20 };
+	const DirectX::XMFLOAT3 pos{ 0, 50, -200 };
 	CreateSceneCamera(name, pos);
 }
 void Scene::CleanScene()
