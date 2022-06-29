@@ -46,7 +46,7 @@ void MoveCameraCommand::Move()
 		else if (m_MoveRight)
 			newPosition = currentPositionVector + (rightVector * m_MoveSpeed * elapsedSec);
 
-		pTransformComponent->Translate(newPosition, false);
+		pTransformComponent->Translate(newPosition);
 	}
 
 	// ****************************
@@ -63,7 +63,7 @@ void MoveCameraCommand::Move()
 		else if (m_MoveBackward)
 			newPosition = currentPositionVector - (forwardVector * m_MoveSpeed * elapsedSec);
 
-		pTransformComponent->Translate(newPosition, false);
+		pTransformComponent->Translate(newPosition);
 	}	
 }
 

@@ -318,12 +318,12 @@ void SceneSerializer::SerializeTransformComponent(YAML::Emitter& out, TransformC
 	out << YAML::Key << "TransformComponent";
 	out << YAML::BeginMap;
 
-	out << YAML::Key << "Pitch" << YAML::Value << pTransformComponent->GetPitch();
-	out << YAML::Key << "Yaw" << YAML::Value << pTransformComponent->GetYaw();
-	out << YAML::Key << "Roll" << YAML::Value << pTransformComponent->GetRoll();
+	//out << YAML::Key << "Pitch" << YAML::Value << pTransformComponent->GetPitch();
+	//out << YAML::Key << "Yaw" << YAML::Value << pTransformComponent->GetYaw();
+	//out << YAML::Key << "Roll" << YAML::Value << pTransformComponent->GetRoll();
 
 	out << YAML::Key << "LocalPosition" << YAML::Value << pTransformComponent->GetPosition();
-	out << YAML::Key << "LocalRotation" << YAML::Value << pTransformComponent->GetRotation();
+	out << YAML::Key << "LocalRotation" << YAML::Value << pTransformComponent->GetRotation(false);
 	out << YAML::Key << "LocalScale" << YAML::Value << pTransformComponent->GetScale();
 
 	out << YAML::Key << "WorldPosition" << YAML::Value << pTransformComponent->GetWorldPosition();
@@ -513,9 +513,9 @@ void SceneSerializer::DeserializeTransformComponent(const YAML::detail::iterator
 	if (transformComponent)
 	{
 		/** Gather */
-		float pitch{ transformComponent["Pitch"].as<float>() };
-		float yaw{ transformComponent["Yaw"].as<float>() };
-		float roll{ transformComponent["Roll"].as<float>() };
+		//float pitch{ transformComponent["Pitch"].as<float>() };
+		//float yaw{ transformComponent["Yaw"].as<float>() };
+		//float roll{ transformComponent["Roll"].as<float>() };
 		DirectX::XMFLOAT3 position{ transformComponent["LocalPosition"].as<DirectX::XMFLOAT3>() };
 		DirectX::XMFLOAT3 worldPosition{ transformComponent["WorldPosition"].as<DirectX::XMFLOAT3>() };
 		DirectX::XMFLOAT3 scale{ transformComponent["LocalScale"].as<DirectX::XMFLOAT3>() };
@@ -532,9 +532,9 @@ void SceneSerializer::DeserializeTransformComponent(const YAML::detail::iterator
 		TransformComponent* pTransformComponent{ pGO->GetComponent<TransformComponent>() };
 
 		/** Add */
-		pTransformComponent->SetPitch(pitch);
-		pTransformComponent->SetYaw(yaw);
-		pTransformComponent->SetRoll(roll);
+		//pTransformComponent->SetPitch(pitch);
+		//pTransformComponent->SetYaw(yaw);
+		//pTransformComponent->SetRoll(roll);
 
 		pTransformComponent->SetLocalPosition(position);
 		pTransformComponent->SetWorldPosition(worldPosition);
