@@ -56,19 +56,19 @@ void InspectorUI::DrawComponents()
 			pComponent->Translate(pos[0], pos[1], pos[2]);
 
 		/** Rotation */
-		const DirectX::XMFLOAT4& rotF4{ pComponent->GetRotation() };
-		float rotation[] = { DirectX::XMConvertToDegrees(rotF4.x),
-							 DirectX::XMConvertToDegrees(rotF4.y),
-							 DirectX::XMConvertToDegrees(rotF4.z) };
+		const DirectX::XMFLOAT4& rotF4{ pComponent->GetRotation(false) };
+		float rotation[] = { rotF4.x,
+							 rotF4.y,
+							 rotF4.z };
 		if (DrawXMFlOAT3Controlls("Rotation", rotation))
-			pComponent->Rotate(rotation[0], rotation[1], rotation[2], rotF4.w, false);
+			pComponent->Rotate(rotation[0], rotation[1], rotation[2]);
 
 		/** Scale */
 		const DirectX::XMFLOAT3& scaleF3{ pComponent->GetWorldScale() };
 		float scale[] = { scaleF3.x, scaleF3.y, scaleF3.z };
 
 		if (DrawXMFlOAT3Controlls("Scale", scale, 100.f, 1.f))
-			pComponent->SetLocalScale({ scale[0], scale[1], scale[2] });
+			pComponent->Scale({ scale[0], scale[1], scale[2] });
 	});
 	DrawSingleComponent<CameraComponent>("Camera", [](auto* pComponent)
 	{
