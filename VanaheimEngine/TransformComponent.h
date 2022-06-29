@@ -33,7 +33,7 @@ class TransformComponent final : public Component
 		const DirectX::XMFLOAT3& GetRight() const { return m_Right; }
 		const DirectX::XMFLOAT3& GetUp() const { return m_Up; }
 		const DirectX::XMFLOAT3& GetWorldUp() const { return m_WorldUp; }
-		const DirectX::XMFLOAT4X4& GetWorld();
+		const DirectX::XMFLOAT4X4& GetWorld() const { return m_World; };
 
 		void SetLocalPosition(const DirectX::XMFLOAT3& position) { m_Position = position; }
 		void SetLocalRotation(const DirectX::XMFLOAT4& rotation) { m_Rotation = rotation; }

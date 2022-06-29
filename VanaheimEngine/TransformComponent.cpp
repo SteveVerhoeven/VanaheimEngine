@@ -30,13 +30,21 @@ void TransformComponent::Initialize(Scene* /*pParentScene*/)
 {}
 void TransformComponent::PostInitialize(Scene* /*pParentScene*/)
 {
-	UpdateVectors(DirectX::XMLoadFloat4(&m_Rotation));
 	UpdateWorld();
+	UpdateVectors(DirectX::XMLoadFloat4(&m_Rotation));
 }
 void TransformComponent::Update(const float /*elapsedSec*/)
 {}
 void TransformComponent::FixedUpdate(const float /*timeEachUpdate*/)
-{}
+{
+	if (m_UpdateWorldMatrix)
+	{
+		UpdateWorld();
+		UpdateVectors(DirectX::XMLoadFloat4(&m_Rotation));
+
+		m_UpdateWorldMatrix = false;
+	}
+}
 
 void TransformComponent::Translate(const DirectX::XMFLOAT3& position)
 {
@@ -133,19 +141,6 @@ const DirectX::XMFLOAT4 TransformComponent::GetRotation(const bool getWorldRotat
 	return {DirectX::XMConvertToDegrees((getWorldRotation != false) ? m_WorldRotation.x : m_Rotation.x),
 			DirectX::XMConvertToDegrees((getWorldRotation != false) ? m_WorldRotation.y : m_Rotation.y),
 			DirectX::XMConvertToDegrees((getWorldRotation != false) ? m_WorldRotation.z : m_Rotation.z), 1.f};
-}
-
-const DirectX::XMFLOAT4X4& TransformComponent::GetWorld()
-{
-	if (m_UpdateWorldMatrix)
-	{
-		UpdateWorld();	
-		UpdateVectors(DirectX::XMLoadFloat4(&m_WorldRotation));
-
-		m_UpdateWorldMatrix = false;
-	}
-
-	return m_World;
 }
 
 //void TransformComponent::Serialize(YAML::Emitter& out)
