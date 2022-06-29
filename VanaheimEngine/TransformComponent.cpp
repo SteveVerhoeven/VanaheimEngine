@@ -135,12 +135,14 @@ const DirectX::XMFLOAT4 TransformComponent::GetRotation(const bool getWorldRotat
 			DirectX::XMConvertToDegrees((getWorldRotation != false) ? m_WorldRotation.z : m_Rotation.z), 1.f};
 }
 
-DirectX::XMFLOAT4X4 TransformComponent::GetWorld()
+const DirectX::XMFLOAT4X4& TransformComponent::GetWorld()
 {
 	if (m_UpdateWorldMatrix)
 	{
 		UpdateWorld();	
 		UpdateVectors(DirectX::XMLoadFloat4(&m_WorldRotation));
+
+		m_UpdateWorldMatrix = false;
 	}
 
 	return m_World;
