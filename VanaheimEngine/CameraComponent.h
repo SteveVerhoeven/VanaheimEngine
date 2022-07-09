@@ -28,7 +28,7 @@ class CameraComponent final : public Component
 		void SetFar(const float farValue) { m_Far = farValue; }
 		void SetFOV(const float fovValue) { m_FOV = fovValue; }
 
-		bool GetIsMainCamera() const { return m_IsMainCamera; }
+		bool GetIsMainCamera() const { return m_IsSceneCamera; }
 		void SetIsMainCamera(const bool isMainCamera);
 
 		void SetView(const DirectX::XMFLOAT4X4& view) { m_View = view; };
@@ -47,7 +47,7 @@ class CameraComponent final : public Component
 		virtual void FixedUpdate(const float timeEachUpdate) override;
 
 	private:
-		bool m_IsMainCamera;
+		bool m_IsSceneCamera;
 		bool m_UpdateView,
 			 m_UpdateProjection,
 			 m_UpdateViewProjection,

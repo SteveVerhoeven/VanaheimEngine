@@ -45,7 +45,7 @@ class Scene
 		void Create3DObject(const std::string& name, const DirectX::XMFLOAT3& possition, Mesh* pMesh, Material* pMaterial);
 
 		/** Function that creates the inputs for the scene camera */
-		void CreateBaseInputs();
+		void CreateSceneCameraInputs();
 
 	private:
 		bool m_Cleanup;
@@ -54,6 +54,5 @@ class Scene
 		GameObject* m_pSceneCameraGO;
 		std::vector<GameObject*> m_pGameObjects{};
 
-		void CreateSceneCamera();
 		void CleanScene();
 };

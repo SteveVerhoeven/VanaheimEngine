@@ -13,9 +13,6 @@ void Scene_Game::Initialize()
 	pGameObject->AddComponent(new TerrainGeneratorComponent());
 	AddGameObject(pGameObject);
 
-	// Inputs
-	CreateBaseInputs();
-
 	ActivateScene();
 	Scene::Initialize();
 }

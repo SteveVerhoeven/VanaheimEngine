@@ -41,6 +41,14 @@ if (x)                       \
 // @param: message    - The message to sent to the consoles
 #define LOG( errorLevel, message )	\
 Locator::GetDebugLoggerService()->Log(errorLevel, message);
+#define LOG_INFO( message )	\
+Locator::GetDebugLoggerService()->Log(ErrorLevel::LOG_INFO, message);
+#define LOG_WARNING( message )	\
+Locator::GetDebugLoggerService()->Log(ErrorLevel::LOG_WARNING, message);
+#define LOG_ERROR( message )	\
+Locator::GetDebugLoggerService()->Log(ErrorLevel::LOG_ERROR, message);
+#define LOG_FATAL( message )	\
+Locator::GetDebugLoggerService()->Log(ErrorLevel::LOG_FATAL, message);
 #define LOG_HRESULT( hr, function, file, line )	\
 Locator::GetDebugLoggerService()->LogHRESULT(hr, function, file, line);
 #pragma endregion
