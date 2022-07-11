@@ -17,8 +17,11 @@ InputManager::~InputManager()
 {
 	for (InputData* pInputData : m_pInputs)
 		DELETE_POINTER(pInputData);
-
 	m_pInputs.clear();
+	for (InputData* pInputData : m_pBaseInputs)
+		DELETE_POINTER(pInputData);
+	m_pBaseInputs.clear();
+
 	DELETE_POINTER(m_pMouse);
 }
 
@@ -27,7 +30,7 @@ MSG InputManager::ProcessInput(const float /*elapsedSec*/)
 	MSG msg{};
 	ZeroMemory(&msg, sizeof(msg));
 
-	if (!ProcessWindowsEvents(msg) || !ProcessGameInput(msg) || m_QuitGame)
+	if (!ProcessWindowsEvents(msg) /*|| !ProcessGameInput(msg)*/ || m_QuitGame)
 	{
 		msg.message = WM_QUIT;
 		return msg;
@@ -121,7 +124,7 @@ void InputManager::AddBaseKeyToMap(const ControllerButton& cButton, const Keyboa
 	pInputData->commandData = commandData;
 	pInputData->keyData = keyData;
 
-	m_pInputs.push_back(pInputData);
+	m_pBaseInputs.push_back(pInputData);
 }
 void InputManager::AddKeyToMap(const ControllerButton& cButton, const KeyboardButton& kButton, const MouseButton& mButton, const ButtonPressType& pressType, const std::string& name, Command* const pCommand)
 {
@@ -155,10 +158,10 @@ bool InputManager::IsKeyUp(const int keyValue) const
 // Retrieve the command from a Controller button
 Command* InputManager::GetCommand(const ControllerButton& cButton)
 {
-	auto result = std::find_if(m_pInputs.begin(), m_pInputs.end(), [&](InputData* pInputData) 
+	auto result = std::find_if(m_pBaseInputs.begin(), m_pBaseInputs.end(), [&](InputData* pInputData)
 	{ return pInputData->keyData.controllerButton == cButton; });
 
-	if (result != m_pInputs.end())
+	if (result != m_pBaseInputs.end())
 		return (*result)->commandData.pCommand;
 
 	return nullptr;
@@ -166,20 +169,20 @@ Command* InputManager::GetCommand(const ControllerButton& cButton)
 // Retrieve the command from a Keyboard button
 Command* InputManager::GetCommand(const KeyboardButton& kButton)
 {
-	auto result = std::find_if(m_pInputs.begin(), m_pInputs.end(), [&](InputData* pInputData)
+	auto result = std::find_if(m_pBaseInputs.begin(), m_pBaseInputs.end(), [&](InputData* pInputData)
 	{ return pInputData->keyData.keyboardButton == kButton; });
 
-	if (result != m_pInputs.end())
+	if (result != m_pBaseInputs.end())
 		return (*result)->commandData.pCommand;
 
 	return nullptr;
 }
 Command* InputManager::GetCommand(const MouseButton& mButton)
 {
-	auto result = std::find_if(m_pInputs.begin(), m_pInputs.end(), [&](InputData* pInputData)
+	auto result = std::find_if(m_pBaseInputs.begin(), m_pBaseInputs.end(), [&](InputData* pInputData)
 		{ return pInputData->keyData.mouseButton == mButton; });
 
-	if (result != m_pInputs.end())
+	if (result != m_pBaseInputs.end())
 		return (*result)->commandData.pCommand;
 
 	return nullptr;
@@ -210,8 +213,5 @@ void InputManager::ProcessMouseRotation(MSG& msg)
 		Command* pCommand{ GetCommand(ControllerButton::ButtonLThumbStick) };
 		RotateCameraCommand* pRotateCommand{ dynamic_cast<RotateCameraCommand*>(pCommand) };
 		pRotateCommand->SetMouseMovement(mouse);
-		/*bool RMBPressed{ (GetKeyState(VK_RBUTTON) & 0x8000) != 0 };
-		if (RMBPressed)
-			pCommand->Execute();*/
 	}
 }

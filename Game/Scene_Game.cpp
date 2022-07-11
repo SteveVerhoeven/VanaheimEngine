@@ -9,7 +9,7 @@ Scene_Game::~Scene_Game()
 
 void Scene_Game::Initialize()
 {
-	GameObject* pGameObject{ new GameObject({}, {}, {1, 1, 1}, "Terrain") };
+	GameObject* pGameObject{ new GameObject("Terrain") };
 	pGameObject->AddComponent(new TerrainGeneratorComponent());
 	AddGameObject(pGameObject);
 

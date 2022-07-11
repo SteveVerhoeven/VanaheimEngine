@@ -19,21 +19,13 @@ void SceneCameraMovement::Update(const float /*elapsedSec*/)
 		RotateCamera();
 
 		if (pInputManager->IsKeyDown(int(KeyboardButton::W)))
-		{
 			MoveCamera(KeyboardButton::W);
-		}
 		else if (pInputManager->IsKeyDown(int(KeyboardButton::S)))
-		{
 			MoveCamera(KeyboardButton::S);
-		}
 		else if (pInputManager->IsKeyDown(int(KeyboardButton::A)))
-		{
 			MoveCamera(KeyboardButton::A);
-		}
 		else if (pInputManager->IsKeyDown(int(KeyboardButton::D)))
-		{
 			MoveCamera(KeyboardButton::D);
-		}
 	}
 }
 void SceneCameraMovement::FixedUpdate(const float /*timeEachUpdate*/)

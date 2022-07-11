@@ -4,7 +4,13 @@
 #include "VanaheimEngine.h"
 #include "Component.h"
 
-GameObject::GameObject(const DirectX::XMFLOAT3& position, 
+GameObject::GameObject()
+		   : GameObject({}, {}, { 1, 1, 1 }, "")
+{}
+GameObject::GameObject(const std::string & name)
+		   : GameObject({}, {}, { 1, 1, 1 }, name)
+{}
+GameObject::GameObject(const DirectX::XMFLOAT3& position,
 					   const DirectX::XMFLOAT4& rotation, 
 					   const DirectX::XMFLOAT3& scale,
 					   const std::string& name)

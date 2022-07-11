@@ -11,6 +11,8 @@ class NameComponent;
 class GameObject final
 {
 	public:
+		GameObject();
+		GameObject(const std::string& name = "");
 		GameObject(const DirectX::XMFLOAT3& position = { 0, 0, 0 }, 
 				   const DirectX::XMFLOAT4& rotation = { 0, 0, 0, 0 }, 
 				   const DirectX::XMFLOAT3& scale = { 1, 1, 1 },

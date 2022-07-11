@@ -50,6 +50,7 @@ class InputManager final
 		XINPUT_STATE m_ControllerState;
 
 		// General
+		std::vector<InputData*> m_pBaseInputs;
 		std::vector<InputData*> m_pInputs;
 
 		bool ProcessWindowsEvents(MSG& msg);
