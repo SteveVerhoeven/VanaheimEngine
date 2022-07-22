@@ -15,9 +15,32 @@ class InputManager final
 
 		MSG ProcessInput(const float elapsedSec);
 
-		void AddKeyToMap(const ControllerButton& cButton, const KeyboardButton& kButton, const ButtonPressType& pressType, const std::string& name, Command* const pCommand);
+		void AddBaseKeyToMap(const ControllerButton& cButton, 
+							 const KeyboardButton& kButton, 
+							 const MouseButton& mButton,
+							 const ButtonPressType& pressType, 
+							 const std::string& name, 
+							 Command* const pCommand);
+		void AddKeyToMap(const ControllerButton& cButton, 
+						 const KeyboardButton& kButton, 
+						 const MouseButton& mButton,
+						 const ButtonPressType& pressType, 
+						 const std::string& name, 
+						 Command* const pCommand);
 
 		void QuitGame() { m_QuitGame = true; }
+
+		Mouse* GetMouse() const { return m_pMouse; }
+
+		bool IsKeyDown(const int keyValue) const;
+		bool IsKeyUp(const int keyValue) const;
+
+		// Retrieve the command from a Controller button
+		Command* GetCommand(const ControllerButton& cButton);
+		// Retrieve the command from a Keyboard button
+		Command* GetCommand(const KeyboardButton& kButton);
+		// Retrieve the command from a Keyboard button
+		Command* GetCommand(const MouseButton& mButton);
 
 	private:
 		bool m_QuitGame;
@@ -27,13 +50,15 @@ class InputManager final
 		XINPUT_STATE m_ControllerState;
 
 		// General
+		std::vector<InputData*> m_pBaseInputs;
 		std::vector<InputData*> m_pInputs;
 
 		bool ProcessWindowsEvents(MSG& msg);
 		bool ProcessGameInput(MSG& msg);
 
-		// Retrieve the command from a Controller button
-		Command* GetCommand(const ControllerButton& cButton);
-		// Retrieve the command from a Keyboard button
-		Command* GetCommand(const KeyboardButton& cButton);
+		
+		//
+		void ProcessMouse_De_Activation(MSG& msg);
+		// 
+		void ProcessMouseRotation(MSG& msg);
 };

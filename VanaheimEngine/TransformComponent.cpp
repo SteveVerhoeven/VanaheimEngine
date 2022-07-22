@@ -8,9 +8,6 @@ TransformComponent::TransformComponent(const DirectX::XMFLOAT3& position,
 									   const DirectX::XMFLOAT3& scale)
 				   : Component()
 				   , m_UpdateWorldMatrix(false)
-				   //, m_Pitch(0)
-				   //, m_Yaw(0)
-				   //, m_Roll(0)
 				   , m_Position(position)
 				   , m_WorldPosition({0, 0, 0})
 				   , m_Scale(scale)
@@ -30,13 +27,21 @@ void TransformComponent::Initialize(Scene* /*pParentScene*/)
 {}
 void TransformComponent::PostInitialize(Scene* /*pParentScene*/)
 {
-	UpdateVectors(DirectX::XMLoadFloat4(&m_Rotation));
 	UpdateWorld();
+	UpdateVectors(DirectX::XMLoadFloat4(&m_Rotation));
 }
 void TransformComponent::Update(const float /*elapsedSec*/)
 {}
 void TransformComponent::FixedUpdate(const float /*timeEachUpdate*/)
-{}
+{
+	if (m_UpdateWorldMatrix)
+	{
+		UpdateWorld();
+		UpdateVectors(DirectX::XMLoadFloat4(&m_Rotation));
+	
+		m_UpdateWorldMatrix = false;
+	}
+}
 
 void TransformComponent::Translate(const DirectX::XMFLOAT3& position)
 {
@@ -91,7 +96,7 @@ void TransformComponent::UpdateVectors(const DirectX::XMVECTOR& rotationVector)
 	const DirectX::XMVECTOR world_Forward{ DirectX::XMVectorSet(0, 0, 1, 0) };
 	const DirectX::XMVECTOR world_Right{ DirectX::XMVectorSet(1, 0, 0, 0) };
 
-	const DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationQuaternion(rotationVector);
+	const DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationRollPitchYawFromVector(rotationVector);
 	const DirectX::XMVECTOR forward = XMVector3TransformCoord(world_Forward, rotMat);
 	const DirectX::XMVECTOR right = XMVector3TransformCoord(world_Right, rotMat);
 	const DirectX::XMVECTOR up = DirectX::XMVector3Cross(forward, right);
@@ -110,11 +115,11 @@ void TransformComponent::UpdateWorld()
 
 	// Store the needed world components to their respective variables
 	DirectX::XMVECTOR pos, scale, rot;
-	if (XMMatrixDecompose(&scale, &rot, &pos, world))
+	if (DirectX::XMMatrixDecompose(&scale, &rot, &pos, world))
 	{
-		XMStoreFloat3(&m_WorldPosition, pos);
-		XMStoreFloat3(&m_WorldScale, scale);
-		XMStoreFloat4(&m_WorldRotation, rot);
+		DirectX::XMStoreFloat3(&m_WorldPosition, pos);
+		DirectX::XMStoreFloat3(&m_WorldScale, scale);
+		DirectX::XMStoreFloat4(&m_WorldRotation, rot);
 	}
 }
 
@@ -133,19 +138,6 @@ const DirectX::XMFLOAT4 TransformComponent::GetRotation(const bool getWorldRotat
 	return {DirectX::XMConvertToDegrees((getWorldRotation != false) ? m_WorldRotation.x : m_Rotation.x),
 			DirectX::XMConvertToDegrees((getWorldRotation != false) ? m_WorldRotation.y : m_Rotation.y),
 			DirectX::XMConvertToDegrees((getWorldRotation != false) ? m_WorldRotation.z : m_Rotation.z), 1.f};
-}
-
-const DirectX::XMFLOAT4X4& TransformComponent::GetWorld()
-{
-	if (m_UpdateWorldMatrix)
-	{
-		UpdateWorld();	
-		UpdateVectors(DirectX::XMLoadFloat4(&m_WorldRotation));
-
-		m_UpdateWorldMatrix = false;
-	}
-
-	return m_World;
 }
 
 //void TransformComponent::Serialize(YAML::Emitter& out)

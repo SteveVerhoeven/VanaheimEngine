@@ -7,7 +7,7 @@
 
 CameraComponent::CameraComponent()
 				: Component()
-				, m_IsMainCamera(false)
+				, m_IsSceneCamera(false)
 				// Dirty Flag pattern
 				// Reference: https://gameprogrammingpatterns.com/dirty-flag.html
 				, m_UpdateView(false)
@@ -56,7 +56,7 @@ const DirectX::XMFLOAT4X4& CameraComponent::GetView()
 			// ********************************
 			// Calculate the VIEW matrix
 			// ********************************
-			const DirectX::XMFLOAT3 worldPosition{ pTransformComponent->GetWorldPosition() };
+			const DirectX::XMFLOAT3 worldPosition{ pTransformComponent->GetPosition() };
 			const DirectX::XMFLOAT3 forward{ pTransformComponent->GetForward() };
 			const DirectX::XMFLOAT3 up{ pTransformComponent->GetUp() };
 
@@ -187,7 +187,7 @@ const DirectX::XMFLOAT4X4& CameraComponent::GetViewProjectionInverse()
 
 void CameraComponent::SetIsMainCamera(const bool isMainCamera)
 {
-	m_IsMainCamera = isMainCamera;
+	m_IsSceneCamera = isMainCamera;
 
 	if (isMainCamera)
 	{
@@ -203,7 +203,7 @@ void CameraComponent::SetIsMainCamera(const bool isMainCamera)
 	{
 		if (m_pParentObject == m_pParentObject->GetParentScene()->GetSceneCamera())
 		{
-			m_IsMainCamera = true;
+			m_IsSceneCamera = true;
 		}
 	}
 }

@@ -252,7 +252,7 @@ bool SceneSerializer::Deserialize(const std::string& filePath, Scene* pScene)
 		{
 			//uint64_t uuid = yamlGO["GameObject"].as<uint64_t>();
 			
-			GameObject* pGO = new GameObject();
+			GameObject* pGO = new GameObject("");
 
 			DeserializeNameComponent(yamlGO, pGO);
 			DeserializeTransformComponent(yamlGO, pGO);

@@ -44,6 +44,8 @@ enum class ButtonPressType
 };
 enum class KeyboardButton
 {
+	NoAction,
+
 	// Reference: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 	ESC,
 
@@ -130,22 +132,31 @@ enum class KeyboardButton
 	ARROW_UP    = VK_UP,
 	ARROW_DOWN  = VK_DOWN,
 };
+enum class MouseButton
+{
+	NoAction,
+	LMB = VK_LBUTTON,
+	RMB = VK_RBUTTON
+};
 
 struct KeyData
 {
 	KeyData()
-		: KeyData(ControllerButton::NoAction, KeyboardButton::A, ButtonPressType::BUTTON_RELEASED)
+		: KeyData(ControllerButton::NoAction, KeyboardButton::NoAction, MouseButton::NoAction, ButtonPressType::BUTTON_RELEASED)
 	{}
 	KeyData(const KeyData& kData)
 		: controllerButton(kData.controllerButton)
 		, keyboardButton(kData.keyboardButton)
+		, mouseButton(kData.mouseButton)
 		, buttonState(kData.buttonState)
 	{}
 	KeyData(const ControllerButton& cButton, 
-			const KeyboardButton& kButton, 
+			const KeyboardButton& kButton,
+		    const MouseButton& mButton,
 			const ButtonPressType& pressType)
 		: controllerButton(cButton)
 		, keyboardButton(kButton)
+		, mouseButton(mButton)
 		, buttonState(pressType)
 	{}
 	~KeyData()
@@ -153,6 +164,7 @@ struct KeyData
 
 	ControllerButton controllerButton{};
 	KeyboardButton	 keyboardButton{};
+	MouseButton	     mouseButton{};
 	ButtonPressType  buttonState{};
 };
 struct CommandData
@@ -178,19 +190,22 @@ struct CommandData
 struct InputData
 {
 	InputData()
-		:InputData({}, {})
+		:InputData({},  {}, {})
 	{}
 	InputData(const InputData& iData)
-		: keyData(iData.keyData)
+		: engineKeyInput(iData.engineKeyInput)
+		, keyData(iData.keyData)
 		, commandData(iData.commandData)
 	{}
-	InputData(const KeyData& kData, const CommandData& cData)
-		: keyData(kData)
+	InputData(const bool isEngineInput, const KeyData& kData, const CommandData& cData)
+		: engineKeyInput(isEngineInput)
+		, keyData(kData)
 		, commandData(cData)
 	{}
 	~InputData()
 	{ DELETE_POINTER(commandData.pCommand); }
 
+	bool engineKeyInput{};
 	KeyData keyData{};
 	CommandData commandData{};
 };

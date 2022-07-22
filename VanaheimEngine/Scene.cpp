@@ -9,6 +9,8 @@
 #include "MoveCameraCommand.h"
 #include "RotateCameraCommand.h"
 
+#include "SceneCameraMovement.h"
+
 Scene::Scene()
 	  : m_Cleanup(false)
 	  , m_IsActive(false)
@@ -24,10 +26,17 @@ Scene::~Scene()
 
 void Scene::Initialize()
 {
-	CreateSceneCamera();
+	// Scene camera
+	const std::string name{ "Camera-Main" };
+	const DirectX::XMFLOAT3 pos{ 0, 50, -200 };
+	CreateSceneCamera(name, pos);
 
+	// Initialize objects
 	for (GameObject* pObject : m_pGameObjects)
 		pObject->Initialize();
+
+	// Inputs
+	CreateSceneCameraInputs();
 }
 void Scene::PostInitialize()
 {
@@ -142,20 +151,21 @@ void Scene::CreateCamera(const std::string& name, const DirectX::XMFLOAT3& posit
 void Scene::CreateSceneCamera(const std::string& name, const DirectX::XMFLOAT3& position)
 {
 	// Game Object
-	GameObject* pCameraObject{ new GameObject(position, {}, {}, name) };
+	m_pSceneCameraGO = new GameObject(position, {}, {}, name);
 
 	// Camera
 	CameraComponent* pCameraComponent{ new CameraComponent() };
 	pCameraComponent->SetIsMainCamera(true);
 
-	// Adding to game object
-	pCameraObject->AddComponent(pCameraComponent);
+	// Camera movement
+	SceneCameraMovement* pSceneCameraMovement{ new SceneCameraMovement() };
 
-	// Set as the main camera
-	SetSceneCamera(pCameraObject);
+	// Adding to game object
+	m_pSceneCameraGO->AddComponent(pCameraComponent);
+	m_pSceneCameraGO->AddComponent(pSceneCameraMovement);
 
 	// Edit game object in scene
-	pCameraObject->GetComponent<TransformComponent>()->Translate(position);
+	m_pSceneCameraGO->GetComponent<TransformComponent>()->Translate(position);
 }
 void Scene::Create3DObject(const std::string& name, const DirectX::XMFLOAT3& position, const std::string& meshPath, Material* pMaterial)
 {
@@ -212,12 +222,6 @@ void Scene::CreateLineObject(const std::string& name, const DirectX::XMFLOAT3& p
 	AddGameObject(pLineGO);
 }
 
-void Scene::CreateSceneCamera()
-{
-	const std::string name{ "Camera-Main" };
-	const DirectX::XMFLOAT3 pos{ 0, 50, -200 };
-	CreateSceneCamera(name, pos);
-}
 void Scene::CleanScene()
 {
 	if (m_Cleanup == true)
@@ -247,13 +251,13 @@ void Scene::CleanScene()
 	}
 }
 
-void Scene::CreateBaseInputs()
+void Scene::CreateSceneCameraInputs()
 {
 	InputManager* pInputManager{ Locator::GetInputManagerService() };
 
-	pInputManager->AddKeyToMap(ControllerButton::ButtonUp, KeyboardButton::W, ButtonPressType::BUTTON_RELEASED, "MOVE_FORWARD", new MoveCameraCommand(true, false, false, false));
-	pInputManager->AddKeyToMap(ControllerButton::ButtonDown, KeyboardButton::S, ButtonPressType::BUTTON_RELEASED, "MOVE_BACKWARD", new MoveCameraCommand(false, true, false, false));
-	pInputManager->AddKeyToMap(ControllerButton::ButtonLeft, KeyboardButton::A, ButtonPressType::BUTTON_RELEASED, "MOVE_LEFT", new MoveCameraCommand(false, false, true, false));
-	pInputManager->AddKeyToMap(ControllerButton::ButtonRight, KeyboardButton::D, ButtonPressType::BUTTON_RELEASED, "MOVE_RIGHT", new MoveCameraCommand(false, false, false, true));
-	pInputManager->AddKeyToMap(ControllerButton::ButtonLThumbStick, KeyboardButton::E, ButtonPressType::BUTTON_HOLD, "ROTATE", new RotateCameraCommand());
+	pInputManager->AddBaseKeyToMap(ControllerButton::ButtonUp, KeyboardButton::W, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_FORWARD", new MoveCameraCommand(true, false, false, false));
+	pInputManager->AddBaseKeyToMap(ControllerButton::ButtonDown, KeyboardButton::S, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_BACKWARD", new MoveCameraCommand(false, true, false, false));
+	pInputManager->AddBaseKeyToMap(ControllerButton::ButtonLeft, KeyboardButton::A, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_LEFT", new MoveCameraCommand(false, false, true, false));
+	pInputManager->AddBaseKeyToMap(ControllerButton::ButtonRight, KeyboardButton::D, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_RIGHT", new MoveCameraCommand(false, false, false, true));
+	pInputManager->AddBaseKeyToMap(ControllerButton::ButtonLThumbStick, KeyboardButton::NoAction, MouseButton::RMB, ButtonPressType::BUTTON_HOLD, "ROTATE", new RotateCameraCommand());
 }
