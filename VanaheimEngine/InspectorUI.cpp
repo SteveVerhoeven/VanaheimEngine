@@ -183,12 +183,12 @@ void InspectorUI::AddComponent()
 	if (ImGui::BeginPopup("Add component"))
 	{
 		// TODO: WIP
-		/*if (ImGui::MenuItem("Camera"))
+		if (ImGui::MenuItem("Camera"))
 		{
 			m_pGameObject->AddComponent(new CameraComponent());
 			ImGui::CloseCurrentPopup();
 		}
-		if (ImGui::MenuItem("Terrain generator"))
+		/*if (ImGui::MenuItem("Terrain generator"))
 		{
 			m_pGameObject->AddComponent(new ModelComponent());
 			m_pGameObject->AddComponent(new TerrainGeneratorComponent());

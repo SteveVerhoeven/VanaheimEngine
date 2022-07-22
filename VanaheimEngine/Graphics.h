@@ -18,10 +18,12 @@ class Graphics final
 		inline ID3D11Device* GetDevice() const { return m_pDevice; }
 		inline ID3D11DeviceContext* GetDeviceContext() const { return m_pDeviceContext; }
 		inline IDXGISwapChain* GetSwapChain() const { return m_pSwapChain; }
-		inline ID3D11ShaderResourceView* GetShaderResourceView() const { return m_pShaderResourceView_Game; }
+		inline ID3D11ShaderResourceView* GetShaderResourceView_Game() const { return m_pShaderResourceView_Game; }
+		inline ID3D11ShaderResourceView* GetShaderResourceView_Camera() const { return m_pShaderResourceView_Camera; }
 		
 		void SetMainRenderTarget();
 		void SetGameRenderTarget();
+		void SetCameraRenderTarget();
 
 	protected:
 	private:
@@ -41,6 +43,10 @@ class Graphics final
 		ID3D11RenderTargetView* m_pRenderTargetView_Game;
 		ID3D11ShaderResourceView* m_pShaderResourceView_Game;
 
+		ID3D11Texture2D* m_pRenderTargetBuffer_Camera;
+		ID3D11RenderTargetView* m_pRenderTargetView_Camera;
+		ID3D11ShaderResourceView* m_pShaderResourceView_Camera;
+
 		HRESULT InitializeDirectX(const int width, const int height);
 		HRESULT CreateDevice_Context();
 		HRESULT CreateFactory();
@@ -48,5 +54,8 @@ class Graphics final
 		HRESULT CreateDepth_Stencil_Resources(const int width, const int height);
 		HRESULT CreateRenderTarget_Main();
 		HRESULT CreateRenderTarget_Game(const int width, const int height);
-		HRESULT CreateShaderResourceView();
+		HRESULT CreateRenderTarget_Camera(const int width, const int height);
+		HRESULT CreateShaderResourceView_Game();
+		HRESULT CreateShaderResourceView_Camera();
+
 };

@@ -255,7 +255,6 @@ void RenderComponent::RenderNormal(ID3D11DeviceContext* pDeviceContext, Material
 		pDeviceContext->DrawIndexed(IndexCount, StartIndexLocation, BaseVertexLocation);
 	}
 }
-
 void RenderComponent::RenderInstanced(ID3D11DeviceContext* pDeviceContext, Material* pEffect, Mesh_Base* pMeshBase)
 {
 	if (pMeshBase->GetIsRendered())

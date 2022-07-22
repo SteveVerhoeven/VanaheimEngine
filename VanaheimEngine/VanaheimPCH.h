@@ -95,6 +95,7 @@ Locator::GetDebugLoggerService()->LogHRESULT(hr, function, file, line);
 #include "InspectorUI.h"
 #include "HierarchyUI.h"
 #include "ViewportUI.h"
+#include "CameraViewportUI.h"
 
 #include "ResourceManager.h"
 #include "SceneManager.h"
