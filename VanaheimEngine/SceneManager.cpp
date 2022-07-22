@@ -76,10 +76,17 @@ void SceneManager::Render()
 	m_pGraphics->SetGameRenderTarget();		// Set the render target for the viewport in the UI
 	for (Scene* pScene : m_pMenuScenes)
 		pScene->Render();
-
+	
 	for (Scene* pScene : m_pGameScenes)
 		pScene->Render();
 	
+	m_pGraphics->SetCameraRenderTarget();	// Set the render target for the camera viewport in the UI
+	for (Scene* pScene : m_pMenuScenes)
+		pScene->Render();
+	
+	for (Scene* pScene : m_pGameScenes)
+		pScene->Render();
+
 	m_pGraphics->SetMainRenderTarget();		// Set the render target for the entire program window
 	m_pUIManager->Render();
 

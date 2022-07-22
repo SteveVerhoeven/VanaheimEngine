@@ -168,6 +168,12 @@
     <ClCompile Include="ImageGenerator.cpp">
       <Filter>Generator</Filter>
     </ClCompile>
+    <ClCompile Include="SceneCameraMovement.cpp">
+      <Filter>Patterns\Components\SubComponents</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraViewportUI.cpp">
+      <Filter>UI\General</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VanaheimEngine.h" />
@@ -355,6 +361,12 @@
     <ClInclude Include="ImageGenerator.h">
       <Filter>Generator</Filter>
     </ClInclude>
+    <ClInclude Include="SceneCameraMovement.h">
+      <Filter>Patterns\Components\SubComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraViewportUI.h">
+      <Filter>UI\General</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="General">
@@ -419,6 +431,9 @@
     </Filter>
     <Filter Include="Geometry\OBJ">
       <UniqueIdentifier>{b5465964-fd1f-497f-be72-3d16000db4ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Patterns\Components\SubComponents">
+      <UniqueIdentifier>{d11be00e-43b1-49ea-8a21-5d9635fb228d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

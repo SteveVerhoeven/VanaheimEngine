@@ -22,7 +22,7 @@ void ViewportUI::ShowWindow()
 	Graphics* pGraphics{ Locator::GetGraphicsService() };
 	const float width{ ImGui::GetWindowWidth() };
 	const float height{ ImGui::GetWindowHeight() };
-	ImGui::Image(pGraphics->GetShaderResourceView(), ImVec2{width, height});
+	ImGui::Image(pGraphics->GetShaderResourceView_Game(), ImVec2{width, height});
 
 	EndWindowBase();
 }
