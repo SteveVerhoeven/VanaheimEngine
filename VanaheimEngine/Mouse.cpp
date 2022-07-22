@@ -4,7 +4,7 @@
 #include "Window.h"
 
 Mouse::Mouse()
-	  : m_MouseInputAccepted(false)
+	  : m_MouseInputAccepted(true)
 	  , m_MousePosition()
 	  , m_OldMousePosition()
 	  , m_MouseMovement()

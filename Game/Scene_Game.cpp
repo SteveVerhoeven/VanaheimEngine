@@ -21,9 +21,6 @@ void Scene_Game::Initialize()
 	//CreateLandscape_2DPlaneOctree(true);
 	//CreateLandscape_2DPlaneKDtree();
 
-	// Inputs
-	CreateBaseInputs();
-
 	ActivateScene();
 	Scene::Initialize();
 }
@@ -40,7 +37,7 @@ void Scene_Game::Render() const
 
 void Scene_Game::CreateLandscape_2DPlane()
 {
-	GameObject* pGameObject{ new GameObject({}, {}, {}, "Terrian") };
+	GameObject* pGameObject{ new GameObject("Terrian") };
 	pGameObject->AddComponent(new TerrainGeneratorComponent());
 	AddGameObject(pGameObject);
 }

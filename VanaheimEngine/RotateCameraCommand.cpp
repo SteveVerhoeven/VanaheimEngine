@@ -29,13 +29,13 @@ void RotateCameraCommand::Rotate()
 
 	TransformComponent* pTransformComponent{ m_pCameraObject->GetComponent<TransformComponent>() };
 	
-	DirectX::XMFLOAT4 currentRotation{ pTransformComponent->GetWorldRotationEuler() };
+	DirectX::XMFLOAT4 currentRotation{ pTransformComponent->GetRotation(false) };
 	DirectX::XMFLOAT3 newRotation{};
 	newRotation.x = currentRotation.x + (m_MouseMovement.y * m_RotatingSpeed * elapsedSec);
 	newRotation.y = currentRotation.y + (m_MouseMovement.x * m_RotatingSpeed * elapsedSec);
 	newRotation.z = currentRotation.z;
 
-	pTransformComponent->Rotate(newRotation, true);
+	pTransformComponent->Rotate(newRotation);
 }
 
 void RotateCameraCommand::SetCameraObject()

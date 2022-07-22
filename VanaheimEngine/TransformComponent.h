@@ -15,34 +15,26 @@ class TransformComponent final : public Component
 		TransformComponent& operator=(const TransformComponent&) = delete;
 		TransformComponent& operator=(TransformComponent&&) noexcept = delete;
 
-		void Translate(const DirectX::XMFLOAT3& position, const bool localChange);
-		void Translate(const DirectX::XMVECTOR& position, const bool localChange);
-		void Translate(const float x, const float y, const float z, const bool localChange);
-		void Rotate(const DirectX::XMFLOAT3& rotation, const bool isEuler);
-		void Rotate(const float x, const float y, const float z, const bool isEuler);
-		void Scale(const DirectX::XMFLOAT3& scale, const bool localChange);
-		void Scale(const float x, const float y, const float z, const bool localChange);
+		void Translate(const DirectX::XMFLOAT3& position);
+		void Translate(const DirectX::XMVECTOR& position);
+		void Translate(const float x, const float y, const float z);
+		void Rotate(const DirectX::XMFLOAT3& rotation);
+		void Rotate(const float x, const float y, const float z);
+		void Scale(const DirectX::XMFLOAT3& scale);
+		void Scale(const float x, const float y, const float z);
 
 		const DirectX::XMFLOAT3& GetPosition() const { return m_Position; }
 		const DirectX::XMFLOAT3& GetWorldPosition() const { return m_WorldPosition; }
-		const DirectX::XMFLOAT4& GetRotation() const { return m_Rotation; }
+		const DirectX::XMFLOAT4 GetRotation(const bool getWorldRotation) const;
 		const DirectX::XMFLOAT4& GetWorldRotation() const { return m_WorldRotation; }
-		DirectX::XMFLOAT4		 GetRotationEuler() const;
-		DirectX::XMFLOAT4		 GetWorldRotationEuler() const;
 		const DirectX::XMFLOAT3& GetScale() const { return m_Scale; }
 		const DirectX::XMFLOAT3& GetWorldScale() const { return m_WorldScale; }		 					   
 		const DirectX::XMFLOAT3& GetForward() const { return m_Forward; }
 		const DirectX::XMFLOAT3& GetRight() const { return m_Right; }
 		const DirectX::XMFLOAT3& GetUp() const { return m_Up; }
 		const DirectX::XMFLOAT3& GetWorldUp() const { return m_WorldUp; }
-		DirectX::XMFLOAT4X4 GetWorld();
-		const float GetPitch() const { return m_Pitch; }
-		const float GetYaw() const { return m_Yaw; }
-		const float GetRoll() const { return m_Roll; }
+		const DirectX::XMFLOAT4X4& GetWorld() const { return m_World; }
 
-		void SetPitch(const float pitch) { m_Pitch = pitch; }
-		void SetYaw(const float yaw) { m_Yaw = yaw; }
-		void SetRoll(const float roll) { m_Roll = roll; }
 		void SetLocalPosition(const DirectX::XMFLOAT3& position) { m_Position = position; }
 		void SetLocalRotation(const DirectX::XMFLOAT4& rotation) { m_Rotation = rotation; }
 		void SetLocalScale(const DirectX::XMFLOAT3& scale) { m_Scale = scale; }
@@ -66,9 +58,6 @@ class TransformComponent final : public Component
 
 	private:
 		bool m_UpdateWorldMatrix;
-		float m_Pitch,
-			  m_Yaw,
-			  m_Roll;
 		DirectX::XMFLOAT3 m_Position,
 						  m_WorldPosition,
 						  m_Scale,
@@ -82,4 +71,7 @@ class TransformComponent final : public Component
 		DirectX::XMFLOAT4X4 m_World;
 
 		void UpdateVectors(const DirectX::XMVECTOR& rotationVector);
+		void UpdateWorld();
+
+		const float WrapAngle(const float angle) const;
 };
