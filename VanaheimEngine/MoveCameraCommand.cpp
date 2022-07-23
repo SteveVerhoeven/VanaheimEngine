@@ -9,7 +9,7 @@ MoveCameraCommand::MoveCameraCommand(const bool moveForward, const bool moveBack
 				  , m_MoveBackward(moveBackward)
 				  , m_MoveLeft(moveLeft)
 				  , m_MoveRight(moveRight)
-				  , m_MoveSpeed(500.f) //2500
+				  , m_MoveSpeed(2500.f) //2500
 				  , m_pCameraObject(nullptr)
 {}
 

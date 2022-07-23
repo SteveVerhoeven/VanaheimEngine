@@ -40,9 +40,8 @@ void ModelComponent::PostInitialize(Scene* /*pParentScene*/)
 void ModelComponent::Update(const float /*elapsedSec*/)
 { 
 	if (!m_pMaterial)
-		return; 
-	
-	m_pMaterial->Update(m_pParentObject); 
+		return; 	
+
 }
 void ModelComponent::FixedUpdate(const float /*timeEachUpdate*/)
 {}
@@ -50,6 +49,9 @@ void ModelComponent::Render()
 {
 	if (!m_pMesh || !m_pMaterial)
 		return;
+
+	m_pMaterial->Update(m_pParentObject);
+	
 
 	RenderComponent* pRenderComponent{ m_pParentObject->GetComponent<RenderComponent>() };
 	pRenderComponent->Render3DMesh(Locator::GetGraphicsService()->GetDeviceContext(), m_pMesh, m_pMaterial);

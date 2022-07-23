@@ -73,6 +73,7 @@ void SceneManager::Render()
 	m_pGraphics->ClearBackbuffer();
 	m_pUIManager->BeginFrame();
 	
+	SetSceneCameraAsMain();
 	m_pGraphics->SetGameRenderTarget();		// Set the render target for the viewport in the UI
 	for (Scene* pScene : m_pMenuScenes)
 		pScene->Render();
@@ -80,13 +81,18 @@ void SceneManager::Render()
 	for (Scene* pScene : m_pGameScenes)
 		pScene->Render();
 	
-	m_pGraphics->SetCameraRenderTarget();	// Set the render target for the camera viewport in the UI
-	for (Scene* pScene : m_pMenuScenes)
-		pScene->Render();
-	
-	for (Scene* pScene : m_pGameScenes)
-		pScene->Render();
+	if (SetHighlightedCameraAsMain())
+	{
+		m_pGraphics->SetCameraRenderTarget();	// Set the render target for the camera viewport in the UI
+		for (Scene* pScene : m_pMenuScenes)
+			pScene->Render();
 
+		for (Scene* pScene : m_pGameScenes)
+			pScene->Render();
+		
+		SetSceneCameraAsMain();
+	}
+	
 	m_pGraphics->SetMainRenderTarget();		// Set the render target for the entire program window
 	m_pUIManager->Render();
 
@@ -134,4 +140,26 @@ void SceneManager::ActivateMenuSceneByIndex(const size_t sceneIndex)
 	m_ActiveMenuSceneIndex = int(sceneIndex);
 
 	m_MenuActive = true;
+}
+
+void SceneManager::SetSceneCameraAsMain()
+{
+	Scene* pScene{ GetActiveGameScene() };
+	GameObject* pCameraObject{ pScene->GetSceneCamera() };
+
+	Locator::ProvideRenderCameraService(pCameraObject->GetComponent<CameraComponent>());
+}
+bool SceneManager::SetHighlightedCameraAsMain()
+{
+	GameObject* pHighlightedGameObject{ Locator::GetUIManagerService()->GetUI<InspectorUI>()->GetHighlightedCameraGameobject() };
+	if (pHighlightedGameObject == nullptr)
+		return false;
+
+	CameraComponent* pCameraComponent{ pHighlightedGameObject->GetComponent<CameraComponent>() };
+	if (pCameraComponent == nullptr)
+		return false;
+
+	Locator::ProvideRenderCameraService(pCameraComponent);
+
+	return true;
 }

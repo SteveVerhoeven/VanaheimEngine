@@ -191,7 +191,7 @@ void CameraComponent::SetIsMainCamera(const bool isMainCamera)
 
 	if (isMainCamera)
 	{
-		Locator::ProvideSceneCameraService(this);
+		Locator::ProvideRenderCameraService(this);
 		if (m_pParentObject && m_pParentObject->GetParentScene())
 		{
 			GameObject* pOldCameraObject{ m_pParentObject->GetParentScene()->GetSceneCamera() };
@@ -201,7 +201,7 @@ void CameraComponent::SetIsMainCamera(const bool isMainCamera)
 	}
 	else
 	{
-		if (m_pParentObject == m_pParentObject->GetParentScene()->GetSceneCamera())
+		if (m_pParentObject == Locator::GetSceneCameraService()->GetParentObject())
 		{
 			m_IsSceneCamera = true;
 		}

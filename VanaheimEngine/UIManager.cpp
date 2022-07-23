@@ -231,9 +231,9 @@ void UIManager::OpenDockSpace()
             HierarchyUI* pHierarchy{ GetUI<HierarchyUI>() };
             ImGui::Checkbox("Hierarchy", pHierarchy->CanRenderUI());
 
-            //// Camera Viewport
-            //CameraViewportUI* pCameraViewportUI{ GetUI<CameraViewportUI>() };
-            //ImGui::Checkbox("Camera viewport", pCameraViewportUI->CanRenderUI());
+            // Camera Viewport
+            CameraViewportUI* pCameraViewportUI{ GetUI<CameraViewportUI>() };
+            ImGui::Checkbox("Camera viewport", pCameraViewportUI->CanRenderUI());
 
             ImGui::EndMenu();
         }
