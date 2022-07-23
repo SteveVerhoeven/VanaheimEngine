@@ -10,6 +10,11 @@ InspectorUI::InspectorUI()
 InspectorUI::~InspectorUI()
 {}
 
+void InspectorUI::SetHighlightedGameObject(GameObject* pGameObject)
+{
+	m_pGameObject = pGameObject;
+}
+
 void InspectorUI::Initialize()
 {}
 void InspectorUI::ShowWindow()

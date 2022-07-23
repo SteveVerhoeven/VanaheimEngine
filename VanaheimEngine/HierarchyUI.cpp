@@ -44,7 +44,7 @@ void HierarchyUI::Draw()
 		if (ImGui::IsItemClicked())
 		{
 			m_SelectedGameObject = i;
-			m_pInspectorUI->SetGameObject(gameObjects[i]);
+			m_pInspectorUI->SetHighlightedGameObject(gameObjects[i]);
 		}
 
 		if (opened)
@@ -71,7 +71,7 @@ void HierarchyUI::Draw()
 			// Set the scene to be cleaned
 			m_pScene->SetCleanSeneFlag();
 			// Set the target of the inspector UI back to nullptr
-			m_pInspectorUI->SetGameObject(nullptr);
+			m_pInspectorUI->SetHighlightedGameObject(nullptr);
 		}
 	}
 
@@ -79,7 +79,7 @@ void HierarchyUI::Draw()
 	if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
 	{
 		m_SelectedGameObject = INT32_MAX;
-		m_pInspectorUI->SetGameObject(nullptr);
+		m_pInspectorUI->SetHighlightedGameObject(nullptr);
 	}
 
 	// Right click on empty space in hierarchy

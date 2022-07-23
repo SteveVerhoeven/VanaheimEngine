@@ -49,4 +49,7 @@ class SceneManager final
 		std::vector<Scene*> m_pMenuScenes;
 		Graphics* m_pGraphics;
 		UIManager* m_pUIManager;
+
+		void SetSceneCameraAsMain();
+		bool SetHighlightedCameraAsMain();
 };
