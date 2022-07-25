@@ -43,16 +43,12 @@ void ViewportUI::ShowWindow()
 	UNREFERENCED_PARAMETER(s4);
 	UNREFERENCED_PARAMETER(s5);
 
-	//const ImVec2 viewportSize = ImGui::GetContentRegionAvail();
-	const ImVec2 imageSize = { 1280, 720 };
 	Graphics* pGraphics{ Locator::GetGraphicsService() };
-	auto x = ImGui::GetCursorPosX();
-	UNREFERENCED_PARAMETER(x);
+	ID3D11ShaderResourceView* pSRV{ pGraphics->GetShaderResourceView_Game() };
+	const ImVec2 imageSize = { 1280, 720 };
 	if (s3.x > imageSize.x)
-	{
-		ImGui::SetCursorPosX(1920/2 - 1280/2);
-	}
-	ImGui::Image(pGraphics->GetShaderResourceView_Game(), ImVec2{ imageSize.x, imageSize.y });
+		ImGui::SetCursorPosX(1920 / 2 - 1280 / 2);
+	ImGui::Image(pSRV, ImVec2{ imageSize.x, imageSize.y });
 	EndWindowBase();
 
 	ImGui::PopStyleVar();

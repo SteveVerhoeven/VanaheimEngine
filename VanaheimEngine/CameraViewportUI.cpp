@@ -29,9 +29,9 @@ void CameraViewportUI::ShowWindow()
 	BeginWindowBase(window_flags);
 
 	Graphics* pGraphics{ Locator::GetGraphicsService() };
+	ID3D11ShaderResourceView* pSRV{ pGraphics->GetShaderResourceView_Camera() };
 	const float width{ ImGui::GetWindowWidth() };
 	const float height{ ImGui::GetWindowHeight() };
-	ID3D11ShaderResourceView* pSRV{ pGraphics->GetShaderResourceView_Camera() };
 	ImGui::Image(pSRV, ImVec2{ width, height });
 
 	EndWindowBase();
