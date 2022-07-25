@@ -30,5 +30,5 @@ class Window final
 		static LRESULT CALLBACK WindowProcedureStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 		LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 		
-		void GetWidthHeight();
+		void GetSize();
 };

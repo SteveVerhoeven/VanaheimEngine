@@ -14,7 +14,7 @@ Window::Window(const std::string& name, HINSTANCE instance)
 	   , m_Instance(instance)
 	   , m_Window()
 {
-	GetWidthHeight();
+	GetSize();
 	CreateClass();
 	CreateShowWindow();
 }
@@ -114,7 +114,7 @@ LRESULT Window::WindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-void Window::GetWidthHeight()
+void Window::GetSize()
 {
 	HWND desktopWindowHandle = GetDesktopWindow();
 	HMONITOR monitor = MonitorFromWindow(desktopWindowHandle, MONITOR_DEFAULTTONEAREST);

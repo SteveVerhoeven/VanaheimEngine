@@ -45,6 +45,10 @@ Graphics::~Graphics()
 	DELETE_RESOURCE(m_pDepthStencilViewCamera);
 	DELETE_RESOURCE(m_pDepthStencilBufferGame);
 	DELETE_RESOURCE(m_pDepthStencilBufferCamera);
+	BOOL fullScreenState{ false };
+	m_pSwapChain->GetFullscreenState(&fullScreenState, NULL);
+	if (fullScreenState == (BOOL)true)
+		m_pSwapChain->SetFullscreenState(false, NULL);
 	DELETE_RESOURCE(m_pSwapChain);
 	DELETE_RESOURCE(m_pDevice);
 	if (m_pDeviceContext)
@@ -146,6 +150,8 @@ HRESULT Graphics::InitializeDirectX(const int width, const int height)
 	viewPort.MinDepth = 0.f;
 	viewPort.MaxDepth = 1.f;
 	m_pDeviceContext->RSSetViewports(1, &viewPort);
+
+	m_pSwapChain->SetFullscreenState(true, NULL);
 
 	return hr;
 }

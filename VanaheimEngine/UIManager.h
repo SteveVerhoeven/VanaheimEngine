@@ -38,6 +38,11 @@ class UIManager final
 
 		// Docking
 		void OpenDockSpace();
+		void InitDockSpace();
+		void FileMenu();
+		void EditMenu();
+		void WindowMenu();
+		void ToolMenu();
 		void CloseDockSpace();
 
 		//Style

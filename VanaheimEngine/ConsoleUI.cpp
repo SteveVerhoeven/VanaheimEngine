@@ -15,7 +15,14 @@ void ConsoleUI::ShowWindow()
 	if (!m_RenderUI)
 		return;
 
-    BeginWindowBase();
+    ImGuiWindowFlags window_flags = 0;
+    window_flags |= ImGuiWindowFlags_NoScrollbar;
+    window_flags |= ImGuiWindowFlags_NoMove;
+    window_flags |= ImGuiWindowFlags_NoTitleBar;
+    window_flags |= ImGuiWindowFlags_NoResize;
+    window_flags |= ImGuiWindowFlags_NoDecoration;
+
+    BeginWindowBase(window_flags);
 	Draw();
 	EndWindowBase();
 }

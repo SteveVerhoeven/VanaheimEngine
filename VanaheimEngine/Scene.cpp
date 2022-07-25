@@ -83,26 +83,37 @@ void Scene::Render() const
 		pObject->Render();
 }
 
-void Scene::AddGameObject(GameObject* pObject)
+void Scene::AddEmptyGameObject()
 {
-	pObject->SetParentScene(this);
+	GameObject* pGameObject{ new GameObject("Empty Game Object")};
+	AddGameObject(pGameObject);
+}
+void Scene::AddCamera()
+{
+	GameObject* pGameObject{ new GameObject("Camera")};
+	pGameObject->AddComponent(new CameraComponent());
+	AddGameObject(pGameObject);
+}
+void Scene::AddGameObject(GameObject* pGameObject)
+{
+	pGameObject->SetParentScene(this);
 
 	// Find duplicates
-	auto comp = pObject->GetComponent<LineComponent>();
+	auto comp = pGameObject->GetComponent<LineComponent>();
 	if (comp)
 	{
 		auto mesh = comp->GetMesh();
 		if (mesh)
 		{
-			if (!Locator::GetResourceManagerService()->Load3DMesh(dynamic_cast<Mesh_Base*>(mesh), pObject))
+			if (!Locator::GetResourceManagerService()->Load3DMesh(dynamic_cast<Mesh_Base*>(mesh), pGameObject))
 			{
-				DELETE_POINTER(pObject);
+				DELETE_POINTER(pGameObject);
 				return;
 			}
-		}		
-	}	
+		}
+	}
 
-	m_pGameObjects.push_back(pObject);
+	m_pGameObjects.push_back(pGameObject);
 }
 void Scene::RemoveGameObject(GameObject* pObject)
 {
