@@ -57,7 +57,6 @@ class TerrainGeneratorComponent final : public Component, public Observer
 		float m_Scale;
 		float m_Persistence;					// The speed that the amplitude changes per octave e;	[0, 1]
 		DirectX::XMINT2 m_MapSize;
-		//std::vector<std::vector<float>> m_NoiseMap;
 
 		NoiseGenerator* m_pNoiseGenerator;
 		std::vector<Terrain> m_TerrainRegions;
