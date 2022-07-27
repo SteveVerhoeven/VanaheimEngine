@@ -48,8 +48,6 @@ void ViewportUI::ShowWindow()
 	else
 		m_MouseInWindow = false;
 
-	LOG_INFO("kaaak");
-
 	// Close window
 	EndWindowBase();
 
