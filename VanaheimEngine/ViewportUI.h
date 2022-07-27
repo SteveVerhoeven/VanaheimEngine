@@ -12,9 +12,13 @@ class ViewportUI final : public UI
 		ViewportUI(ViewportUI&&) = delete;
 		ViewportUI& operator=(ViewportUI&&) = delete;
 
+		bool GetIsMouseInViewport() const { return m_MouseInWindow; }
+
 	protected:
 		void Initialize() override;
 		void ShowWindow() override;
 
 	private:
+		bool m_MouseInWindow;
+		bool IsMouseInViewport(ImGuiWindow* pWindow, const ImVec2& windowSize) const;
 };

@@ -3,7 +3,7 @@
 class SceneCameraMovement : public Component
 {
 	public:
-		SceneCameraMovement() = default;
+		SceneCameraMovement();
 		virtual ~SceneCameraMovement() = default;
 
 		SceneCameraMovement(const SceneCameraMovement&) = delete;
@@ -18,6 +18,8 @@ class SceneCameraMovement : public Component
 		virtual void FixedUpdate(const float timeEachUpdate) override;
 
 	private:
+		ViewportUI* m_pViewportUI;
+
 		void RotateCamera();
 		void MoveCamera(KeyboardButton kButton);
 };
