@@ -22,7 +22,7 @@ class ConsoleUI final : public UI
             vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
             buf[IM_ARRAYSIZE(buf) - 1] = 0;
             va_end(args);
-            Items.push_back(Strdup(buf));
+            m_Items.push_back(Strdup(buf));
         }
 
 	protected:
@@ -30,14 +30,14 @@ class ConsoleUI final : public UI
 		void ShowWindow() override;
 
 	private:
-		char                  InputBuf[256];
-		ImVector<char*>       Items;
-		ImVector<const char*> Commands;
-		ImVector<char*>       History;
-		int                   HistoryPos;    // -1: new line, 0..History.Size-1 browsing history.
-		ImGuiTextFilter       Filter;
-		bool                  AutoScroll;
-		bool                  ScrollToBottom;
+		char                  m_InputBuf[256];
+		ImVector<char*>       m_Items;
+		ImVector<const char*> m_Commands;
+		ImVector<char*>       m_History;
+		int                   m_HistoryPos;    // -1: new line, 0..History.Size-1 browsing history.
+		ImGuiTextFilter       m_Filter;
+		bool                  m_AutoScroll;
+		bool                  m_ScrollToBottom;
 
         // Portable helpers
         static int   Stricmp(const char* s1, const char* s2) { int d; while ((d = toupper(*s2) - toupper(*s1)) == 0 && *s1) { s1++; s2++; } return d; }
