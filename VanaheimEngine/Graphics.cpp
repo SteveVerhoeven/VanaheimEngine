@@ -151,7 +151,7 @@ HRESULT Graphics::InitializeDirectX(const int width, const int height)
 	viewPort.MaxDepth = 1.f;
 	m_pDeviceContext->RSSetViewports(1, &viewPort);
 
-	//m_pSwapChain->SetFullscreenState(true, NULL);
+	m_pSwapChain->SetFullscreenState(true, NULL);
 
 	return hr;
 }
