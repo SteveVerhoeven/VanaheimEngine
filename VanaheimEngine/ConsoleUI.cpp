@@ -7,6 +7,16 @@
 ConsoleUI::ConsoleUI()
 		  : UI("Console", DirectX::XMFLOAT2{ 0.f, 0.f }, DirectX::XMFLOAT2{ 0.f, 0.f })
 {}
+ConsoleUI::~ConsoleUI()
+{
+    for (int i = 0; i < Items.Size; i++)
+        free(Items[i]);
+    Items.clear();
+
+    for (int i = 0; i < History.Size; i++)
+        free(History[i]);
+    History.clear();
+}
 
 void ConsoleUI::Initialize()
 {}

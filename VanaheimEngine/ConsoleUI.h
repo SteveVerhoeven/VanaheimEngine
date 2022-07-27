@@ -6,7 +6,7 @@ class ConsoleUI final : public UI
 {
 	public:
 		ConsoleUI();
-		~ConsoleUI() = default;
+		~ConsoleUI();
 
 		ConsoleUI(const ConsoleUI&) = delete;
 		ConsoleUI& operator=(const ConsoleUI&) = delete;
