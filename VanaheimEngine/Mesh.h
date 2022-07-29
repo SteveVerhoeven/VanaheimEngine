@@ -17,5 +17,7 @@ class Mesh final : public Mesh_Base
 		virtual void PostInitialize(Material* pMaterial) override;
 
 	private:
+		friend class SceneSerializer;
+
 		HRESULT CreateInstanceBuffer(ID3D11Device* pDevice) override;
 };

@@ -39,6 +39,26 @@ namespace YAML
 		}
 	};
 	template<>
+	struct convert<DirectX::XMINT2>
+	{
+		static Node encode(const DirectX::XMINT2& rhs)
+		{
+			Node node{};
+			node.push_back(rhs.x);
+			node.push_back(rhs.y);
+		}
+		static bool decode(const Node& pNode, DirectX::XMINT2& rhs)
+		{
+			if (!pNode.IsSequence() || pNode.size() != 2)
+				return false;
+
+			rhs.x = pNode[0].as<int>();
+			rhs.y = pNode[1].as<int>();
+
+			return true;
+		}
+	};
+	template<>
 	struct convert<DirectX::XMFLOAT3>
 	{
 		static Node encode(const DirectX::XMFLOAT3& rhs)
@@ -160,6 +180,13 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const DirectX::XMFLOAT2& f)
 
 	return out;
 }
+YAML::Emitter& operator<<(YAML::Emitter& out, const DirectX::XMINT2& f)
+{
+	out << YAML::Flow;
+	out << YAML::BeginSeq << f.x << f.y << YAML::EndSeq;
+
+	return out;
+}
 YAML::Emitter& operator<<(YAML::Emitter& out, const DirectX::XMFLOAT3& f)
 {
 	out << YAML::Flow;
@@ -205,7 +232,7 @@ void SceneSerializer::Serialize(const std::string& filePath, const Scene* pScene
 {
 	YAML::Emitter out;
 	out << YAML::BeginMap;
-	out << YAML::Key << "Scene" << YAML::Value << "Name";
+	out << YAML::Key << "Scene" << YAML::Value << pScene->m_Name;
 	out << YAML::Key << "GameObjects" << YAML::Value << YAML::BeginSeq;
 
 	// Game objects
@@ -225,7 +252,7 @@ void SceneSerializer::Serialize(const std::string& filePath, const Scene* pScene
 	if (fout.is_open())
 		fout << out.c_str();
 	else
-		LOG(ErrorLevel::LOG_WARNING, "Filepath " + filePath + " does not exist.");
+		LOG_ERROR("Filepath " + filePath + " does not exist.");
 }
 bool SceneSerializer::Deserialize(const std::string& filePath, Scene* pScene)
 {	
@@ -242,6 +269,7 @@ bool SceneSerializer::Deserialize(const std::string& filePath, Scene* pScene)
 	// Load sceneName
 	std::string sceneName{ data["Scene"].as<std::string>() };
 	LOG(ErrorLevel::LOG_INFO, "Deserializing scene '{0}'" + sceneName);
+	pScene->m_Name = sceneName;
 
 	// Load gameobjects
 	const YAML::Node gameObjectData = data["GameObjects"];
@@ -259,6 +287,7 @@ bool SceneSerializer::Deserialize(const std::string& filePath, Scene* pScene)
 			DeserializeCameraComponent(yamlGO, pGO);
 			DeserializeRenderComponent(yamlGO, pGO);
 			DeserializeModelComponent(yamlGO, pGO);
+			DeserializeTerrainGeneratorComponent(yamlGO, pGO);
 			
 			pGO->Initialize();
 			pGO->PostInitialize();
@@ -266,6 +295,8 @@ bool SceneSerializer::Deserialize(const std::string& filePath, Scene* pScene)
 			pScene->AddGameObject(pGO);
 		}
 	}
+
+	
 
 	return true;
 }
@@ -303,6 +334,11 @@ void SceneSerializer::SerializeGameObject(YAML::Emitter& out, GameObject* pGameO
 		ModelComponent* pModelComponent{ pGameObject->GetComponent<ModelComponent>() };
 		SerializeModelComponent(out, pModelComponent);
 	}
+	if (pGameObject->HasComponent<TerrainGeneratorComponent>())
+	{
+		TerrainGeneratorComponent* pTerrainGeneratorComponent{ pGameObject->GetComponent<TerrainGeneratorComponent>() };
+		SerializeTerrainGeneratorComponent(out, pTerrainGeneratorComponent);
+	}
 
 	out << YAML::EndMap;
 }
@@ -310,7 +346,7 @@ void SceneSerializer::SerializeNameComponent(YAML::Emitter& out, NameComponent* 
 {
 	out << YAML::Key << "NameComponent";
 	out << YAML::BeginMap;
-	out << YAML::Key << "Name" << YAML::Value << pNameComponent->GetName();
+	out << YAML::Key << "Name" << YAML::Value << pNameComponent->m_Name;
 	out << YAML::EndMap;
 }
 void SceneSerializer::SerializeTransformComponent(YAML::Emitter& out, TransformComponent* pTransformComponent)
@@ -318,24 +354,20 @@ void SceneSerializer::SerializeTransformComponent(YAML::Emitter& out, TransformC
 	out << YAML::Key << "TransformComponent";
 	out << YAML::BeginMap;
 
-	//out << YAML::Key << "Pitch" << YAML::Value << pTransformComponent->GetPitch();
-	//out << YAML::Key << "Yaw" << YAML::Value << pTransformComponent->GetYaw();
-	//out << YAML::Key << "Roll" << YAML::Value << pTransformComponent->GetRoll();
-
-	out << YAML::Key << "LocalPosition" << YAML::Value << pTransformComponent->GetPosition();
+	out << YAML::Key << "LocalPosition" << YAML::Value << pTransformComponent->m_Position;
 	out << YAML::Key << "LocalRotation" << YAML::Value << pTransformComponent->GetRotation(false);
-	out << YAML::Key << "LocalScale" << YAML::Value << pTransformComponent->GetScale();
+	out << YAML::Key << "LocalScale" << YAML::Value << pTransformComponent->m_Scale;
 
-	out << YAML::Key << "WorldPosition" << YAML::Value << pTransformComponent->GetWorldPosition();
-	out << YAML::Key << "WorldRotation" << YAML::Value << pTransformComponent->GetWorldRotation();
-	out << YAML::Key << "WorldScale" << YAML::Value << pTransformComponent->GetWorldScale();
+	out << YAML::Key << "WorldPosition" << YAML::Value << pTransformComponent->m_WorldPosition;
+	out << YAML::Key << "WorldRotation" << YAML::Value << pTransformComponent->m_WorldRotation;
+	out << YAML::Key << "WorldScale" << YAML::Value << pTransformComponent->m_WorldScale;
 
-	out << YAML::Key << "Forward" << YAML::Value << pTransformComponent->GetForward();
-	out << YAML::Key << "Right" << YAML::Value << pTransformComponent->GetRight();
-	out << YAML::Key << "Up" << YAML::Value << pTransformComponent->GetUp();
-	out << YAML::Key << "WorldUp" << YAML::Value << pTransformComponent->GetWorldUp();
+	out << YAML::Key << "Forward" << YAML::Value << pTransformComponent->m_Forward;
+	out << YAML::Key << "Right" << YAML::Value <<	pTransformComponent->m_Right;
+	out << YAML::Key << "Up" << YAML::Value <<		pTransformComponent->m_Up;
+	out << YAML::Key << "WorldUp" << YAML::Value << pTransformComponent->m_WorldUp;
 
-	out << YAML::Key << "World" << YAML::Value << pTransformComponent->GetWorld();
+	out << YAML::Key << "World" << YAML::Value << pTransformComponent->m_World;
 
 	out << YAML::EndMap;
 }
@@ -343,24 +375,24 @@ void SceneSerializer::SerializeCameraComponent(YAML::Emitter& out, CameraCompone
 {
 	out << YAML::Key << "CameraComponent";
 	out << YAML::BeginMap;
-	out << YAML::Key << "IsMainCamera" << YAML::Value << pCameraComponent->GetIsMainCamera();
+	out << YAML::Key << "IsMainCamera" << YAML::Value << pCameraComponent->m_IsSceneCamera;
 
-	out << YAML::Key << "Near" << YAML::Value << pCameraComponent->GetNear();
-	out << YAML::Key << "Far" << YAML::Value << pCameraComponent->GetFar();
-	out << YAML::Key << "FOV" << YAML::Value << pCameraComponent->GetFOV_Radians();
+	out << YAML::Key << "Near" << YAML::Value << pCameraComponent->m_Near;
+	out << YAML::Key << "Far" << YAML::Value << pCameraComponent->m_Far;
+	out << YAML::Key << "FOV" << YAML::Value << pCameraComponent->m_FOV;
 
-	out << YAML::Key << "View" << YAML::Value << pCameraComponent->GetView();
-	out << YAML::Key << "Projection" << YAML::Value << pCameraComponent->GetProjection();
-	out << YAML::Key << "ViewProjection" << YAML::Value << pCameraComponent->GetViewProjection();
-	out << YAML::Key << "ViewInverse" << YAML::Value << pCameraComponent->GetViewInverse();
-	out << YAML::Key << "ViewProjectionInverse" << YAML::Value << pCameraComponent->GetViewProjectionInverse();
+	out << YAML::Key << "View" << YAML::Value << pCameraComponent->m_View;
+	out << YAML::Key << "Projection" << YAML::Value << pCameraComponent->m_Projection;
+	out << YAML::Key << "ViewProjection" << YAML::Value << pCameraComponent->m_ViewProjection;
+	out << YAML::Key << "ViewInverse" << YAML::Value << pCameraComponent->m_ViewInverse;
+	out << YAML::Key << "ViewProjectionInverse" << YAML::Value << pCameraComponent->m_ViewProjectionInverse;
 	out << YAML::EndMap;
 }
 void SceneSerializer::SerializeRenderComponent(YAML::Emitter& out, RenderComponent* pRenderComponent)
 {
 	out << YAML::Key << "RenderComponent";
 	out << YAML::BeginMap;
-	out << YAML::Key << "RenderComponent" << YAML::Value << int(pRenderComponent->GetCanRenderComponent());
+	out << YAML::Key << "RenderComponent" << YAML::Value << int(pRenderComponent->m_CanRenderComponent);
 	out << YAML::EndMap;
 }
 void SceneSerializer::SerializeModelComponent(YAML::Emitter& out, ModelComponent* pModelComponent)
@@ -375,23 +407,37 @@ void SceneSerializer::SerializeModelComponent(YAML::Emitter& out, ModelComponent
 
 	out << YAML::EndMap;
 }
+void SceneSerializer::SerializeTerrainGeneratorComponent(YAML::Emitter& out, TerrainGeneratorComponent* pTerrainGeneratorComponent)
+{
+	out << YAML::Key << "TerrainGeneratorComponent";
+	out << YAML::BeginMap;
+
+	out << YAML::Key << "Seed" << YAML::Value << pTerrainGeneratorComponent->m_Seed;
+	out << YAML::Key << "Octaves" << YAML::Value << pTerrainGeneratorComponent->m_Octaves;
+	out << YAML::Key << "Lacunarity" << YAML::Value << pTerrainGeneratorComponent->m_Lacunarity;
+	out << YAML::Key << "Scale" << YAML::Value << pTerrainGeneratorComponent->m_Scale;
+	out << YAML::Key << "Persistence" << YAML::Value << pTerrainGeneratorComponent->m_Persistence;
+	out << YAML::Key << "Mapsize" << YAML::Value << pTerrainGeneratorComponent->m_MapSize;
+
+	out << YAML::EndMap;
+}
 
 void SceneSerializer::SerializeMesh(YAML::Emitter& out, ModelComponent* pModelComponent)
 {
-	Mesh* pMesh{ pModelComponent->GetMesh() };
+	Mesh* pMesh{ pModelComponent->m_pMesh };
 	
 	out << YAML::Key << "Mesh" << YAML::Value;
 	out << YAML::BeginMap;
-	const std::string& filePath{ pMesh->GetFilePath() };
+	const std::string& filePath{ pMesh->m_FilePath };
 	if (filePath == "")
 	{
-		ID3D11Buffer* pVBuffer{ pMesh->GetVBuffer() };
-		size_t sizeVBuffer{ pMesh->GetAmountVertices() * sizeof(Vertex_Input) };
-		const std::vector<Vertex_Input>& vertices{ ReadBufferData<Vertex_Input>(pVBuffer, sizeVBuffer, pMesh->GetAmountVertices()) };
+		ID3D11Buffer* pVBuffer{ pMesh->m_pVBuffer };
+		size_t sizeVBuffer{ pMesh->m_AmountVertices * sizeof(Vertex_Input) };
+		const std::vector<Vertex_Input>& vertices{ ReadBufferData<Vertex_Input>(pVBuffer, sizeVBuffer, pMesh->m_AmountVertices) };
 
-		ID3D11Buffer* pIBuffer{ pMesh->GetIBuffer() };
-		size_t sizeIBuffer{ pMesh->GetAmountIndices() * sizeof(uint32_t) };
-		const std::vector<uint32_t>& indices{ ReadBufferData<uint32_t>(pIBuffer, sizeIBuffer, pMesh->GetAmountIndices()) };
+		ID3D11Buffer* pIBuffer{ pMesh->m_pIBuffer };
+		size_t sizeIBuffer{ pMesh->m_AmountIndices * sizeof(uint32_t) };
+		const std::vector<uint32_t>& indices{ ReadBufferData<uint32_t>(pIBuffer, sizeIBuffer, pMesh->m_AmountIndices) };
 
 		OBJWriter objWriter{};
 		const std::string newFilePath{ objWriter.WriteOBJ("Crap", "./Resources/Meshes/", vertices, indices) };
@@ -400,28 +446,28 @@ void SceneSerializer::SerializeMesh(YAML::Emitter& out, ModelComponent* pModelCo
 	}
 	else
 	{
-		out << YAML::Key << "FilePath" << YAML::Value << pMesh->GetFilePath();
+		out << YAML::Key << "FilePath" << YAML::Value << pMesh->m_FilePath;
 	}
 
 	out << YAML::EndMap;
 }
 void SceneSerializer::SerializeMaterial(YAML::Emitter& out, ModelComponent* pModelComponent)
 {
-	Material* pMaterial{ pModelComponent->GetMaterial() };	
+	Material* pMaterial{ pModelComponent->m_pMaterial };	
 	Material_ProcGen* pMaterialPCG{ CastMaterial<Material_ProcGen>(pMaterial) };
 
 	out << YAML::Key << "Material" << YAML::Value;
 	out << YAML::BeginMap;
 	out << YAML::Key << "MaterialType" << YAML::Value << typeid(Material_ProcGen).name();
-	out << YAML::Key << "MaterialName" << YAML::Value << pMaterialPCG->GetName();
-	out << YAML::Key << "MaterialPath" << YAML::Value << pMaterialPCG->GetFilePath();
+	out << YAML::Key << "MaterialName" << YAML::Value << pMaterialPCG->m_Name;
+	out << YAML::Key << "MaterialPath" << YAML::Value << pMaterialPCG->m_AssetPath;
 	out << YAML::EndMap;
 }
 void SceneSerializer::SerializeTexture(YAML::Emitter& out, ModelComponent* pModelComponent)
 {
-	Material* pMaterial{ pModelComponent->GetMaterial() };
+	Material* pMaterial{ pModelComponent->m_pMaterial };
 	Material_ProcGen* pMaterialPCG{ CastMaterial<Material_ProcGen>(pMaterial) };
-	const std::vector<Texture*> pTextures{ pMaterialPCG->GetTextures() };
+	const std::vector<Texture*> pTextures{ pMaterialPCG->m_pTextures };
 
 	out << YAML::Key << "Textures" << YAML::Value;
 	out << YAML::Flow;
@@ -429,7 +475,7 @@ void SceneSerializer::SerializeTexture(YAML::Emitter& out, ModelComponent* pMode
 	const size_t textureCount{ pTextures.size() };
 	for (size_t i = 0; i < textureCount; ++i)
 	{
-		out << pTextures[i]->GetFilePath();
+		out << pTextures[i]->m_Path;
 	}
 	out << YAML::EndSeq;
 }
@@ -498,7 +544,7 @@ void SceneSerializer::DeserializeNameComponent(const YAML::detail::iterator_valu
 		NameComponent* pNameComponent = pGO->GetComponent<NameComponent>();
 
 		/** Add */
-		pNameComponent->SetName(name);
+		pNameComponent->m_Name = name;
 	}
 	
 }
@@ -513,9 +559,6 @@ void SceneSerializer::DeserializeTransformComponent(const YAML::detail::iterator
 	if (transformComponent)
 	{
 		/** Gather */
-		//float pitch{ transformComponent["Pitch"].as<float>() };
-		//float yaw{ transformComponent["Yaw"].as<float>() };
-		//float roll{ transformComponent["Roll"].as<float>() };
 		DirectX::XMFLOAT3 position{ transformComponent["LocalPosition"].as<DirectX::XMFLOAT3>() };
 		DirectX::XMFLOAT3 worldPosition{ transformComponent["WorldPosition"].as<DirectX::XMFLOAT3>() };
 		DirectX::XMFLOAT3 scale{ transformComponent["LocalScale"].as<DirectX::XMFLOAT3>() };
@@ -532,23 +575,19 @@ void SceneSerializer::DeserializeTransformComponent(const YAML::detail::iterator
 		TransformComponent* pTransformComponent{ pGO->GetComponent<TransformComponent>() };
 
 		/** Add */
-		//pTransformComponent->SetPitch(pitch);
-		//pTransformComponent->SetYaw(yaw);
-		//pTransformComponent->SetRoll(roll);
+		pTransformComponent->m_Position = position;
+		pTransformComponent->m_WorldPosition = worldPosition;
+		pTransformComponent->m_Scale = scale;
+		pTransformComponent->m_WorldScale = worldScale;
+		pTransformComponent->m_Rotation = rotation;
+		pTransformComponent->m_WorldRotation = worldRotation;
 
-		pTransformComponent->SetLocalPosition(position);
-		pTransformComponent->SetWorldPosition(worldPosition);
-		pTransformComponent->SetLocalScale(scale);
-		pTransformComponent->SetWorldScale(worldScale);
-		pTransformComponent->SetLocalRotation(rotation);
-		pTransformComponent->SetWorldRotation(worldRotation);
+		pTransformComponent->m_Forward = forward;
+		pTransformComponent->m_Right = right;
+		pTransformComponent->m_Up = up;
+		pTransformComponent->m_WorldUp = worldUp;
 
-		pTransformComponent->SetForward(forward);
-		pTransformComponent->SetRight(right);
-		pTransformComponent->SetUp(up);
-		pTransformComponent->SetWorldUp(worldUp);
-
-		pTransformComponent->SetWorld(world);
+		pTransformComponent->m_World = world;
 	}
 }
 void SceneSerializer::DeserializeCameraComponent(const YAML::detail::iterator_value& yamlGO, GameObject* pGO)
@@ -575,14 +614,14 @@ void SceneSerializer::DeserializeCameraComponent(const YAML::detail::iterator_va
 		CameraComponent* pCameraComponent{ new CameraComponent() };
 
 		/** Add */
-		pCameraComponent->SetFar(farPlane);
-		pCameraComponent->SetNear(nearPlane);
-		pCameraComponent->SetFOV(FOV);
-		pCameraComponent->SetView(view);
-		pCameraComponent->SetProjection(projection);
-		pCameraComponent->SetViewProjection(viewProjection);
-		pCameraComponent->SetViewInverse(viewInverse);
-		pCameraComponent->SetViewProjectionInverse(viewProjectionInverse);
+		pCameraComponent->m_Far = farPlane;
+		pCameraComponent->m_Near = nearPlane;
+		pCameraComponent->m_FOV = FOV;
+		pCameraComponent->m_View = view;
+		pCameraComponent->m_Projection = projection;
+		pCameraComponent->m_ViewProjection = viewProjection;
+		pCameraComponent->m_ViewInverse = viewInverse;
+		pCameraComponent->m_ViewProjectionInverse = viewProjectionInverse;
 
 		pGO->AddComponent(pCameraComponent);
 	}
@@ -604,7 +643,7 @@ void SceneSerializer::DeserializeRenderComponent(const YAML::detail::iterator_va
 		RenderComponent* pRenderComponent{ pGO->GetComponent<RenderComponent>() };
 
 		/** Add */
-		pRenderComponent->SetCanRenderComponent(bool(canRenderComponent));
+		pRenderComponent->m_CanRenderComponent = bool(canRenderComponent);
 	}
 }
 void SceneSerializer::DeserializeModelComponent(const YAML::detail::iterator_value& yamlGO, GameObject* pGO)
@@ -642,6 +681,10 @@ void SceneSerializer::DeserializeModelComponent(const YAML::detail::iterator_val
 		if (modelComponent_Textures)
 		{
 			pTextures = modelComponent["Textures"].as<std::vector<Texture*>>();
+
+			InspectorUI* pInspectorUI{ Locator::GetUIManagerService()->GetUI<InspectorUI>() };
+			pInspectorUI->AddObserver(pTextures[0]);
+			pInspectorUI->AddObserver(pTextures[1]);
 		}
 		
 		/** Create */
@@ -650,6 +693,37 @@ void SceneSerializer::DeserializeModelComponent(const YAML::detail::iterator_val
 
 		/** Add */
 		pGO->AddComponent(pModelComponent);
+	}
+}
+void SceneSerializer::DeserializeTerrainGeneratorComponent(const YAML::detail::iterator_value& yamlGO, GameObject* pGO)
+{
+	// ------------------------------------------------------------------------------------------------------------
+	// Terrain Generator Component
+	// ------------------------------------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------------------------------------
+	/** Get */
+	YAML::Node terrainGenComponent = yamlGO["TerrainGeneratorComponent"];
+	if (terrainGenComponent)
+	{
+		/** Gather */
+		const size_t seed = terrainGenComponent["Seed"].as<size_t>();
+		const size_t octaves = terrainGenComponent["Octaves"].as<size_t>();
+		const float lacunarity = terrainGenComponent["Lacunarity"].as<float>();
+		const float scale = terrainGenComponent["Scale"].as<float>();
+		const float persistence = terrainGenComponent["Persistence"].as<float>();
+		const DirectX::XMINT2 mapSIze = terrainGenComponent["Mapsize"].as<DirectX::XMINT2>();
+
+		/** Create */
+		TerrainGeneratorComponent* pTerrainGeneratorComponent{ new TerrainGeneratorComponent() };
+		pTerrainGeneratorComponent->m_Seed = seed;
+		pTerrainGeneratorComponent->m_Octaves = octaves;
+		pTerrainGeneratorComponent->m_Lacunarity = lacunarity;
+		pTerrainGeneratorComponent->m_Scale = scale;
+		pTerrainGeneratorComponent->m_Persistence = persistence;
+		pTerrainGeneratorComponent->m_MapSize = mapSIze;
+
+		/** Add */
+		pGO->AddComponent(pTerrainGeneratorComponent);
 	}
 }
 

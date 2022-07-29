@@ -1,12 +1,6 @@
 #include "GamePCH.h"
 #include "Scene_Game.h"
 
-#include <MoveCameraCommand.h>
-#include <RotateCameraCommand.h>
-
-#include <Material_ProcGen.h>
-#include <Material_ProcGen_GPU.h>
-
 Scene_Game::Scene_Game()
 		   : Scene()
 {}
@@ -15,11 +9,22 @@ Scene_Game::~Scene_Game()
 
 void Scene_Game::Initialize()
 {
-	CreateLandscape_2DPlane();
-	//CreateLandscape_VoxelsCPU();
-	//CreateLandscape_VoxelsGPU();
-	//CreateLandscape_2DPlaneOctree(true);
-	//CreateLandscape_2DPlaneKDtree();
+	// Terrain generator
+	GameObject* pGameObjectTerrain{ new GameObject("Terrain")};
+	pGameObjectTerrain->AddComponent(new TerrainGeneratorComponent());
+	AddGameObject(pGameObjectTerrain);
+
+	TransformComponent* pTransformComponentTerrain{ pGameObjectTerrain->GetComponent<TransformComponent>() };
+	pTransformComponentTerrain->Translate(-36.f, 10.f, 0.f);
+
+	// Side Camera
+	GameObject* pGameObjectCamera{ new GameObject("Side camera") };
+	pGameObjectCamera->AddComponent(new CameraComponent());
+	AddGameObject(pGameObjectCamera);
+
+	TransformComponent* pTransformComponentCamera{ pGameObjectCamera->GetComponent<TransformComponent>() };
+	pTransformComponentCamera->Translate(35.7f, 14.3f, -77.6f);
+	pTransformComponentCamera->Rotate(0.f, -49.3f, 0.f);
 
 	ActivateScene();
 	Scene::Initialize();
@@ -34,122 +39,3 @@ void Scene_Game::LateUpdate()
 { Scene::LateUpdate(); }
 void Scene_Game::Render() const
 { Scene::Render(); }
-
-void Scene_Game::CreateLandscape_2DPlane()
-{
-	GameObject* pGameObject{ new GameObject("Terrian") };
-	pGameObject->AddComponent(new TerrainGeneratorComponent());
-	AddGameObject(pGameObject);
-}
-//void Scene_Game::CreateLandscape_VoxelsCPU()
-//{
-//	// Generate landscape	
-//	GeneratorManager* pGeneratorManager{ Locator::GetGeneratorManagerService() };
-//	TerrainGenerator* pProcGen(pGeneratorManager->GetGenerator<TerrainGenerator>());
-//	Mesh* pMesh{ pProcGen->CreateVoxelTerrain_CPU() };
-//
-//	// Model
-//	ResourceManager* pResourceManager{ Locator::GetResourceManagerService() };
-//	Texture* pNormalTexture{ pResourceManager->LoadTexture("./Resources/Textures/Landscape/noiseMap.bmp") };
-//	Texture* pColorTexture{ pResourceManager->LoadTexture("./Resources/Textures/Landscape/colorMap.bmp") };
-//
-//	UIManager* pUIManager{ Locator::GetUIManagerService() };
-//	InspectorUI* pVanaheimUI{ pUIManager->GetUI<InspectorUI>() };
-//	if (pVanaheimUI)
-//	{
-//		pVanaheimUI->AddObserver(pNormalTexture);
-//		pVanaheimUI->AddObserver(pColorTexture);
-//	}
-//
-//	Material_ProcGen* pMaterial = new Material_ProcGen();
-//	pMaterial->AddTexture(pNormalTexture);
-//	pMaterial->AddTexture(pColorTexture);
-//
-//	const std::string name{ "Landscape" };
-//	const DirectX::XMFLOAT3 pos{ 0, -1, 0 };
-//	Create3DObject(name, pos, pMesh, pMaterial);
-//}
-//void Scene_Game::CreateLandscape_VoxelsGPU()
-//{
-//	// Generate landscape	
-//	GeneratorManager* pGeneratorManager{ Locator::GetGeneratorManagerService() };
-//	TerrainGenerator* pProcGen(pGeneratorManager->GetGenerator<TerrainGenerator>());
-//	Mesh* pMesh{ pProcGen->CreateVoxelTerrain_GPU() };
-//
-//	// Model
-//	ResourceManager* pResourceManager{ Locator::GetResourceManagerService() };
-//	Texture* pNormalTexture{ pResourceManager->LoadTexture("./Resources/Textures/Landscape/noiseMap.bmp") };
-//	Texture* pColorTexture{ pResourceManager->LoadTexture("./Resources/Textures/Landscape/colorMap.bmp") };
-//
-//	UIManager* pUIManager{ Locator::GetUIManagerService() };
-//	InspectorUI* pVanaheimUI{ pUIManager->GetUI<InspectorUI>() };
-//	if (pVanaheimUI)
-//	{
-//		pVanaheimUI->AddObserver(pNormalTexture);
-//		pVanaheimUI->AddObserver(pColorTexture);
-//	}
-//
-//	Material_ProcGen_GPU* pMaterial = new Material_ProcGen_GPU();
-//	pMaterial->AddTexture(pNormalTexture);
-//	pMaterial->AddTexture(pColorTexture);
-//
-//	const std::string name{ "Landscape" };
-//	const DirectX::XMFLOAT3 pos{ 0, -1, 0 };
-//	Create3DObject(name, pos, pMesh, pMaterial);
-//}
-//void Scene_Game::CreateLandscape_2DPlaneOctree(const bool visualizeDataStructure)
-//{
-//	// Generate landscape	
-//	GeneratorManager* pGeneratorManager{ Locator::GetGeneratorManagerService() };
-//	TerrainGenerator* pProcGen(pGeneratorManager->GetGenerator<TerrainGenerator>());
-//	Mesh* pMesh{ pProcGen->CreateNormalTerrain_OcTree(this, visualizeDataStructure) };
-//
-//	// Model
-//	ResourceManager* pResourceManager{ Locator::GetResourceManagerService() };
-//	Texture* pNormalTexture{ pResourceManager->LoadTexture("./Resources/Textures/Landscape/noiseMap.bmp") };
-//	Texture* pColorTexture{ pResourceManager->LoadTexture("./Resources/Textures/Landscape/colorMap.bmp") };
-//
-//	UIManager* pUIManager{ Locator::GetUIManagerService() };
-//	InspectorUI* pVanaheimUI{ pUIManager->GetUI<InspectorUI>() };
-//	if (pVanaheimUI)
-//	{
-//		pVanaheimUI->AddObserver(pNormalTexture);
-//		pVanaheimUI->AddObserver(pColorTexture);
-//	}
-//
-//	Material_ProcGen* pMaterial = new Material_ProcGen();
-//	pMaterial->AddTexture(pNormalTexture);
-//	pMaterial->AddTexture(pColorTexture);
-//
-//	const std::string name{ "Landscape" };
-//	const DirectX::XMFLOAT3 pos{ 0, -1, 0 };
-//	Create3DObject(name, pos, pMesh, pMaterial);
-//}
-//void Scene_Game::CreateLandscape_2DPlaneKDtree()
-//{
-//	// Generate landscape	
-//	GeneratorManager* pGeneratorManager{ Locator::GetGeneratorManagerService() };
-//	TerrainGenerator* pProcGen(pGeneratorManager->GetGenerator<TerrainGenerator>());
-//	Mesh* pMesh{ pProcGen->CreateNormalTerrain_KDTree(this) };
-//
-//	// Model
-//	ResourceManager* pResourceManager{ Locator::GetResourceManagerService() };
-//	Texture* pNormalTexture{ pResourceManager->LoadTexture("./Resources/Textures/Landscape/noiseMap.bmp") };
-//	Texture* pColorTexture{ pResourceManager->LoadTexture("./Resources/Textures/Landscape/colorMap.bmp") };
-//
-//	UIManager* pUIManager{ Locator::GetUIManagerService() };
-//	InspectorUI* pVanaheimUI{ pUIManager->GetUI<InspectorUI>() };
-//	if (pVanaheimUI)
-//	{
-//		pVanaheimUI->AddObserver(pNormalTexture);
-//		pVanaheimUI->AddObserver(pColorTexture);
-//	}
-//
-//	Material_ProcGen* pMaterial = new Material_ProcGen();
-//	pMaterial->AddTexture(pNormalTexture);
-//	pMaterial->AddTexture(pColorTexture);
-//
-//	const std::string name{ "Landscape" };
-//	const DirectX::XMFLOAT3 pos{ 0, -1, 0 };
-//	Create3DObject(name, pos, pMesh, pMaterial);
-//}

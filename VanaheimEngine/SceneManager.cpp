@@ -73,12 +73,25 @@ void SceneManager::Render()
 	m_pGraphics->ClearBackbuffer();
 	m_pUIManager->BeginFrame();
 	
+	SetSceneCameraAsMain();
 	m_pGraphics->SetGameRenderTarget();		// Set the render target for the viewport in the UI
 	for (Scene* pScene : m_pMenuScenes)
 		pScene->Render();
 	
 	for (Scene* pScene : m_pGameScenes)
 		pScene->Render();
+	
+	if (SetHighlightedCameraAsMain())
+	{
+		m_pGraphics->SetCameraRenderTarget();	// Set the render target for the camera viewport in the UI
+		for (Scene* pScene : m_pMenuScenes)
+			pScene->Render();
+
+		for (Scene* pScene : m_pGameScenes)
+			pScene->Render();
+		
+		SetSceneCameraAsMain();
+	}
 	
 	m_pGraphics->SetMainRenderTarget();		// Set the render target for the entire program window
 	m_pUIManager->Render();
@@ -127,4 +140,55 @@ void SceneManager::ActivateMenuSceneByIndex(const size_t sceneIndex)
 	m_ActiveMenuSceneIndex = int(sceneIndex);
 
 	m_MenuActive = true;
+}
+
+Scene* SceneManager::CreateNewGameScene()
+{
+	// Old scene
+	Scene* pCurrentScene{ GetActiveGameScene() };
+
+	// New Scene
+	Scene* pNewScene{ new Scene() };
+	m_pGameScenes.emplace_back(pNewScene);
+
+	// Get old active scene & deactivate that one
+	pCurrentScene->DeactivateScene();
+
+	// Set scene camera
+	GameObject* pCameraGameObject{ pCurrentScene->GetSceneCamera() };
+	pNewScene->SetSceneCamera(pCameraGameObject);
+	Locator::ProvideRenderCameraService(pCameraGameObject->GetComponent<CameraComponent>());
+
+	// Destroy old active scene
+	std::vector<Scene*>::iterator result = std::find(m_pGameScenes.begin(), m_pGameScenes.end(), pCurrentScene);
+	m_pGameScenes.erase(result);
+	DELETE_POINTER(pCurrentScene);
+
+	// Activate new scene
+	SetActiveGameSceneIndex(m_pGameScenes.size() - 1);
+	pNewScene->ActivateScene();
+
+	return m_pGameScenes[m_ActiveGameSceneIndex];
+}
+
+void SceneManager::SetSceneCameraAsMain()
+{
+	Scene* pScene{ GetActiveGameScene() };
+	GameObject* pCameraObject{ pScene->GetSceneCamera() };
+
+	Locator::ProvideRenderCameraService(pCameraObject->GetComponent<CameraComponent>());
+}
+bool SceneManager::SetHighlightedCameraAsMain()
+{
+	GameObject* pHighlightedGameObject{ Locator::GetUIManagerService()->GetUI<InspectorUI>()->GetHighlightedCameraGameobject() };
+	if (pHighlightedGameObject == nullptr)
+		return false;
+
+	CameraComponent* pCameraComponent{ pHighlightedGameObject->GetComponent<CameraComponent>() };
+	if (pCameraComponent == nullptr)
+		return false;
+
+	Locator::ProvideRenderCameraService(pCameraComponent);
+
+	return true;
 }

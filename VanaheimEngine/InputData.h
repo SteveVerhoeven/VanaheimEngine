@@ -131,6 +131,12 @@ enum class KeyboardButton
 	ARROW_RIGHT = VK_RIGHT,
 	ARROW_UP    = VK_UP,
 	ARROW_DOWN  = VK_DOWN,
+
+	// CTRL & SHIFT
+	L_CTRL = VK_LCONTROL,
+	R_CTRL = VK_RCONTROL,
+	L_SHIFT = VK_LSHIFT,
+	R_SHIFT = VK_RSHIFT,
 };
 enum class MouseButton
 {

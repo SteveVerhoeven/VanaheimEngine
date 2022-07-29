@@ -36,6 +36,14 @@ void RotateCameraCommand::Rotate()
 	newRotation.z = currentRotation.z;
 
 	pTransformComponent->Rotate(newRotation);
+
+	Update_Flags flags{};
+	flags |= Update_Flags::VIEW;
+	flags |= Update_Flags::PROJECTION;
+	flags |= Update_Flags::VIEWINVERSE;
+	flags |= Update_Flags::VIEWPROJECTION;
+	flags |= Update_Flags::VIEWPROJECTIONINVERSE;
+	m_pCameraObject->GetComponent<CameraComponent>()->SetUpdateFlags(flags);
 }
 
 void RotateCameraCommand::SetCameraObject()

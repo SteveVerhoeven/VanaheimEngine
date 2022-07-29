@@ -10,11 +10,7 @@ CameraComponent::CameraComponent()
 				, m_IsSceneCamera(false)
 				// Dirty Flag pattern
 				// Reference: https://gameprogrammingpatterns.com/dirty-flag.html
-				, m_UpdateView(false)
-				, m_UpdateProjection(false)
-				, m_UpdateViewProjection(false)
-				, m_UpdateViewInverse(false)
-				, m_UpdateViewProjectionInverse(false)
+				, m_UpdateFlags(Update_Flags::NO_UPDATE)
 				// Camera
 				, m_Near(0.1f)
 				, m_Far(5000.f)
@@ -30,6 +26,12 @@ CameraComponent::CameraComponent()
 	DirectX::XMStoreFloat4x4(&m_ViewProjection, DirectX::XMMatrixIdentity());
 	DirectX::XMStoreFloat4x4(&m_ViewInverse, DirectX::XMMatrixIdentity());
 	DirectX::XMStoreFloat4x4(&m_ViewProjectionInverse, DirectX::XMMatrixIdentity());
+
+	m_UpdateFlags |= Update_Flags::VIEW;
+	m_UpdateFlags |= Update_Flags::PROJECTION;
+	m_UpdateFlags |= Update_Flags::VIEWINVERSE;
+	m_UpdateFlags |= Update_Flags::VIEWPROJECTION;
+	m_UpdateFlags |= Update_Flags::VIEWPROJECTIONINVERSE;
 }
 
 void CameraComponent::Initialize(Scene* /*pParentScene*/)
@@ -47,7 +49,7 @@ const DirectX::XMFLOAT4X4& CameraComponent::GetView()
 	// Reference: https://stackoverflow.com/questions/21688529/binary-directxxmvector-does-not-define-this-operator-or-a-conversion
 	using namespace DirectX;
 
-	//if (m_UpdateView)
+	if (HasFlag(Update_Flags::VIEW))
 	{
 		DirectX::XMMATRIX view{};
 		{
@@ -71,14 +73,14 @@ const DirectX::XMFLOAT4X4& CameraComponent::GetView()
 		}
 		XMStoreFloat4x4(&m_View, view);
 
-		m_UpdateView = false;
+		RemoveFlag(Update_Flags::VIEW);
 	}
 
 	return m_View;
 }
 const DirectX::XMFLOAT4X4& CameraComponent::GetProjection()
 {
-	//if (m_UpdateProjection)
+	if (HasFlag(Update_Flags::PROJECTION))
 	{
 		DirectX::XMMATRIX projection{};
 		{
@@ -97,7 +99,7 @@ const DirectX::XMFLOAT4X4& CameraComponent::GetProjection()
 		}
 		XMStoreFloat4x4(&m_Projection, projection);
 
-		m_UpdateProjection = false;
+		RemoveFlag(Update_Flags::PROJECTION);
 	}
 
 	return m_Projection;
@@ -108,7 +110,7 @@ const DirectX::XMFLOAT4X4& CameraComponent::GetViewProjection()
 	// Reference: https://stackoverflow.com/questions/21688529/binary-directxxmvector-does-not-define-this-operator-or-a-conversion
 	using namespace DirectX;
 
-	if (m_UpdateViewProjection)
+	if (HasFlag(Update_Flags::VIEWPROJECTION))
 	{
 		DirectX::XMMATRIX viewProjection{};
 		{
@@ -121,14 +123,14 @@ const DirectX::XMFLOAT4X4& CameraComponent::GetViewProjection()
 		}
 		XMStoreFloat4x4(&m_ViewProjection, viewProjection);
 
-		m_UpdateViewProjection = false;
+		RemoveFlag(Update_Flags::VIEWPROJECTION);
 	}
 
 	return m_ViewProjection;
 }
 const DirectX::XMFLOAT4X4& CameraComponent::GetViewInverse()
 {
-	if (m_UpdateViewInverse)
+	if (HasFlag(Update_Flags::VIEWINVERSE))
 	{
 		DirectX::XMMATRIX viewInverse{};
 		{
@@ -148,14 +150,14 @@ const DirectX::XMFLOAT4X4& CameraComponent::GetViewInverse()
 		}
 		XMStoreFloat4x4(&m_ViewInverse, viewInverse);
 
-		m_UpdateViewInverse = false;
+		RemoveFlag(Update_Flags::VIEWINVERSE);
 	}
 
 	return m_ViewInverse;
 }
 const DirectX::XMFLOAT4X4& CameraComponent::GetViewProjectionInverse()
 {
-	if (m_UpdateViewProjectionInverse)
+	if (HasFlag(Update_Flags::VIEWPROJECTIONINVERSE))
 	{
 		DirectX::XMMATRIX viewProjectionInverse{};
 		{	
@@ -179,7 +181,7 @@ const DirectX::XMFLOAT4X4& CameraComponent::GetViewProjectionInverse()
 		}
 		XMStoreFloat4x4(&m_ViewProjectionInverse, viewProjectionInverse);
 
-		m_UpdateViewProjectionInverse = false;
+		m_UpdateFlags &= ~Update_Flags::VIEWPROJECTIONINVERSE;
 	}
 
 	return m_ViewProjectionInverse;
@@ -191,7 +193,7 @@ void CameraComponent::SetIsMainCamera(const bool isMainCamera)
 
 	if (isMainCamera)
 	{
-		Locator::ProvideSceneCameraService(this);
+		Locator::ProvideRenderCameraService(this);
 		if (m_pParentObject && m_pParentObject->GetParentScene())
 		{
 			GameObject* pOldCameraObject{ m_pParentObject->GetParentScene()->GetSceneCamera() };
@@ -201,13 +203,19 @@ void CameraComponent::SetIsMainCamera(const bool isMainCamera)
 	}
 	else
 	{
-		if (m_pParentObject == m_pParentObject->GetParentScene()->GetSceneCamera())
+		if (m_pParentObject == Locator::GetSceneCameraService()->GetParentObject())
 		{
 			m_IsSceneCamera = true;
 		}
 	}
 }
 
+void CameraComponent::SetUpdateFlags(const Update_Flags& flags)
+{ m_UpdateFlags |= flags; }
+bool CameraComponent::HasFlag(const Update_Flags& flag)
+{ return (m_UpdateFlags & flag); }
+void CameraComponent::RemoveFlag(const Update_Flags & flag)
+{ m_UpdateFlags &= ~flag; }
 
 //void CameraComponent::Serialize(YAML::Emitter& out)
 //{

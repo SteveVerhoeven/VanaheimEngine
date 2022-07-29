@@ -87,6 +87,9 @@ void VanaheimEngine::InitializeEngineUI()
 
 	HierarchyUI* pHierarchyUI{ new HierarchyUI() };
 	m_pUIManager->AddUI(pHierarchyUI);
+
+	CameraViewportUI* pCameraViewportUI{ new CameraViewportUI() };
+	m_pUIManager->AddUI(pCameraViewportUI);
 }
 
 void VanaheimEngine::Render()

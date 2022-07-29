@@ -1,6 +1,17 @@
 #pragma once
 #include "Component.h"
 
+enum Update_Flags
+{
+	NO_UPDATE			  = 0x0000,
+	VIEW				  = 0x0001,
+	PROJECTION			  = 0x0010,
+	VIEWPROJECTION		  = 0x0011,
+	VIEWINVERSE			  = 0x0100,
+	VIEWPROJECTIONINVERSE = 0x0101
+};
+DEFINE_ENUM_FLAG_OPERATORS(Update_Flags)
+
 class Scene;
 class CameraComponent final : public Component
 {
@@ -12,6 +23,8 @@ class CameraComponent final : public Component
 		CameraComponent(CameraComponent&&) noexcept = delete;
 		CameraComponent& operator=(const CameraComponent&) = delete;
 		CameraComponent& operator=(CameraComponent&&) noexcept = delete;
+
+		void SetUpdateFlags(const Update_Flags& flags);
 
 		const DirectX::XMFLOAT4X4& GetView();
 		const DirectX::XMFLOAT4X4& GetProjection();
@@ -47,12 +60,10 @@ class CameraComponent final : public Component
 		virtual void FixedUpdate(const float timeEachUpdate) override;
 
 	private:
+		friend class SceneSerializer;
+
 		bool m_IsSceneCamera;
-		bool m_UpdateView,
-			 m_UpdateProjection,
-			 m_UpdateViewProjection,
-			 m_UpdateViewInverse,
-			 m_UpdateViewProjectionInverse;
+		Update_Flags m_UpdateFlags;
 		float m_Near,
 			  m_Far,
 			  m_FOV;
@@ -61,4 +72,7 @@ class CameraComponent final : public Component
 							m_ViewProjection,
 							m_ViewInverse,
 							m_ViewProjectionInverse;
+
+		bool HasFlag(const Update_Flags& flag);
+		void RemoveFlag(const Update_Flags& flag);
 };

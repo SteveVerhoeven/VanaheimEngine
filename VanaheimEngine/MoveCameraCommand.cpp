@@ -4,12 +4,9 @@
 #include "Scene.h"
 #include "Timer.h"
 
-MoveCameraCommand::MoveCameraCommand(const bool moveForward, const bool moveBackward, const bool moveLeft, const bool moveRight)
-				  : m_MoveForward(moveForward)
-				  , m_MoveBackward(moveBackward)
-				  , m_MoveLeft(moveLeft)
-				  , m_MoveRight(moveRight)
-				  , m_MoveSpeed(500.f) //2500
+MoveCameraCommand::MoveCameraCommand(const MoveDirection_Flags & moveDirs)
+				  : m_MoveDirection(moveDirs)
+				  , m_MoveSpeed(2500.f) //2500
 				  , m_pCameraObject(nullptr)
 {}
 
@@ -32,39 +29,55 @@ void MoveCameraCommand::Move()
 
 	const float elapsedSec{ Locator::GetTimerService()->GetElapsedTime() };
 
+	bool hasMoved{ false };
 	// ****************************
 	// Move LEFT / RIGHT
 	// ****************************
-	if (m_MoveLeft || m_MoveRight)
+	if (HasFlag(MoveDirection_Flags::LEFT) || HasFlag(MoveDirection_Flags::RIGHT))
 	{
 		const DirectX::XMFLOAT3 right = pTransformComponent->GetRight();
 		const DirectX::XMVECTOR rightVector{ DirectX::XMLoadFloat3(&right) };
 
 		DirectX::XMVECTOR newPosition{};
-		if (m_MoveLeft)
+		if (HasFlag(MoveDirection_Flags::LEFT))
 			newPosition = currentPositionVector - (rightVector * m_MoveSpeed * elapsedSec);
-		else if (m_MoveRight)
+		else if (HasFlag(MoveDirection_Flags::RIGHT))
 			newPosition = currentPositionVector + (rightVector * m_MoveSpeed * elapsedSec);
 
 		pTransformComponent->Translate(newPosition);
+
+		hasMoved = true;		
 	}
 
 	// ****************************
-	// Move FORWARD / BACKWARD
+	//  Move FORWARD / BACKWARD
 	// ****************************
-	if (m_MoveForward || m_MoveBackward)
+	if (HasFlag(MoveDirection_Flags::FORWARD) || HasFlag(MoveDirection_Flags::BACKWARD))
 	{
 		const DirectX::XMFLOAT3 forward = pTransformComponent->GetForward();
 		const DirectX::XMVECTOR forwardVector{ DirectX::XMLoadFloat3(&forward) };
-
+	
 		DirectX::XMVECTOR newPosition{};
-		if (m_MoveForward)
+		if (HasFlag(MoveDirection_Flags::FORWARD))
 			newPosition = currentPositionVector + (forwardVector * m_MoveSpeed * elapsedSec);
-		else if (m_MoveBackward)
+		else if (HasFlag(MoveDirection_Flags::BACKWARD))
 			newPosition = currentPositionVector - (forwardVector * m_MoveSpeed * elapsedSec);
-
+	
 		pTransformComponent->Translate(newPosition);
+
+		hasMoved = true;
 	}	
+
+	if (hasMoved)
+	{
+		Update_Flags flags{};
+		flags |= Update_Flags::VIEW;
+		flags |= Update_Flags::PROJECTION;
+		flags |= Update_Flags::VIEWINVERSE;
+		flags |= Update_Flags::VIEWPROJECTION;
+		flags |= Update_Flags::VIEWPROJECTIONINVERSE;
+		m_pCameraObject->GetComponent<CameraComponent>()->SetUpdateFlags(flags);
+	}
 }
 
 void MoveCameraCommand::SetCameraObject()
@@ -73,3 +86,6 @@ void MoveCameraCommand::SetCameraObject()
 	Scene* pScene{ pSceneManager->GetActiveGameScene() };
 	m_pCameraObject = pScene->GetSceneCamera();
 }
+
+bool MoveCameraCommand::HasFlag(const MoveDirection_Flags& flag)
+{ return (m_MoveDirection & flag); }

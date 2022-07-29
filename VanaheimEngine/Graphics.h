@@ -33,16 +33,18 @@ class Graphics final
 		ID3D11DeviceContext* m_pDeviceContext;
 		IDXGIFactory* m_pDXGIFactory;
 		IDXGISwapChain* m_pSwapChain;
-		ID3D11Texture2D* m_pDepthStencilBuffer;
-		ID3D11DepthStencilView* m_pDepthStencilView;
 
 		ID3D11Resource* m_pRenderTargetBuffer_Main;
 		ID3D11RenderTargetView* m_pRenderTargetView_Main;
 		
+		ID3D11Texture2D* m_pDepthStencilBufferGame;
+		ID3D11DepthStencilView* m_pDepthStencilViewGame;
 		ID3D11Texture2D* m_pRenderTargetBuffer_Game;
 		ID3D11RenderTargetView* m_pRenderTargetView_Game;
 		ID3D11ShaderResourceView* m_pShaderResourceView_Game;
 
+		ID3D11Texture2D* m_pDepthStencilBufferCamera;
+		ID3D11DepthStencilView* m_pDepthStencilViewCamera;
 		ID3D11Texture2D* m_pRenderTargetBuffer_Camera;
 		ID3D11RenderTargetView* m_pRenderTargetView_Camera;
 		ID3D11ShaderResourceView* m_pShaderResourceView_Camera;
@@ -52,10 +54,10 @@ class Graphics final
 		HRESULT CreateFactory();
 		HRESULT CreateSwapChain(const int width, const int height);
 		HRESULT CreateDepth_Stencil_Resources(const int width, const int height);
+		HRESULT CreateDepth_Stencil_Resources2(const int width, const int height);
 		HRESULT CreateRenderTarget_Main();
 		HRESULT CreateRenderTarget_Game(const int width, const int height);
 		HRESULT CreateRenderTarget_Camera(const int width, const int height);
 		HRESULT CreateShaderResourceView_Game();
 		HRESULT CreateShaderResourceView_Camera();
-
 };

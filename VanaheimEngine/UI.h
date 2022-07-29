@@ -41,7 +41,11 @@ class UI : public Subject
 		DirectX::XMFLOAT2 m_Size;
 
 		void BeginWindowBase();
+		void BeginWindowBase(const ImGuiWindowFlags& windowFlags);
 		void EndWindowBase();
+		
+		void PushStyle_RemovePadding();
+		void PopStyleVar();
 		
 	private:
 };

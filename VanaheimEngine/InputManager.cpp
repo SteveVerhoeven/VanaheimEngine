@@ -6,6 +6,7 @@
 #include "RotateCameraCommand.h"
 #include "Window.h"
 #include "Mouse.h"
+#include "SceneSerializer.h"
 
 InputManager::InputManager()
 			 : m_ControllerState()
@@ -30,9 +31,14 @@ MSG InputManager::ProcessInput(const float /*elapsedSec*/)
 	MSG msg{};
 	ZeroMemory(&msg, sizeof(msg));
 
-	if (!ProcessWindowsEvents(msg) /*|| !ProcessGameInput(msg)*/ || m_QuitGame)
+	if (!ProcessWindowsEvents(msg) || 
+		!ProcessGameInput(msg) ||
+		!ProcessUIEvents() ||
+		m_QuitGame || 
+		msg.message == WM_QUIT)
 	{
 		msg.message = WM_QUIT;
+		m_QuitGame = true;
 		return msg;
 	}
 
@@ -52,8 +58,40 @@ bool InputManager::ProcessWindowsEvents(MSG& msg)
 		if (msg.message == WM_QUIT)
 			return false;
 
-		ProcessMouse_De_Activation(msg);
-		ProcessMouseRotation(msg);
+		ProcessMouseEvents(msg);
+	}
+
+	return true;
+}
+bool InputManager::ProcessUIEvents()
+{
+	if (IsKeyDown(int(KeyboardButton::L_CTRL)) && IsKeyDown(int(KeyboardButton::N)))
+	{
+		Scene* pScene{ Locator::GetSceneManagerService()->CreateNewGameScene() };
+		Locator::GetUIManagerService()->GetUI<HierarchyUI>()->SetActiveScene(pScene);
+	}
+	if (IsKeyDown(int(KeyboardButton::L_CTRL)) && IsKeyDown(int(KeyboardButton::S)))
+	{
+		const std::string filePath{ WindowsUtils::FileDialogs::SaveFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0") };
+
+		if (!filePath.empty())
+		{
+			SceneSerializer serializer{};
+			serializer.Serialize(filePath, Locator::GetSceneManagerService()->GetActiveGameScene());
+		}
+	}
+	if (IsKeyDown(int(KeyboardButton::L_CTRL)) && IsKeyDown(int(KeyboardButton::O)))
+	{
+		const std::string filePath{ WindowsUtils::FileDialogs::OpenFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0") };
+
+		if (!filePath.empty())
+		{
+			Scene* pScene{ Locator::GetSceneManagerService()->CreateNewGameScene() };
+			Locator::GetUIManagerService()->GetUI<HierarchyUI>()->SetActiveScene(pScene);
+
+			SceneSerializer serializer{};
+			serializer.Deserialize(filePath, pScene);
+		}
 	}
 
 	return true;
@@ -188,7 +226,7 @@ Command* InputManager::GetCommand(const MouseButton& mButton)
 	return nullptr;
 }
 
-void InputManager::ProcessMouse_De_Activation(MSG& msg)
+void InputManager::ProcessMouseEvents(MSG& msg)
 {
 	if (msg.wParam == 'G' && msg.message == WM_KEYUP)
 	{
@@ -197,11 +235,8 @@ void InputManager::ProcessMouse_De_Activation(MSG& msg)
 		else
 			m_pMouse->ActivateMouseInput();
 	}
-}
-void InputManager::ProcessMouseRotation(MSG& msg)
-{
+
 	// Mouse rotation
-		/* TODO: Snapping problem: When moving the mouse, it starts from the old position instead of the new one */
 	if (m_pMouse->GetMouseActive() && msg.message == WM_MOUSEMOVE)
 	{
 		POINT mouseMov{ m_pMouse->GetMouseMovement() };

@@ -28,6 +28,7 @@ class InputManager final
 						 const std::string& name, 
 						 Command* const pCommand);
 
+		bool GetQuitGame() const { return m_QuitGame; }
 		void QuitGame() { m_QuitGame = true; }
 
 		Mouse* GetMouse() const { return m_pMouse; }
@@ -54,11 +55,9 @@ class InputManager final
 		std::vector<InputData*> m_pInputs;
 
 		bool ProcessWindowsEvents(MSG& msg);
+		bool ProcessUIEvents();
 		bool ProcessGameInput(MSG& msg);
-
-		
+				
 		//
-		void ProcessMouse_De_Activation(MSG& msg);
-		// 
-		void ProcessMouseRotation(MSG& msg);
+		void ProcessMouseEvents(MSG& msg);
 };

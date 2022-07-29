@@ -111,11 +111,29 @@ void UIManager::ShutdownImGui()
 
 void UIManager::OpenDockSpace()
 {
+    InitDockSpace();
+
+    if (ImGui::BeginMenuBar())
+    {
+        FileMenu();
+        EditMenu();
+        WindowMenu();
+        ToolMenu();
+        
+        ImGui::EndMenuBar();
+    }
+}
+void UIManager::InitDockSpace()
+{
     /** Code from ImGui::ShowDemoWIndow() */
     static bool dockSpaceOpen = false;
     static bool opt_fullscreen = true;
     static bool opt_padding = false;
-    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+    //static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_HiddenTabBar;
+    dockspace_flags |= ImGuiDockNodeFlags_AutoHideTabBar;
+    dockspace_flags |= ImGuiDockNodeFlags_NoResize;
+    dockspace_flags |= ImGuiDockNodeFlags_NoTabBar;
 
     // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
     // because it would be confusing to have two docking targets within each others.
@@ -158,100 +176,126 @@ void UIManager::OpenDockSpace()
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
     }
     style.WindowMinSize.x = minWinSizeX;
-
-    if (ImGui::BeginMenuBar())
+}
+void UIManager::FileMenu()
+{
+    if (ImGui::BeginMenu("File"))
     {
-        if (ImGui::BeginMenu("File"))
+        SceneManager* pSceneManager{ Locator::GetSceneManagerService() };
+        if (ImGui::MenuItem("New", "Ctrl+N"))
+        {
+            CreateNewScene(pSceneManager);
+        }        
+        if (ImGui::MenuItem("Open...", "Ctrl+O"))
+        {
+            const std::string filePath{ WindowsUtils::FileDialogs::OpenFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0")};
+
+            if (!filePath.empty())
+            {
+                Scene* pScene = CreateNewScene(pSceneManager);
+
+                SceneSerializer serializer{};
+                serializer.Deserialize(filePath, pScene);
+            }
+                        
+            ImGui::CloseCurrentPopup();
+        }
+        if (ImGui::MenuItem("Save As...", "Ctrl+S"))
+        {
+            const std::string filePath{ WindowsUtils::FileDialogs::SaveFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0") };
+
+            if (!filePath.empty())
+            {
+                SceneSerializer serializer{};
+                serializer.Serialize(filePath, pSceneManager->GetActiveGameScene());
+            }
+        }
+        if (ImGui::MenuItem("Exit"))
+        {
+            Locator::GetInputManagerService()->QuitGame();
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndMenu();
+    }
+}
+void UIManager::EditMenu()
+{
+    if (ImGui::BeginMenu("Edit"))
+    {
+        if (ImGui::BeginMenu("Window size"))
+        {
+            //Graphics* pGraphics{ Locator::GetGraphicsService() };
+            if (ImGui::MenuItem("1920x1080"))
+            {
+                //pGraphics->SetWindowDimensions(1920, 1080);
+                //pGraphics->ResizeWindow({ 1920, 1080 });
+                ImGui::CloseCurrentPopup();
+            }
+            if (ImGui::MenuItem("2560x1080"))
+            {
+                //pGraphics->SetWindowDimensions(2560, 1080);
+                //pGraphics->ResizeWindow({ 2560, 1080 });
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::MenuItem("Fullscreen"))
+        {
+            //Graphics* pGraphics{ Locator::GetGraphicsService() };
+            //pGraphics->SetFullScreen(true);
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndMenu();
+    }
+}
+void UIManager::WindowMenu()
+{
+    if (ImGui::BeginMenu("Window"))
+    {
+        // Open or Close UI windows
+        // Viewport
+        ViewportUI* pViewport{ GetUI<ViewportUI>() };
+        ImGui::Checkbox("Viewport", pViewport->CanRenderUI());
+
+        // Inspector
+        InspectorUI* pInspector{ GetUI<InspectorUI>() };
+        ImGui::Checkbox("Inspector", pInspector->CanRenderUI());
+
+        // Console
+        ConsoleUI* pConsole{ GetUI<ConsoleUI>() };
+        ImGui::Checkbox("Console", pConsole->CanRenderUI());
+
+        // Scene hierarchy
+        HierarchyUI* pHierarchy{ GetUI<HierarchyUI>() };
+        ImGui::Checkbox("Hierarchy", pHierarchy->CanRenderUI());
+
+        // Camera Viewport
+        CameraViewportUI* pCameraViewportUI{ GetUI<CameraViewportUI>() };
+        ImGui::Checkbox("Camera viewport", pCameraViewportUI->CanRenderUI());
+
+        ImGui::EndMenu();
+    }
+}
+void UIManager::ToolMenu()
+{
+    if (ImGui::BeginMenu("Tool"))
+    {
+        if (ImGui::MenuItem("Close scene"))
         {
             Scene* pScene = Locator::GetSceneManagerService()->GetActiveGameScene();
-            if (ImGui::MenuItem("Save"))
-            {
-                SceneSerializer serializer{};
-                serializer.Serialize("Scenes/Scene.Vanaheim", pScene);
-                ImGui::CloseCurrentPopup();
-            }
-            if (ImGui::MenuItem("DeSave"))
-            {
-                SceneSerializer serializer{};
-                serializer.Deserialize("Scenes/Scene.Vanaheim", pScene);
-                ImGui::CloseCurrentPopup();
-            }
-            if (ImGui::MenuItem("Exit"))
-            {
-                Locator::GetInputManagerService()->QuitGame();
-                ImGui::CloseCurrentPopup();
-            }
 
-            ImGui::EndMenu();
+            std::vector<GameObject*> pGameObjects{ pScene->GetObjects() };
+
+            const size_t objectCount{ pGameObjects.size() };
+            for (size_t i{}; i < objectCount; ++i)
+                pGameObjects[i]->SetRemoveFlag();
+
+            ImGui::CloseCurrentPopup();
         }
-        if (ImGui::BeginMenu("Edit"))
-        {
-            if (ImGui::BeginMenu("Window size"))
-            {
-                //Graphics* pGraphics{ Locator::GetGraphicsService() };
-                if (ImGui::MenuItem("1920x1080"))
-                {
-                    //pGraphics->SetWindowDimensions(1920, 1080);
-                    //pGraphics->ResizeWindow({ 1920, 1080 });
-                    ImGui::CloseCurrentPopup();
-                }
-                if (ImGui::MenuItem("2560x1080"))
-                {
-                    //pGraphics->SetWindowDimensions(2560, 1080);
-                    //pGraphics->ResizeWindow({ 2560, 1080 });
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndMenu();
-            }
-            if (ImGui::MenuItem("Fullscreen"))
-            {
-                //Graphics* pGraphics{ Locator::GetGraphicsService() };
-                //pGraphics->SetFullScreen(true);
-                ImGui::CloseCurrentPopup();
-            }
 
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Window"))
-        {
-            // Open or Close UI windows
-            // Viewport
-            ViewportUI* pViewport{ GetUI<ViewportUI>() };
-            ImGui::Checkbox("Viewport", pViewport->CanRenderUI());
-
-            // Inspector
-            InspectorUI* pInspector{ GetUI<InspectorUI>() };
-            ImGui::Checkbox("Inspector", pInspector->CanRenderUI());
-
-            // Console
-            ConsoleUI* pConsole{ GetUI<ConsoleUI>() };
-            ImGui::Checkbox("Console", pConsole->CanRenderUI());
-
-            // Scene hierarchy
-            HierarchyUI* pHierarchy{ GetUI<HierarchyUI>() };
-            ImGui::Checkbox("Hierarchy", pHierarchy->CanRenderUI());
-
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Tool"))
-        {
-            if (ImGui::MenuItem("Close scene"))
-            {
-                Scene* pScene = Locator::GetSceneManagerService()->GetActiveGameScene();
-
-                std::vector<GameObject*> pGameObjects{ pScene->GetObjects() };
-
-                const size_t objectCount{ pGameObjects.size() };
-                for (size_t i{}; i < objectCount; ++i)
-                    pGameObjects[i]->SetRemoveFlag();
-
-                ImGui::CloseCurrentPopup();
-            }
-
-            ImGui::EndMenu();
-        }
-        
-        ImGui::EndMenuBar();
+        ImGui::EndMenu();
     }
 }
 void UIManager::CloseDockSpace()
@@ -292,4 +336,12 @@ void UIManager::SetThemeColors()
     colors[ImGuiCol_TitleBg]            = ImVec4{ 0.15f, 0.1505f, 0.151f, alpha };
     colors[ImGuiCol_TitleBgActive]      = ImVec4{ 0.15f, 0.1505f, 0.151f, alpha };
     colors[ImGuiCol_TitleBgCollapsed]   = ImVec4{ 0.15f, 0.1501f, 0.151f, alpha };
+}
+
+Scene* UIManager::CreateNewScene(SceneManager* pSceneManager)
+{
+    Scene* pScene{ pSceneManager->CreateNewGameScene() };
+    Locator::GetUIManagerService()->GetUI<HierarchyUI>()->SetActiveScene(pScene);
+
+    return pScene;
 }

@@ -57,6 +57,8 @@ class TransformComponent final : public Component
 		virtual void FixedUpdate(const float timeEachUpdate) override;
 
 	private:
+		friend class SceneSerializer;
+
 		bool m_UpdateWorldMatrix;
 		DirectX::XMFLOAT3 m_Position,
 						  m_WorldPosition,

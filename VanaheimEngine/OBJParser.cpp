@@ -65,18 +65,23 @@ void OBJParser::LoadModel(const std::string& givenName, const std::string& fileP
 		{
 			std::istringstream s(line.substr(2));
 			unsigned short v1, v2, v3;
-			s >> v1 >> v2 >> v3;
+			unsigned short vt1, vt2, vt3;
+			unsigned short vn1, vn2, vn3;
+			char slash{};
+			s >> v1 >> slash >> vt1 >> slash >> vn1
+			  >> v2 >> slash >> vt2 >> slash >> vn2
+			  >> v3 >> slash >> vt3 >> slash >> vn3;
 
 			Vertex_Input vert0{};
-			vert0.Position	= DirectX::XMFLOAT3{ positions[--v1] };
+			vert0.Position	= DirectX::XMFLOAT3{ positions[v1] };
 			vert0.Color		= DirectX::XMFLOAT3{ 1.f, 0.f, 0.f };
 
 			Vertex_Input vert1{};
-			vert1.Position	= DirectX::XMFLOAT3{ positions[--v2] };
+			vert1.Position	= DirectX::XMFLOAT3{ positions[v2] };
 			vert1.Color		= DirectX::XMFLOAT3{ 0.f, 0.f, 1.f };
 
 			Vertex_Input vert2{};
-			vert2.Position	= DirectX::XMFLOAT3{ positions[--v3] };
+			vert2.Position	= DirectX::XMFLOAT3{ positions[v3] };
 			vert2.Color		= DirectX::XMFLOAT3{ 0.f, 1.f, 0.f };
 
 			VertexCheck vCheck1{};	vCheck1.vertexToCheck = vert0;

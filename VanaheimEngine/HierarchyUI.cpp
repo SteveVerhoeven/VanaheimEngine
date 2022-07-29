@@ -5,6 +5,7 @@
 HierarchyUI::HierarchyUI()
 			: UI("Hierarchy", DirectX::XMFLOAT2{ 0.f, 0.f }, DirectX::XMFLOAT2{ 0.f, 0.f })
 			, m_pScene(nullptr)
+			, m_pInspectorUI(nullptr)
 			, m_SelectedGameObject(INT32_MAX)
 {}
 HierarchyUI::~HierarchyUI()
@@ -20,7 +21,14 @@ void HierarchyUI::ShowWindow()
 	if (!m_RenderUI)
 		return;
 
-	BeginWindowBase();
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_NoScrollbar;
+	window_flags |= ImGuiWindowFlags_NoMove;
+	window_flags |= ImGuiWindowFlags_NoTitleBar;
+	window_flags |= ImGuiWindowFlags_NoResize;
+	window_flags |= ImGuiWindowFlags_NoDecoration;
+
+	BeginWindowBase(window_flags);
 	Draw();
 	EndWindowBase();
 }
@@ -44,7 +52,7 @@ void HierarchyUI::Draw()
 		if (ImGui::IsItemClicked())
 		{
 			m_SelectedGameObject = i;
-			m_pInspectorUI->SetGameObject(gameObjects[i]);
+			m_pInspectorUI->SetHighlightedGameObject(gameObjects[i]);
 		}
 
 		if (opened)
@@ -71,7 +79,7 @@ void HierarchyUI::Draw()
 			// Set the scene to be cleaned
 			m_pScene->SetCleanSeneFlag();
 			// Set the target of the inspector UI back to nullptr
-			m_pInspectorUI->SetGameObject(nullptr);
+			m_pInspectorUI->SetHighlightedGameObject(nullptr);
 		}
 	}
 
@@ -79,7 +87,7 @@ void HierarchyUI::Draw()
 	if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
 	{
 		m_SelectedGameObject = INT32_MAX;
-		m_pInspectorUI->SetGameObject(nullptr);
+		m_pInspectorUI->SetHighlightedGameObject(nullptr);
 	}
 
 	// Right click on empty space in hierarchy
@@ -87,7 +95,12 @@ void HierarchyUI::Draw()
 	{
 		if (ImGui::MenuItem("Create empty Game Object"))
 		{
-			m_pScene->AddGameObject(new GameObject({}, {}, {}, "Empty Game Object"));
+			m_pScene->AddEmptyGameObject();
+			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::MenuItem("Create camera"))
+		{
+			m_pScene->AddCamera();
 			ImGui::CloseCurrentPopup();
 		}
 

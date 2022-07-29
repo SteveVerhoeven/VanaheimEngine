@@ -14,14 +14,15 @@
 Scene::Scene()
 	  : m_Cleanup(false)
 	  , m_IsActive(false)
-	  , m_Name("")
+	  , m_Name("Scene")
 	  , m_pSceneCameraGO(nullptr)
 	  , m_pGameObjects(std::vector<GameObject*>())
 {}
 Scene::~Scene()
 {
 	DELETE_POINTERS(m_pGameObjects, m_pGameObjects.size());
-	DELETE_POINTER(m_pSceneCameraGO);
+	if (Locator::GetInputManagerService()->GetQuitGame())
+		DELETE_POINTER(m_pSceneCameraGO);
 }
 
 void Scene::Initialize()
@@ -83,26 +84,37 @@ void Scene::Render() const
 		pObject->Render();
 }
 
-void Scene::AddGameObject(GameObject* pObject)
+void Scene::AddEmptyGameObject()
 {
-	pObject->SetParentScene(this);
+	GameObject* pGameObject{ new GameObject("Empty Game Object")};
+	AddGameObject(pGameObject);
+}
+void Scene::AddCamera()
+{
+	GameObject* pGameObject{ new GameObject("Camera")};
+	pGameObject->AddComponent(new CameraComponent());
+	AddGameObject(pGameObject);
+}
+void Scene::AddGameObject(GameObject* pGameObject)
+{
+	pGameObject->SetParentScene(this);
 
 	// Find duplicates
-	auto comp = pObject->GetComponent<LineComponent>();
+	auto comp = pGameObject->GetComponent<LineComponent>();
 	if (comp)
 	{
 		auto mesh = comp->GetMesh();
 		if (mesh)
 		{
-			if (!Locator::GetResourceManagerService()->Load3DMesh(dynamic_cast<Mesh_Base*>(mesh), pObject))
+			if (!Locator::GetResourceManagerService()->Load3DMesh(dynamic_cast<Mesh_Base*>(mesh), pGameObject))
 			{
-				DELETE_POINTER(pObject);
+				DELETE_POINTER(pGameObject);
 				return;
 			}
-		}		
-	}	
+		}
+	}
 
-	m_pGameObjects.push_back(pObject);
+	m_pGameObjects.push_back(pGameObject);
 }
 void Scene::RemoveGameObject(GameObject* pObject)
 {
@@ -255,9 +267,31 @@ void Scene::CreateSceneCameraInputs()
 {
 	InputManager* pInputManager{ Locator::GetInputManagerService() };
 
-	pInputManager->AddBaseKeyToMap(ControllerButton::ButtonUp, KeyboardButton::W, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_FORWARD", new MoveCameraCommand(true, false, false, false));
-	pInputManager->AddBaseKeyToMap(ControllerButton::ButtonDown, KeyboardButton::S, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_BACKWARD", new MoveCameraCommand(false, true, false, false));
-	pInputManager->AddBaseKeyToMap(ControllerButton::ButtonLeft, KeyboardButton::A, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_LEFT", new MoveCameraCommand(false, false, true, false));
-	pInputManager->AddBaseKeyToMap(ControllerButton::ButtonRight, KeyboardButton::D, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_RIGHT", new MoveCameraCommand(false, false, false, true));
+	MoveDirection_Flags moveDirForward{};
+	moveDirForward |= MoveDirection_Flags::FORWARD;
+	MoveDirection_Flags moveDirBackward{};
+	moveDirBackward |= MoveDirection_Flags::BACKWARD;
+	MoveDirection_Flags moveDirLeft{};
+	moveDirLeft |= MoveDirection_Flags::LEFT;
+	MoveDirection_Flags moveDirRight{};
+	moveDirRight |= MoveDirection_Flags::RIGHT;
+
+	pInputManager->AddBaseKeyToMap(ControllerButton::ButtonUp, KeyboardButton::W, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_FORWARD"	, new MoveCameraCommand(moveDirForward));
+	pInputManager->AddBaseKeyToMap(ControllerButton::ButtonDown, KeyboardButton::S, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_BACKWARD"	, new MoveCameraCommand(moveDirBackward));
+	pInputManager->AddBaseKeyToMap(ControllerButton::ButtonLeft, KeyboardButton::A, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_LEFT"		, new MoveCameraCommand(moveDirLeft));
+	pInputManager->AddBaseKeyToMap(ControllerButton::ButtonRight, KeyboardButton::D, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_RIGHT"	, new MoveCameraCommand(moveDirRight));
+
+
+
+
+
+
+
+
+
+	//pInputManager->AddBaseKeyToMap(ControllerButton::ButtonUp, KeyboardButton::W, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_FORWARD", new MoveCameraCommand(true, false, false, false));
+	//pInputManager->AddBaseKeyToMap(ControllerButton::ButtonDown, KeyboardButton::S, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_BACKWARD", new MoveCameraCommand(false, true, false, false));
+	//pInputManager->AddBaseKeyToMap(ControllerButton::ButtonLeft, KeyboardButton::A, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_LEFT", new MoveCameraCommand(false, false, true, false));
+	//pInputManager->AddBaseKeyToMap(ControllerButton::ButtonRight, KeyboardButton::D, MouseButton::RMB, ButtonPressType::BUTTON_RELEASED, "MOVE_RIGHT", new MoveCameraCommand(false, false, false, true));
 	pInputManager->AddBaseKeyToMap(ControllerButton::ButtonLThumbStick, KeyboardButton::NoAction, MouseButton::RMB, ButtonPressType::BUTTON_HOLD, "ROTATE", new RotateCameraCommand());
 }

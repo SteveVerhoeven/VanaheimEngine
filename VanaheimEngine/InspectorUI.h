@@ -14,7 +14,8 @@ class InspectorUI final : public UI
 		InspectorUI(InspectorUI&&) = delete;
 		InspectorUI& operator=(InspectorUI&&) = delete;
 
-		void SetGameObject(GameObject* pGameObject) { m_pGameObject = pGameObject; }
+		void SetHighlightedGameObject(GameObject* pGameObject);
+		GameObject* GetHighlightedCameraGameobject() const { return m_pGameObject; }
 
 	protected:
 		void Initialize() override;

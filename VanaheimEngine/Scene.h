@@ -23,7 +23,11 @@ class Scene
 		virtual void LateUpdate();
 		virtual void Render() const;
 
-		void AddGameObject(GameObject* pObject);
+		// Add prefabs
+		void AddEmptyGameObject();
+		void AddCamera();
+		
+		void AddGameObject(GameObject* pGameObject);
 		void RemoveGameObject(GameObject* pObject);
 		GameObject* GetObjectByName(const std::string& name) const;
 		const std::vector<GameObject*>& GetObjects() const { return m_pGameObjects; }
@@ -48,6 +52,8 @@ class Scene
 		void CreateSceneCameraInputs();
 
 	private:
+		friend class SceneSerializer;
+
 		bool m_Cleanup;
 		bool m_IsActive;
 		std::string m_Name;

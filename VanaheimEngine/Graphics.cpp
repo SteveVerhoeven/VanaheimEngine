@@ -11,8 +11,10 @@ Graphics::Graphics(HWND hWnd, const int width, const int height)
 		 , m_pDeviceContext(nullptr)
 		 , m_pDXGIFactory(nullptr)
 		 , m_pSwapChain(nullptr)
-		 , m_pDepthStencilBuffer(nullptr)
-		 , m_pDepthStencilView(nullptr)
+		 , m_pDepthStencilBufferGame(nullptr)
+		 , m_pDepthStencilBufferCamera(nullptr)
+		 , m_pDepthStencilViewGame(nullptr)
+		 , m_pDepthStencilViewCamera(nullptr)
 		 , m_pRenderTargetBuffer_Main(nullptr)
 		 , m_pRenderTargetView_Main(nullptr)
 		 , m_pRenderTargetBuffer_Game(nullptr)
@@ -39,8 +41,14 @@ Graphics::~Graphics()
 	DELETE_RESOURCE(m_pRenderTargetBuffer_Camera);
 	DELETE_RESOURCE(m_pShaderResourceView_Game);
 	DELETE_RESOURCE(m_pShaderResourceView_Camera);
-	DELETE_RESOURCE(m_pDepthStencilView);
-	DELETE_RESOURCE(m_pDepthStencilBuffer);
+	DELETE_RESOURCE(m_pDepthStencilViewGame);
+	DELETE_RESOURCE(m_pDepthStencilViewCamera);
+	DELETE_RESOURCE(m_pDepthStencilBufferGame);
+	DELETE_RESOURCE(m_pDepthStencilBufferCamera);
+	BOOL fullScreenState{ false };
+	m_pSwapChain->GetFullscreenState(&fullScreenState, NULL);
+	if (fullScreenState == (BOOL)true)
+		m_pSwapChain->SetFullscreenState(false, NULL);
 	DELETE_RESOURCE(m_pSwapChain);
 	DELETE_RESOURCE(m_pDevice);
 	if (m_pDeviceContext)
@@ -85,6 +93,13 @@ HRESULT Graphics::InitializeDirectX(const int width, const int height)
 		return hr;
 
 	// *************************************************************
+	// Create Depth/Stencil Buffer and View
+	// *************************************************************
+	hr = CreateDepth_Stencil_Resources2(width, height);
+	if (FAILED(hr))
+		return hr;
+
+	// *************************************************************
 	// Create Render target Buffer - Main window
 	// *************************************************************
 	hr = CreateRenderTarget_Main();
@@ -122,7 +137,7 @@ HRESULT Graphics::InitializeDirectX(const int width, const int height)
 	// *************************************************************
 	// Bind the views to the output merger stage
 	// *************************************************************
-	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView_Main, m_pDepthStencilView);
+	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView_Main, m_pDepthStencilViewGame);
 	
 	// *************************************************************
 	// Set Viewport
@@ -135,6 +150,8 @@ HRESULT Graphics::InitializeDirectX(const int width, const int height)
 	viewPort.MinDepth = 0.f;
 	viewPort.MaxDepth = 1.f;
 	m_pDeviceContext->RSSetViewports(1, &viewPort);
+
+	//m_pSwapChain->SetFullscreenState(true, NULL);
 
 	return hr;
 }
@@ -231,7 +248,7 @@ HRESULT Graphics::CreateDepth_Stencil_Resources(const int width, const int heigh
 	/* CreateTexture2D - Parameters */
 	const D3D11_TEXTURE2D_DESC* pDepthStencilDesc{ &depthStencilDesc };
 	const D3D11_SUBRESOURCE_DATA* pInitialData{ NULL };
-	ID3D11Texture2D** ppTexture2D{ &m_pDepthStencilBuffer };
+	ID3D11Texture2D** ppTexture2D{ &m_pDepthStencilBufferGame };
 
 	// Explanation for all parameters in link below
 	// Reference: https://docs.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createtexture2d
@@ -241,9 +258,55 @@ HRESULT Graphics::CreateDepth_Stencil_Resources(const int width, const int heigh
 
 	// Create DepthStencilView
 	/* CreateDXGIFactory - Parameters */
-	ID3D11Resource* pDepthStencilBuffer{ m_pDepthStencilBuffer };
+	ID3D11Resource* pDepthStencilBuffer{ m_pDepthStencilBufferGame };
 	const D3D11_DEPTH_STENCIL_VIEW_DESC* pDepthStencilViewDesc{ &depthStencilViewDesc };
-	ID3D11DepthStencilView** ppDepthStencilView{ &m_pDepthStencilView };
+	ID3D11DepthStencilView** ppDepthStencilView{ &m_pDepthStencilViewGame };
+
+	// Explanation for all parameters in link below
+	// Reference: https://docs.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createdepthstencilview
+	return m_pDevice->CreateDepthStencilView(pDepthStencilBuffer, pDepthStencilViewDesc, ppDepthStencilView);
+}
+HRESULT Graphics::CreateDepth_Stencil_Resources2(const int width, const int height)
+{
+	HRESULT hr{};
+
+	// Create SwapChain descriptor
+	D3D11_TEXTURE2D_DESC depthStencilDesc{};
+	depthStencilDesc.Width = width;
+	depthStencilDesc.Height = height;
+	depthStencilDesc.MipLevels = 1;
+	depthStencilDesc.ArraySize = 1;
+	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilDesc.SampleDesc.Count = 1;
+	depthStencilDesc.SampleDesc.Quality = 0;
+	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilDesc.CPUAccessFlags = 0;
+	depthStencilDesc.MiscFlags = 0;
+
+	// Describe resource view for depth/stencil buffer
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc{};
+	depthStencilViewDesc.Format = depthStencilDesc.Format;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+	// Create Texture2D
+	/* CreateTexture2D - Parameters */
+	const D3D11_TEXTURE2D_DESC* pDepthStencilDesc{ &depthStencilDesc };
+	const D3D11_SUBRESOURCE_DATA* pInitialData{ NULL };
+	ID3D11Texture2D** ppTexture2D{ &m_pDepthStencilBufferCamera };
+
+	// Explanation for all parameters in link below
+	// Reference: https://docs.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createtexture2d
+	hr = m_pDevice->CreateTexture2D(pDepthStencilDesc, pInitialData, ppTexture2D);
+	if (FAILED(hr))
+		return hr;
+
+	// Create DepthStencilView
+	/* CreateDXGIFactory - Parameters */
+	ID3D11Resource* pDepthStencilBuffer{ m_pDepthStencilBufferCamera };
+	const D3D11_DEPTH_STENCIL_VIEW_DESC* pDepthStencilViewDesc{ &depthStencilViewDesc };
+	ID3D11DepthStencilView** ppDepthStencilView{ &m_pDepthStencilViewCamera };
 
 	// Explanation for all parameters in link below
 	// Reference: https://docs.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createdepthstencilview
@@ -385,7 +448,8 @@ void Graphics::ClearBackbuffer()
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView_Main, reinterpret_cast<const float*>(&DirectX::Colors::Black));
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView_Game, reinterpret_cast<const float*>(&DirectX::Colors::Black));
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView_Camera, reinterpret_cast<const float*>(&DirectX::Colors::Black));
-	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilViewGame, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilViewCamera, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 void Graphics::PresentBackbuffer()
 {
@@ -394,13 +458,17 @@ void Graphics::PresentBackbuffer()
 
 void Graphics::SetGameRenderTarget()
 {
-	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView_Game, m_pDepthStencilView);
+	ID3D11ShaderResourceView* pShaderRSV{ NULL };
+	m_pDeviceContext->PSSetShaderResources(0, 0, &pShaderRSV);
+	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView_Game, m_pDepthStencilViewGame);
 }
 void Graphics::SetCameraRenderTarget()
 {
-	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView_Camera, m_pDepthStencilView);
+	ID3D11ShaderResourceView* pShaderRSV{ NULL };
+	m_pDeviceContext->PSSetShaderResources(0, 0, &pShaderRSV);
+	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView_Camera, m_pDepthStencilViewCamera);
 }
 void Graphics::SetMainRenderTarget()
 {
-	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView_Main, m_pDepthStencilView);
+	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView_Main, m_pDepthStencilViewGame);
 }

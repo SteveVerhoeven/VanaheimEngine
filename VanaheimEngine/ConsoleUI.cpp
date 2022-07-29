@@ -5,8 +5,28 @@
 #include "Mouse.h"
 
 ConsoleUI::ConsoleUI()
-		  : UI("Console", DirectX::XMFLOAT2{ 0.f, 0.f }, DirectX::XMFLOAT2{ 0.f, 0.f })
+          : UI("Console", DirectX::XMFLOAT2{ 0.f, 0.f }, DirectX::XMFLOAT2{ 0.f, 0.f })
+          , m_InputBuf()
+          , m_Items(ImVector<char*>())
+          , m_Commands(ImVector<const char*>())
+          , m_History(ImVector<char*>())
+          , m_HistoryPos()
+          , m_Filter()
+          , m_AutoScroll(false)
+          , m_ScrollToBottom(false)
 {}
+ConsoleUI::~ConsoleUI()
+{
+    const int itemsSize{ m_Items.Size };
+    for (int i{}; i < itemsSize; ++i)
+        free(m_Items[i]);
+    m_Items.clear();
+
+    const int historySize{ m_History.Size };
+    for (int i{}; i < historySize; ++i)
+        free(m_History[i]);
+    m_History.clear();
+}
 
 void ConsoleUI::Initialize()
 {}
@@ -15,23 +35,30 @@ void ConsoleUI::ShowWindow()
 	if (!m_RenderUI)
 		return;
 
-    BeginWindowBase();
+    ImGuiWindowFlags window_flags = 0;
+    window_flags |= ImGuiWindowFlags_NoScrollbar;
+    window_flags |= ImGuiWindowFlags_NoMove;
+    window_flags |= ImGuiWindowFlags_NoTitleBar;
+    window_flags |= ImGuiWindowFlags_NoResize;
+    window_flags |= ImGuiWindowFlags_NoDecoration;
+
+    BeginWindowBase(window_flags);
 	Draw();
 	EndWindowBase();
 }
 
 void ConsoleUI::ClearLog()
 {
-	for (int i = 0; i < Items.Size; i++)
-		free(Items[i]);
-	Items.clear();
+	for (int i = 0; i < m_Items.Size; i++)
+		free(m_Items[i]);
+	m_Items.clear();
 }
 
 void ConsoleUI::Draw()
 {
     // As a specific feature guaranteed by the library, after calling Begin() the last Item represent the title bar.
-            // So e.g. IsItemHovered() will return true when hovering the title bar.
-            // Here we create a context menu only available from the title bar.
+    // So e.g. IsItemHovered() will return true when hovering the title bar.
+    // Here we create a context menu only available from the title bar.
     if (ImGui::BeginPopupContextItem())
     {
         if (ImGui::MenuItem("Close Console"))
@@ -49,7 +76,7 @@ void ConsoleUI::Draw()
     // Options menu
     if (ImGui::BeginPopup("Options"))
     {
-        ImGui::Checkbox("Auto-scroll", &AutoScroll);
+        ImGui::Checkbox("Auto-scroll", &m_AutoScroll);
         ImGui::EndPopup();
     }
 
@@ -57,7 +84,7 @@ void ConsoleUI::Draw()
     if (ImGui::Button("Options"))
         ImGui::OpenPopup("Options");
     ImGui::SameLine();
-    Filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
+    m_Filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
     ImGui::Separator();
 
     // Reserve enough left-over height for 1 separator + 1 input text
@@ -96,10 +123,10 @@ void ConsoleUI::Draw()
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
     if (copy_to_clipboard)
         ImGui::LogToClipboard();
-    for (int i = 0; i < Items.Size; i++)
+    for (int i = 0; i < m_Items.Size; i++)
     {
-        const char* item = Items[i];
-        if (!Filter.PassFilter(item))
+        const char* item = m_Items[i];
+        if (!m_Filter.PassFilter(item))
             continue;
 
         // Normally you would store more information in your item than just a string.
@@ -117,9 +144,9 @@ void ConsoleUI::Draw()
     if (copy_to_clipboard)
         ImGui::LogFinish();
 
-    if (ScrollToBottom || (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
+    if (m_ScrollToBottom || (m_AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
         ImGui::SetScrollHereY(1.0f);
-    ScrollToBottom = false;
+    m_ScrollToBottom = false;
 
     ImGui::PopStyleVar();
     ImGui::EndChild();

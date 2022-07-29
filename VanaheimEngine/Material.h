@@ -40,6 +40,8 @@ class Material
 		std::string GetFilePath() const { return m_AssetPath; }
 
 	protected:
+		friend class SceneSerializer;
+		
 		bool m_IsInitialized;
 		std::string m_Name;
 		std::string m_AssetPath;

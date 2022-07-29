@@ -90,6 +90,7 @@ Locator::GetDebugLoggerService()->LogHRESULT(hr, function, file, line);
 #include "Locator.h"
 
 #include "DebugLogger.h"
+#include "WindowsUtils.h"
 
 #include "ConsoleUI.h"
 #include "InspectorUI.h"

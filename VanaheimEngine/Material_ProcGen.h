@@ -25,6 +25,8 @@ class Material_ProcGen final : public Material
 	protected:
 
 	private:
+		friend class SceneSerializer;
+
 		static ID3DX11EffectShaderResourceVariable* m_pNoiseSRVvariable;
 		static ID3DX11EffectShaderResourceVariable* m_pColorSRVvariable;
 

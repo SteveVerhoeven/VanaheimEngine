@@ -126,6 +126,9 @@
     <ClCompile Include="Observer.cpp">
       <Filter>Patterns\Observer</Filter>
     </ClCompile>
+    <ClCompile Include="SceneSerializer.cpp">
+      <Filter>General</Filter>
+    </ClCompile>
     <ClCompile Include="Generator.cpp">
       <Filter>Generator</Filter>
     </ClCompile>
@@ -171,8 +174,8 @@
     <ClCompile Include="CameraViewportUI.cpp">
       <Filter>UI\General</Filter>
     </ClCompile>
-    <ClCompile Include="SceneSerializer.cpp">
-      <Filter>General</Filter>
+    <ClCompile Include="WindowsUtils.cpp">
+      <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -366,6 +369,9 @@
     </ClInclude>
     <ClInclude Include="CameraViewportUI.h">
       <Filter>UI\General</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsUtils.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

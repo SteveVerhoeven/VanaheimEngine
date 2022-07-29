@@ -4,13 +4,22 @@
 #include "Command.h"
 #include "RotateCameraCommand.h"
 
+SceneCameraMovement::SceneCameraMovement()
+					: m_pViewportUI(nullptr)
+{}
+
 void SceneCameraMovement::Initialize(Scene* /*pParentScene*/)
 {}
 void SceneCameraMovement::PostInitialize(Scene* /*pParentScene*/)
-{}
+{
+	m_pViewportUI = Locator::GetUIManagerService()->GetUI<ViewportUI>();
+}
 void SceneCameraMovement::Update(const float /*elapsedSec*/)
 {
 	if (!m_pParentObject->GetComponent<CameraComponent>()->GetIsMainCamera())
+		return;
+
+	if (!m_pViewportUI->GetIsMouseInViewport())
 		return;
 
 	InputManager* pInputManager{ Locator::GetInputManagerService() };

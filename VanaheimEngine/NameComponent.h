@@ -17,9 +17,6 @@ class NameComponent final : public Component
 		void SetName(const std::string& name) { m_Name = name; }
 		const std::string& GetName() const { return m_Name; }
 
-		// Serialization
-		//void Serialize(YAML::Emitter& out) override;
-
 	protected:
 		virtual void Initialize(Scene* pParentScene) override;
 		virtual void PostInitialize(Scene* pParentScene) override;
@@ -27,5 +24,7 @@ class NameComponent final : public Component
 		virtual void FixedUpdate(const float timeEachUpdate) override;
 
 	private:
+		friend class SceneSerializer;
+
 		std::string m_Name;
 };
