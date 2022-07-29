@@ -722,6 +722,8 @@ void SceneSerializer::DeserializeTerrainGeneratorComponent(const YAML::detail::i
 		pGO->AddComponent(pTerrainGeneratorComponent);
 
 		AddObserver(pTerrainGeneratorComponent);
+
+		Locator::GetUIManagerService()->GetUI<InspectorUI>()->AddObserver(pTerrainGeneratorComponent);
 	}
 
 }
