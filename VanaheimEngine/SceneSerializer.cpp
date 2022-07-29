@@ -296,7 +296,7 @@ bool SceneSerializer::Deserialize(const std::string& filePath, Scene* pScene)
 		}
 	}
 
-	Notify(ObserverEvent::REBUILD_LANDSCAPE);
+	
 
 	return true;
 }
@@ -681,6 +681,10 @@ void SceneSerializer::DeserializeModelComponent(const YAML::detail::iterator_val
 		if (modelComponent_Textures)
 		{
 			pTextures = modelComponent["Textures"].as<std::vector<Texture*>>();
+
+			InspectorUI* pInspectorUI{ Locator::GetUIManagerService()->GetUI<InspectorUI>() };
+			pInspectorUI->AddObserver(pTextures[0]);
+			pInspectorUI->AddObserver(pTextures[1]);
 		}
 		
 		/** Create */
@@ -720,12 +724,7 @@ void SceneSerializer::DeserializeTerrainGeneratorComponent(const YAML::detail::i
 
 		/** Add */
 		pGO->AddComponent(pTerrainGeneratorComponent);
-
-		AddObserver(pTerrainGeneratorComponent);
-
-		Locator::GetUIManagerService()->GetUI<InspectorUI>()->AddObserver(pTerrainGeneratorComponent);
 	}
-
 }
 
 Material* SceneSerializer::CreateMaterial(const std::string& name, const std::vector<Texture*> pTextures)

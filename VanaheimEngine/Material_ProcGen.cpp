@@ -32,10 +32,9 @@ void Material_ProcGen::Update(GameObject* pParentGameObject)
 {
 	Material::Update(pParentGameObject);
 	
-	DebugLogger* pDebugLogger{ Locator::GetDebugLoggerService() };
 	if (m_pTextures[0] && m_pNoiseSRVvariable)
-		pDebugLogger->LogHRESULT(m_pNoiseSRVvariable->SetResource(m_pTextures[0]->GetShaderResourceView()), "Material_ProcGen::Update", __FILE__, std::to_string(__LINE__));
+		LOG_HRESULT(m_pNoiseSRVvariable->SetResource(m_pTextures[0]->GetShaderResourceView()), "Material_ProcGen::Update", __FILE__, std::to_string(__LINE__));
 
 	if (m_pTextures[1] && m_pColorSRVvariable)
-		pDebugLogger->LogHRESULT(m_pColorSRVvariable->SetResource(m_pTextures[1]->GetShaderResourceView()), "Material_ProcGen::Update", __FILE__, std::to_string(__LINE__));
+		LOG_HRESULT(m_pColorSRVvariable->SetResource(m_pTextures[1]->GetShaderResourceView()), "Material_ProcGen::Update", __FILE__, std::to_string(__LINE__));
 }

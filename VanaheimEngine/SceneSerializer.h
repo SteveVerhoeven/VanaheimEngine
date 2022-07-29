@@ -1,5 +1,4 @@
 #pragma once
-#include "Subject.h"
 
 namespace YAML
 {
@@ -20,7 +19,7 @@ class TransformComponent;
 class CameraComponent;
 class RenderComponent;
 class ModelComponent;
-class SceneSerializer : public Subject
+class SceneSerializer final
 {
 	public:
 		SceneSerializer() = default;

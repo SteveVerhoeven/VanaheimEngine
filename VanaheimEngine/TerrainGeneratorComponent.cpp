@@ -86,11 +86,11 @@ void TerrainGeneratorComponent::GenerateTerrain()
 	Texture* pColorTexture{ pResourceManager->LoadTexture("./Resources/Textures/Landscape/colorMap.bmp") };
 
 	UIManager* pUIManager{ Locator::GetUIManagerService() };
-	InspectorUI* pVanaheimUI{ pUIManager->GetUI<InspectorUI>() };
-	if (pVanaheimUI)
+	InspectorUI* pInspectorUI{ pUIManager->GetUI<InspectorUI>() };
+	if (pInspectorUI)
 	{
-		pVanaheimUI->AddObserver(pNormalTexture);
-		pVanaheimUI->AddObserver(pColorTexture);
+		pInspectorUI->AddObserver(pNormalTexture);
+		pInspectorUI->AddObserver(pColorTexture);
 	}
 
 	Material_ProcGen* pMaterial = new Material_ProcGen();

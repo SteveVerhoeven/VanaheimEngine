@@ -95,6 +95,9 @@ void InspectorUI::DrawComponents()
 
 		if (hasChanged)
 		{
+			if (!m_pGameObject->HasComponent<CameraComponent>())
+				return;
+
 			Update_Flags flags{};
 			flags |= Update_Flags::VIEW;
 			flags |= Update_Flags::PROJECTION;
