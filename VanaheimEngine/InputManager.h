@@ -55,11 +55,9 @@ class InputManager final
 		std::vector<InputData*> m_pInputs;
 
 		bool ProcessWindowsEvents(MSG& msg);
+		bool ProcessUIEvents();
 		bool ProcessGameInput(MSG& msg);
-
-		
+				
 		//
-		void ProcessMouse_De_Activation(MSG& msg);
-		// 
-		void ProcessMouseRotation(MSG& msg);
+		void ProcessMouseEvents(MSG& msg);
 };

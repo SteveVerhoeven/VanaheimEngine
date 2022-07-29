@@ -52,7 +52,6 @@ void ModelComponent::Render()
 
 	m_pMaterial->Update(m_pParentObject);
 	
-
 	RenderComponent* pRenderComponent{ m_pParentObject->GetComponent<RenderComponent>() };
 	pRenderComponent->Render3DMesh(Locator::GetGraphicsService()->GetDeviceContext(), m_pMesh, m_pMaterial);
 }

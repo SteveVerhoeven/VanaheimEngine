@@ -60,12 +60,17 @@ void InspectorUI::DrawComponents()
 
 	DrawSingleComponent<TransformComponent>("Transform", [this](auto* pComponent)
 	{
+		bool hasChanged{};
+
 		/** Position */
 		const DirectX::XMFLOAT3& posF3{ pComponent->GetPosition() };
 		float pos[] = { posF3.x, posF3.y, posF3.z };
 
 		if (DrawXMFlOAT3Controlls("Position", pos))
+		{
 			pComponent->Translate(pos[0], pos[1], pos[2]);
+			hasChanged = true;
+		}
 
 		/** Rotation */
 		const DirectX::XMFLOAT4& rotF4{ pComponent->GetRotation(false) };
@@ -73,14 +78,31 @@ void InspectorUI::DrawComponents()
 							 rotF4.y,
 							 rotF4.z };
 		if (DrawXMFlOAT3Controlls("Rotation", rotation))
+		{
 			pComponent->Rotate(rotation[0], rotation[1], rotation[2]);
+			hasChanged = true;
+		}
 
 		/** Scale */
 		const DirectX::XMFLOAT3& scaleF3{ pComponent->GetWorldScale() };
 		float scale[] = { scaleF3.x, scaleF3.y, scaleF3.z };
 
 		if (DrawXMFlOAT3Controlls("Scale", scale, 100.f, 1.f))
+		{
 			pComponent->Scale({ scale[0], scale[1], scale[2] });
+			hasChanged = true;
+		}
+
+		if (hasChanged)
+		{
+			Update_Flags flags{};
+			flags |= Update_Flags::VIEW;
+			flags |= Update_Flags::PROJECTION;
+			flags |= Update_Flags::VIEWINVERSE;
+			flags |= Update_Flags::VIEWPROJECTION;
+			flags |= Update_Flags::VIEWPROJECTIONINVERSE;
+			m_pGameObject->GetComponent<CameraComponent>()->SetUpdateFlags(flags);
+		}
 	});
 	DrawSingleComponent<CameraComponent>("Camera", [](auto* pComponent)
 	{

@@ -343,8 +343,5 @@ Scene* UIManager::CreateNewScene(SceneManager* pSceneManager)
     Scene* pScene{ pSceneManager->CreateNewGameScene() };
     Locator::GetUIManagerService()->GetUI<HierarchyUI>()->SetActiveScene(pScene);
 
-    Scene* pActiveScene = pSceneManager->GetActiveGameScene();
-    pScene->SetSceneCamera(pActiveScene->GetSceneCamera());
-
     return pScene;
 }
