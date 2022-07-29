@@ -40,6 +40,8 @@ class SceneManager final
 		bool GetMenuIsActie() const { return m_MenuActive; }
 		bool GetGameIsActie() const { return m_GameActive; }
 
+		Scene* CreateNewGameScene();
+
 	private:
 		bool m_MenuActive;
 		bool m_GameActive;

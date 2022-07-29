@@ -60,6 +60,8 @@ class CameraComponent final : public Component
 		virtual void FixedUpdate(const float timeEachUpdate) override;
 
 	private:
+		friend class SceneSerializer;
+
 		bool m_IsSceneCamera;
 		Update_Flags m_UpdateFlags;
 		float m_Near,

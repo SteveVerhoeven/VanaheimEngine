@@ -44,6 +44,9 @@ class Component
 template<class T>
 inline T* Component::RequiresComponent()
 {
+	if (m_pParentObject->HasComponent<T>())
+		return m_pParentObject->GetComponent<T>();
+
 	T* pComponent = new T();
 	m_pParentObject->AddComponent(pComponent);
 

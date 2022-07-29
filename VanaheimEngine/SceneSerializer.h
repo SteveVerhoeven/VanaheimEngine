@@ -1,4 +1,6 @@
 #pragma once
+#include "Subject.h"
+
 namespace YAML
 {
 	class Emitter;
@@ -18,7 +20,7 @@ class TransformComponent;
 class CameraComponent;
 class RenderComponent;
 class ModelComponent;
-class SceneSerializer final
+class SceneSerializer : public Subject
 {
 	public:
 		SceneSerializer() = default;
@@ -43,6 +45,7 @@ class SceneSerializer final
 		void SerializeCameraComponent(YAML::Emitter& out, CameraComponent* pCameraComponent);
 		void SerializeRenderComponent(YAML::Emitter& out, RenderComponent* pRenderComponent);
 		void SerializeModelComponent(YAML::Emitter& out, ModelComponent* pModelComponent);
+		void SerializeTerrainGeneratorComponent(YAML::Emitter& out, TerrainGeneratorComponent* pTerrainGeneratorComponent);
 
 		// Helpers for SerializeModelComponent
 		void SerializeMesh(YAML::Emitter& out, ModelComponent* pModelComponent);
@@ -59,6 +62,7 @@ class SceneSerializer final
 		void DeserializeCameraComponent(const YAML::detail::iterator_value& yamlGO, GameObject* pGO);
 		void DeserializeRenderComponent(const YAML::detail::iterator_value& yamlGO, GameObject* pGO);
 		void DeserializeModelComponent(const YAML::detail::iterator_value& yamlGO, GameObject* pGO);
+		void DeserializeTerrainGeneratorComponent(const YAML::detail::iterator_value& yamlGO, GameObject* pGO);
 
 		Material* CreateMaterial(const std::string& name, const std::vector<Texture*> pTextures);
 

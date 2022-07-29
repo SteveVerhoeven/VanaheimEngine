@@ -34,6 +34,8 @@ class RenderComponent final : public Component
 		virtual void FixedUpdate(const float timeEachUpdate) override;
 
 	private:
+		friend class SceneSerializer;
+
 		bool m_CanRenderComponent;
 
 		// Render 3D Mesh functions

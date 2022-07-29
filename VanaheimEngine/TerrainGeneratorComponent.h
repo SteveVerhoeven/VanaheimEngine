@@ -47,6 +47,8 @@ class TerrainGeneratorComponent final : public Component, public Observer
 		virtual void onNotify(ObserverEvent event) override;
 
 	private:
+		friend class SceneSerializer;
+
 		// *************
 		// Variables
 		// *************

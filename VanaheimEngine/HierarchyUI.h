@@ -14,6 +14,8 @@ class HierarchyUI final : public UI
 		HierarchyUI(HierarchyUI&&) = delete;
 		HierarchyUI& operator=(HierarchyUI&&) = delete;
 
+		void SetActiveScene(Scene* pScene) { m_pScene = pScene; }
+
 	protected:
 		void Initialize() override;
 		void ShowWindow() override;

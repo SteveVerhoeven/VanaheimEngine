@@ -70,18 +70,7 @@ void Material::Update(GameObject* pParentGameObject)
 {
 	using namespace DirectX;
 
-	CameraComponent* pCameraComponent{nullptr};
-
-	//GameObject* pGameObject{ Locator::GetUIManagerService()->GetUI<InspectorUI>()->GetHighlightedCameraGameobject() };
-	//if (pGameObject != nullptr)
-	//{
-	//	pCameraComponent = pGameObject->GetComponent<CameraComponent>();
-	//	if (pCameraComponent == nullptr)
-	//		pCameraComponent = Locator::GetSceneCameraService();
-	//}
-
-	pCameraComponent = Locator::GetSceneCameraService();
-
+	CameraComponent* pCameraComponent{ Locator::GetSceneCameraService() };
 	TransformComponent* pTransformComponent{ pParentGameObject->GetComponent<TransformComponent>() };
 
 	DirectX::XMFLOAT4X4 world{ pTransformComponent->GetWorld() };

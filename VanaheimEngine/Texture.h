@@ -21,6 +21,8 @@ class Texture final : public Observer
 		const std::string& GetFilePath() const { return m_Path; }
 
 	private:
+		friend class SceneSerializer;
+
 		std::string m_Path;
 		ID3D11ShaderResourceView* m_pShaderResourceView;
 

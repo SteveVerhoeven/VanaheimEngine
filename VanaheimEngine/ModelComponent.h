@@ -38,6 +38,8 @@ class ModelComponent final : public Component
 		virtual void FixedUpdate(const float timeEachUpdate) override;
 
 	private:
+		friend class SceneSerializer;
+
 		Mesh* m_pMesh;
 		Material* m_pMaterial;
 		std::string m_FilePath;

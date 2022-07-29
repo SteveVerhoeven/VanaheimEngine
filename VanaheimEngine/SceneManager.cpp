@@ -142,6 +142,35 @@ void SceneManager::ActivateMenuSceneByIndex(const size_t sceneIndex)
 	m_MenuActive = true;
 }
 
+Scene* SceneManager::CreateNewGameScene()
+{
+	// Old scene
+	Scene* pCurrentScene{ GetActiveGameScene() };
+
+	// New Scene
+	Scene* pNewScene{ new Scene() };
+	m_pGameScenes.emplace_back(pNewScene);
+
+	// Get old active scene & deactivate that one
+	pCurrentScene->DeactivateScene();
+
+	// Set scene camera
+	GameObject* pCameraGameObject{ pCurrentScene->GetSceneCamera() };
+	pNewScene->SetSceneCamera(pCameraGameObject);
+	Locator::ProvideRenderCameraService(pCameraGameObject->GetComponent<CameraComponent>());
+
+	// Destroy old active scene
+	std::vector<Scene*>::iterator result = std::find(m_pGameScenes.begin(), m_pGameScenes.end(), pCurrentScene);
+	m_pGameScenes.erase(result);
+	DELETE_POINTER(pCurrentScene);
+
+	// Activate new scene
+	SetActiveGameSceneIndex(m_pGameScenes.size() - 1);
+	pNewScene->ActivateScene();
+
+	return m_pGameScenes[m_ActiveGameSceneIndex];
+}
+
 void SceneManager::SetSceneCameraAsMain()
 {
 	Scene* pScene{ GetActiveGameScene() };

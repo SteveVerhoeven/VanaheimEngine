@@ -14,14 +14,15 @@
 Scene::Scene()
 	  : m_Cleanup(false)
 	  , m_IsActive(false)
-	  , m_Name("")
+	  , m_Name("Scene")
 	  , m_pSceneCameraGO(nullptr)
 	  , m_pGameObjects(std::vector<GameObject*>())
 {}
 Scene::~Scene()
 {
 	DELETE_POINTERS(m_pGameObjects, m_pGameObjects.size());
-	DELETE_POINTER(m_pSceneCameraGO);
+	if (Locator::GetInputManagerService()->GetQuitGame())
+		DELETE_POINTER(m_pSceneCameraGO);
 }
 
 void Scene::Initialize()

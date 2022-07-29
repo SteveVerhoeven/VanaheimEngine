@@ -47,6 +47,9 @@ class UIManager final
 
 		//Style
 		void SetThemeColors();
+
+		// Scenes
+		Scene* CreateNewScene(SceneManager* pSceneManager);
 };
 
 template<class T>

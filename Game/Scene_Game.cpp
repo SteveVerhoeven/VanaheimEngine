@@ -9,10 +9,6 @@ Scene_Game::~Scene_Game()
 
 void Scene_Game::Initialize()
 {
-	GameObject* pGameObject{ new GameObject("Terrain") };
-	pGameObject->AddComponent(new TerrainGeneratorComponent());
-	AddGameObject(pGameObject);
-
 	ActivateScene();
 	Scene::Initialize();
 }

@@ -181,18 +181,34 @@ void UIManager::FileMenu()
 {
     if (ImGui::BeginMenu("File"))
     {
-        Scene* pScene = Locator::GetSceneManagerService()->GetActiveGameScene();
-        if (ImGui::MenuItem("Save"))
+        SceneManager* pSceneManager{ Locator::GetSceneManagerService() };
+        if (ImGui::MenuItem("New", "Ctrl+N"))
         {
-            SceneSerializer serializer{};
-            serializer.Serialize("Scenes/Scene.Vanaheim", pScene);
+            CreateNewScene(pSceneManager);
+        }        
+        if (ImGui::MenuItem("Open...", "Ctrl+O"))
+        {
+            const std::string filePath{ WindowsUtils::FileDialogs::OpenFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0")};
+
+            if (!filePath.empty())
+            {
+                Scene* pScene = CreateNewScene(pSceneManager);
+
+                SceneSerializer serializer{};
+                serializer.Deserialize(filePath, pScene);
+            }
+                        
             ImGui::CloseCurrentPopup();
         }
-        if (ImGui::MenuItem("DeSave"))
+        if (ImGui::MenuItem("Save As...", "Ctrl+S"))
         {
-            SceneSerializer serializer{};
-            serializer.Deserialize("Scenes/Scene.Vanaheim", pScene);
-            ImGui::CloseCurrentPopup();
+            const std::string filePath{ WindowsUtils::FileDialogs::SaveFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0") };
+
+            if (!filePath.empty())
+            {
+                SceneSerializer serializer{};
+                serializer.Serialize(filePath, pSceneManager->GetActiveGameScene());
+            }
         }
         if (ImGui::MenuItem("Exit"))
         {
@@ -320,4 +336,15 @@ void UIManager::SetThemeColors()
     colors[ImGuiCol_TitleBg]            = ImVec4{ 0.15f, 0.1505f, 0.151f, alpha };
     colors[ImGuiCol_TitleBgActive]      = ImVec4{ 0.15f, 0.1505f, 0.151f, alpha };
     colors[ImGuiCol_TitleBgCollapsed]   = ImVec4{ 0.15f, 0.1501f, 0.151f, alpha };
+}
+
+Scene* UIManager::CreateNewScene(SceneManager* pSceneManager)
+{
+    Scene* pScene{ pSceneManager->CreateNewGameScene() };
+    Locator::GetUIManagerService()->GetUI<HierarchyUI>()->SetActiveScene(pScene);
+
+    Scene* pActiveScene = pSceneManager->GetActiveGameScene();
+    pScene->SetSceneCamera(pActiveScene->GetSceneCamera());
+
+    return pScene;
 }

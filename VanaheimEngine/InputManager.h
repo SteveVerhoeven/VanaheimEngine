@@ -28,6 +28,7 @@ class InputManager final
 						 const std::string& name, 
 						 Command* const pCommand);
 
+		bool GetQuitGame() const { return m_QuitGame; }
 		void QuitGame() { m_QuitGame = true; }
 
 		Mouse* GetMouse() const { return m_pMouse; }

@@ -33,6 +33,7 @@ MSG InputManager::ProcessInput(const float /*elapsedSec*/)
 	if (!ProcessWindowsEvents(msg) /*|| !ProcessGameInput(msg)*/ || m_QuitGame)
 	{
 		msg.message = WM_QUIT;
+		m_QuitGame = true;
 		return msg;
 	}
 

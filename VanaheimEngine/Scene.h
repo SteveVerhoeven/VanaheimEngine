@@ -52,6 +52,8 @@ class Scene
 		void CreateSceneCameraInputs();
 
 	private:
+		friend class SceneSerializer;
+
 		bool m_Cleanup;
 		bool m_IsActive;
 		std::string m_Name;
