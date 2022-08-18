@@ -1,9 +1,9 @@
 #pragma once
 
+class Vanir;
 class Timer;
 class Window;
 class Graphics;
-class UIManager;
 class DebugLogger;
 class SceneManager;
 class InputManager;
@@ -46,15 +46,14 @@ class Locator final
 		// Timer
 		static void ProvideTimerService(Timer* pTimer) { m_pTimer = pTimer; }
 		static Timer* const GetTimerService() { return m_pTimer; }
-		// UIManager
-		static void ProvideUIManagerService(UIManager* pUIManager) { m_pUIManager = pUIManager; }
-		static UIManager* const GetUIManagerService() { return m_pUIManager; }	
 		// GeneratorManager
 		static void ProvideGeneratorManagerService(GeneratorManager* pGenerator) { m_pGeneratorManager = pGenerator; }
 		static GeneratorManager* const GetGeneratorManagerService() { return m_pGeneratorManager; }
+		// Vanir (Editor)
+		static void ProvideEditorService(Vanir* pVanir) { m_pVanir = pVanir; }
+		static Vanir* const GetEditorService() { return m_pVanir; }
 
 	private:
-		static inline UIManager* m_pUIManager = nullptr;
 		static inline Timer* m_pTimer = nullptr;
 		static inline DebugLogger* m_pDebugLogger = nullptr;
 		static inline SceneManager* m_pSceneManager = nullptr;
@@ -64,4 +63,5 @@ class Locator final
 		static inline Window* m_pWindow = nullptr;
 		static inline CameraComponent* m_pCameraComponent = nullptr;
 		static inline GeneratorManager* m_pGeneratorManager = nullptr;
+		static inline Vanir* m_pVanir = nullptr;
 };

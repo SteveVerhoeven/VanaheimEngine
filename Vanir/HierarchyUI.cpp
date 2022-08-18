@@ -1,6 +1,7 @@
-#include "VanaheimPCH.h"
+#include "VanirPCH.h"
 #include "HierarchyUI.h"
 #include "Scene.h"
+#include "Vanir.h"
 
 HierarchyUI::HierarchyUI()
 			: UI("Hierarchy", DirectX::XMFLOAT2{ 0.f, 0.f }, DirectX::XMFLOAT2{ 0.f, 0.f })
@@ -11,10 +12,16 @@ HierarchyUI::HierarchyUI()
 HierarchyUI::~HierarchyUI()
 {}
 
-void HierarchyUI::Initialize()
+void HierarchyUI::Initialize(const Vanir& vEditor)
 {
 	m_pScene = Locator::GetSceneManagerService()->GetActiveGameScene();
-	m_pInspectorUI = Locator::GetUIManagerService()->GetUI<InspectorUI>();
+	m_pInspectorUI = vEditor.GetUI<InspectorUI>();
+}
+void HierarchyUI::Update()
+{
+}
+void HierarchyUI::FixedUpdate()
+{
 }
 void HierarchyUI::ShowWindow()
 {
@@ -36,7 +43,7 @@ void HierarchyUI::ShowWindow()
 void HierarchyUI::Draw()
 {
 	// Displaying all game objects
-	const std::vector<GameObject*>& gameObjects{ m_pScene->GetObjects() };
+	const std::vector<GameObject*>& gameObjects{ Locator::GetSceneManagerService()->GetActiveGameScene()->GetObjects() };
 	const size_t nbrOfGameObjects{ gameObjects.size() };
 	for (size_t i{}; i < nbrOfGameObjects; ++i)
 	{

@@ -14,11 +14,14 @@ class HierarchyUI final : public UI
 		HierarchyUI(HierarchyUI&&) = delete;
 		HierarchyUI& operator=(HierarchyUI&&) = delete;
 
+		void Initialize(const Vanir& vEditor) override;
+		void Update() override;
+		void FixedUpdate() override;
+		void ShowWindow() override;
+		
 		void SetActiveScene(Scene* pScene) { m_pScene = pScene; }
 
 	protected:
-		void Initialize() override;
-		void ShowWindow() override;
 
 	private:
 		Scene* m_pScene;

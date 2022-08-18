@@ -4,6 +4,7 @@
 class Scene;
 class Graphics;
 class UIManager;
+class Application;
 class SceneManager final
 {
 	public:
@@ -15,7 +16,7 @@ class SceneManager final
 		void Update(const float elapsedSec);
 		void FixedUpdate(const float timeEachUpdate);
 		void LateUpdate();
-		void Render();
+		void Render(Application& vEditor);
 
 		void AddGameScene(Scene* pScene) { m_pGameScenes.push_back(pScene); }
 		void AddMenuScene(Scene* pScene) { m_pMenuScenes.push_back(pScene); }
@@ -40,7 +41,7 @@ class SceneManager final
 		bool GetMenuIsActie() const { return m_MenuActive; }
 		bool GetGameIsActie() const { return m_GameActive; }
 
-		Scene* CreateNewGameScene();
+		Scene* ReplaceCurrentGameSceneByNewOne();
 
 	private:
 		bool m_MenuActive;
@@ -53,5 +54,4 @@ class SceneManager final
 		UIManager* m_pUIManager;
 
 		void SetSceneCameraAsMain();
-		bool SetHighlightedCameraAsMain();
 };

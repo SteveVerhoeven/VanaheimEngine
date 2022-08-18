@@ -6,6 +6,18 @@
 #include <dxerr.h>
 #endif
 
+DebugLogger::DebugLogger()
+	: m_ConsoleHandle()
+	, m_MessageQueue()
+{}
+DebugLogger::~DebugLogger()
+{
+	for (size_t i = 0; i < m_MessageQueue.size(); i++)
+	{
+		m_MessageQueue.pop();
+	}
+}
+
 void DebugLogger::Initialize()
 {
 	//CreateConsoleWindow();
@@ -16,7 +28,7 @@ void DebugLogger::Log(const ErrorLevel& errorLevel, const std::string& message)
 	const std::string outputMessage{ OutputMessageToConsole(errorLevel, message) };
 	OutputMessageBox(errorLevel, outputMessage);
 
-	Locator::GetUIManagerService()->GetUI<ConsoleUI>()->AddLog(message.c_str());
+	m_MessageQueue.emplace(message);
 }
 void DebugLogger::LogHRESULT(HRESULT hr, const std::string& functionName, const std::string& file, const std::string& line)
 {

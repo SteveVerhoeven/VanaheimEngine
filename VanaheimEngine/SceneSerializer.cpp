@@ -16,6 +16,8 @@
 #include "OBJWriter.h"
 #include "Texture.h"
 
+#include "../Vanir/InspectorUI.h"
+
 namespace YAML
 {
 	template<>
@@ -254,7 +256,7 @@ void SceneSerializer::Serialize(const std::string& filePath, const Scene* pScene
 	else
 		LOG_ERROR("Filepath " + filePath + " does not exist.");
 }
-bool SceneSerializer::Deserialize(const std::string& filePath, Scene* pScene)
+bool SceneSerializer::Deserialize(const std::string& filePath, Scene* pScene, InspectorUI* pInspectorUI)
 {	
 	// Open files stream
 	std::ifstream stream(filePath);
@@ -286,7 +288,7 @@ bool SceneSerializer::Deserialize(const std::string& filePath, Scene* pScene)
 			DeserializeTransformComponent(yamlGO, pGO);
 			DeserializeCameraComponent(yamlGO, pGO);
 			DeserializeRenderComponent(yamlGO, pGO);
-			DeserializeModelComponent(yamlGO, pGO);
+			DeserializeModelComponent(yamlGO, pGO, pInspectorUI);
 			DeserializeTerrainGeneratorComponent(yamlGO, pGO);
 			
 			pGO->Initialize();
@@ -646,7 +648,7 @@ void SceneSerializer::DeserializeRenderComponent(const YAML::detail::iterator_va
 		pRenderComponent->m_CanRenderComponent = bool(canRenderComponent);
 	}
 }
-void SceneSerializer::DeserializeModelComponent(const YAML::detail::iterator_value& yamlGO, GameObject* pGO)
+void SceneSerializer::DeserializeModelComponent(const YAML::detail::iterator_value& yamlGO, GameObject* pGO, InspectorUI* pInspectorUI)
 {
 	// ------------------------------------------------------------------------------------------------------------
 	// Model Component
@@ -682,7 +684,6 @@ void SceneSerializer::DeserializeModelComponent(const YAML::detail::iterator_val
 		{
 			pTextures = modelComponent["Textures"].as<std::vector<Texture*>>();
 
-			InspectorUI* pInspectorUI{ Locator::GetUIManagerService()->GetUI<InspectorUI>() };
 			pInspectorUI->AddObserver(pTextures[0]);
 			pInspectorUI->AddObserver(pTextures[1]);
 		}

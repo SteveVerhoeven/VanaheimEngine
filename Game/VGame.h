@@ -1,7 +1,7 @@
 #pragma once
-#include <Game.h>
+#include <Application.h>
 
-class VGame final : public Game
+class VGame final : public Application
 {
 	public:
 		VGame(const std::string& name);
@@ -12,8 +12,17 @@ class VGame final : public Game
 		VGame& operator=(const VGame& other) = delete;
 		VGame& operator=(VGame&& other) = delete;
 
-		virtual void Initialize(HINSTANCE hInstance);
-		virtual void PostInitialize();
+		void Initialize() override;
+		void PostInitialize() override;
+
+		void Update() override;
+		void FixedUpdate() override;
+
+		void Prerender() override;
+		bool PreSideCamRender() override;
+		void Render() override;
+		void Postrender() override;
+
 	protected:
 
 	private:

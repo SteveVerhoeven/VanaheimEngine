@@ -1,8 +1,10 @@
-#include "VanaheimPCH.h"
+#include "VanirPCH.h"
 #include "ViewportUI.h"
 
-#include "Graphics.h"
-#include "Window.h"
+#include <Graphics.h>
+#include <Window.h>
+#include <Scene.h>
+#include <SceneCameraMovement.h>
 
 ViewportUI::ViewportUI()
 		   : UI("Viewport", DirectX::XMFLOAT2{ 0.f, 0.f }, DirectX::XMFLOAT2{ 0.f, 0.f })
@@ -10,8 +12,14 @@ ViewportUI::ViewportUI()
 ViewportUI::~ViewportUI()
 {}
 
-void ViewportUI::Initialize()
+void ViewportUI::Initialize(const Vanir& /*vEditor*/)
 {}
+void ViewportUI::Update()
+{
+}
+void ViewportUI::FixedUpdate()
+{
+}
 void ViewportUI::ShowWindow()
 {
 	if (!m_RenderUI)
@@ -43,10 +51,11 @@ void ViewportUI::ShowWindow()
 	ImGui::Image(pSRV, ImVec2{ imageSize.x, imageSize.y });
 	
 	// Mouse check
+	SceneCameraMovement* pSceneCameraMovement{ Locator::GetSceneManagerService()->GetActiveGameScene()->GetSceneCamera()->GetComponent<SceneCameraMovement>() };
 	if (IsMouseInViewport(pWindow, windowSize))
-		m_MouseInWindow = true;
+		pSceneCameraMovement->SetMouseInViewport(true);
 	else
-		m_MouseInWindow = false;
+		pSceneCameraMovement->SetMouseInViewport(false);
 
 	// Close window
 	EndWindowBase();

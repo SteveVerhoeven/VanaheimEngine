@@ -1,17 +1,23 @@
-#include "VanaheimPCH.h"
+#include "VanirPCH.h"
 #include "CameraViewportUI.h"
 
 #include "Graphics.h"
 #include "Window.h"
 
 CameraViewportUI::CameraViewportUI()
-		   : UI("CameraViewport", DirectX::XMFLOAT2{ 0.f, 0.f }, DirectX::XMFLOAT2{ 0.f, 0.f })
+				 : UI("CameraViewport", DirectX::XMFLOAT2{ 0.f, 0.f }, DirectX::XMFLOAT2{ 0.f, 0.f })
 {}
 CameraViewportUI::~CameraViewportUI()
 {}
 
-void CameraViewportUI::Initialize()
+void CameraViewportUI::Initialize(const Vanir& /*vEditor*/)
 {}
+void CameraViewportUI::Update()
+{
+}
+void CameraViewportUI::FixedUpdate()
+{
+}
 void CameraViewportUI::ShowWindow()
 {
 	if (!m_RenderUI)

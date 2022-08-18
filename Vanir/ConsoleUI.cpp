@@ -1,4 +1,4 @@
-#include "VanaheimPCH.h"
+#include "VanirPCH.h"
 #include "ConsoleUI.h"
 
 #include "Window.h"
@@ -28,8 +28,20 @@ ConsoleUI::~ConsoleUI()
     m_History.clear();
 }
 
-void ConsoleUI::Initialize()
+void ConsoleUI::Initialize(const Vanir& /*vEditor*/)
 {}
+void ConsoleUI::Update()
+{}
+void ConsoleUI::FixedUpdate()
+{
+    std::queue<std::string>& messages = Locator::GetDebugLoggerService()->GetMessages();
+    const size_t messagesSize{ messages.size() };
+    for (size_t i = 0; i < messagesSize; ++i)
+    {
+        AddLog((messages.front()).c_str());
+        messages.pop();
+    }
+}
 void ConsoleUI::ShowWindow()
 {
 	if (!m_RenderUI)

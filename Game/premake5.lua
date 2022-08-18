@@ -1,6 +1,6 @@
 -- Game
 project "Game"
-	kind "WindowedApp"
+	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "off"

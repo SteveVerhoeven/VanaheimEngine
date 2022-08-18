@@ -28,11 +28,6 @@
 
 #include "DebugLogger.h"
 
-#include "ConsoleUI.h"
-#include "InspectorUI.h"
-#include "HierarchyUI.h"
-#include "ViewportUI.h"
-
 #include "ResourceManager.h"
 #include "SceneManager.h"
 #include "UIManager.h"
@@ -88,4 +83,22 @@ if (x)                      \
     x->Release();           \
     x = nullptr;            \
 }
+/* ******* */
+/* LOGGING */
+/* ******* */
+/** Function to log a message to the visual studio console (IF created) and to the engine console */
+// @param: errorLevel - The level of message that is sent to the consoles (ErrorLevel::...)
+// @param: message    - The message to sent to the consoles
+#define LOG( errorLevel, message )	\
+Locator::GetDebugLoggerService()->Log(errorLevel, message);
+#define LOG_INFO( message )	\
+Locator::GetDebugLoggerService()->Log(ErrorLevel::LOG_INFO, message);
+#define LOG_WARNING( message )	\
+Locator::GetDebugLoggerService()->Log(ErrorLevel::LOG_WARNING, message);
+#define LOG_ERROR( message )	\
+Locator::GetDebugLoggerService()->Log(ErrorLevel::LOG_ERROR, message);
+#define LOG_FATAL( message )	\
+Locator::GetDebugLoggerService()->Log(ErrorLevel::LOG_FATAL, message);
+#define LOG_HRESULT( hr, function, file, line )	\
+Locator::GetDebugLoggerService()->LogHRESULT(hr, function, file, line);
 #pragma endregion

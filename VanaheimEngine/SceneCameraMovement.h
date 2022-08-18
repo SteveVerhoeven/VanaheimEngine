@@ -11,6 +11,8 @@ class SceneCameraMovement : public Component
 		SceneCameraMovement& operator=(const SceneCameraMovement&) = delete;
 		SceneCameraMovement& operator=(SceneCameraMovement&&) noexcept = delete;
 
+		void SetMouseInViewport(const bool mouseInViewport) { m_MouseIsInViewport = mouseInViewport; }
+
 	protected:
 		virtual void Initialize(Scene* pParentScene) override;
 		virtual void PostInitialize(Scene* pParentScene) override;
@@ -18,7 +20,7 @@ class SceneCameraMovement : public Component
 		virtual void FixedUpdate(const float timeEachUpdate) override;
 
 	private:
-		ViewportUI* m_pViewportUI;
+		bool m_MouseIsInViewport;
 
 		void RotateCamera();
 		void MoveCamera(KeyboardButton kButton);

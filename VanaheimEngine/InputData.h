@@ -148,20 +148,23 @@ enum class MouseButton
 struct KeyData
 {
 	KeyData()
-		: KeyData(ControllerButton::NoAction, KeyboardButton::NoAction, MouseButton::NoAction, ButtonPressType::BUTTON_RELEASED)
+		: KeyData(ControllerButton::NoAction, 
+			{ KeyboardButton::NoAction },
+			MouseButton::NoAction, 
+			ButtonPressType::BUTTON_RELEASED)
 	{}
 	KeyData(const KeyData& kData)
 		: controllerButton(kData.controllerButton)
-		, keyboardButton(kData.keyboardButton)
+		, keyboardButtons(kData.keyboardButtons)
 		, mouseButton(kData.mouseButton)
 		, buttonState(kData.buttonState)
 	{}
 	KeyData(const ControllerButton& cButton, 
-			const KeyboardButton& kButton,
+			const std::vector<KeyboardButton>& kButton,
 		    const MouseButton& mButton,
 			const ButtonPressType& pressType)
 		: controllerButton(cButton)
-		, keyboardButton(kButton)
+		, keyboardButtons(kButton)
 		, mouseButton(mButton)
 		, buttonState(pressType)
 	{}
@@ -169,7 +172,7 @@ struct KeyData
 	{}
 
 	ControllerButton controllerButton{};
-	KeyboardButton	 keyboardButton{};
+	std::vector<KeyboardButton>	 keyboardButtons{};
 	MouseButton	     mouseButton{};
 	ButtonPressType  buttonState{};
 };

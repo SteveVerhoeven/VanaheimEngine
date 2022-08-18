@@ -2,7 +2,7 @@ include "Dependencies.lua"
 
 workspace "VanaheimEngine"
 	architecture "x86"
-	startproject "Game"
+	startproject "Vanir"
 	system "windows"
 	
 	configurations
@@ -25,3 +25,4 @@ group ""
 
 include "VanaheimEngine"
 include "Game"
+include "Vanir"

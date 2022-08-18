@@ -7,6 +7,7 @@
 class Scene;
 class KDTree;
 class Octree;
+class InspectorUI;
 class NoiseGenerator;
 class ModelComponent;
 struct Vertex_Input;
@@ -22,7 +23,7 @@ class TerrainGeneratorComponent final : public Component, public Observer
 		TerrainGeneratorComponent& operator=(TerrainGeneratorComponent&&) noexcept = delete;
 
 		// Terrain
-		void GenerateTerrain();
+		void GenerateTerrain(InspectorUI* pInspectorUI);
 
 		void SetSeed(const size_t seed) { m_Seed = seed; }
 		void SetOctaves(const size_t octaves) { m_Octaves = octaves; }

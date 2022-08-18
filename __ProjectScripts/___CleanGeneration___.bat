@@ -20,4 +20,9 @@ del Game.vcxproj
 del Game.vcxproj.user
 cd ..
 
+cd Vanir
+del Vanir.vcxproj
+del Vanir.vcxproj.user
+cd ..
+
 PAUSE

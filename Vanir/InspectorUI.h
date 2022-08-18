@@ -3,7 +3,7 @@
 #include <string>
 
 class GameObject;
-class InspectorUI final : public UI
+class InspectorUI final : public UI, public Subject
 {
 	public:
 		InspectorUI();
@@ -14,12 +14,15 @@ class InspectorUI final : public UI
 		InspectorUI(InspectorUI&&) = delete;
 		InspectorUI& operator=(InspectorUI&&) = delete;
 
+		void Initialize(const Vanir& vEditor) override;
+		void Update() override;
+		void FixedUpdate() override;
+		void ShowWindow() override;
+		
 		void SetHighlightedGameObject(GameObject* pGameObject);
 		GameObject* GetHighlightedCameraGameobject() const { return m_pGameObject; }
 
 	protected:
-		void Initialize() override;
-		void ShowWindow() override;
 	
 	private:
 		GameObject* m_pGameObject;

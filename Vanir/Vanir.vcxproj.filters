@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Vanir.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="VanirPCH.cpp" />
+    <ClCompile Include="CameraViewportUI.cpp">
+      <Filter>Windows\Specialized</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleUI.cpp">
+      <Filter>Windows\Specialized</Filter>
+    </ClCompile>
+    <ClCompile Include="DemoUI.cpp">
+      <Filter>Windows\Specialized</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratorUI.cpp">
+      <Filter>Windows\Specialized</Filter>
+    </ClCompile>
+    <ClCompile Include="HierarchyUI.cpp">
+      <Filter>Windows\Specialized</Filter>
+    </ClCompile>
+    <ClCompile Include="InspectorUI.cpp">
+      <Filter>Windows\Specialized</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewportUI.cpp">
+      <Filter>Windows\Specialized</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateNewSceneCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="SaveSceneCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenSceneCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="MoveCameraCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="RotateCameraCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Vanir.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="VanirPCH.h" />
+    <ClInclude Include="CameraViewportUI.h">
+      <Filter>Windows\Specialized</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleUI.h">
+      <Filter>Windows\Specialized</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoUI.h">
+      <Filter>Windows\Specialized</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratorUI.h">
+      <Filter>Windows\Specialized</Filter>
+    </ClInclude>
+    <ClInclude Include="HierarchyUI.h">
+      <Filter>Windows\Specialized</Filter>
+    </ClInclude>
+    <ClInclude Include="InspectorUI.h">
+      <Filter>Windows\Specialized</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewportUI.h">
+      <Filter>Windows\Specialized</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateNewSceneCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="SaveSceneCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenSceneCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="MoveCameraCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="RotateCameraCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Editor">
+      <UniqueIdentifier>{c884302c-5c19-4775-a531-4d5c1fa59864}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windows">
+      <UniqueIdentifier>{3bbe6ab2-855f-40da-81d7-57408db817cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windows\Specialized">
+      <UniqueIdentifier>{9dbb0efe-6a94-455a-8686-ded3f3cc026a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Commands">
+      <UniqueIdentifier>{f3c5b136-597f-4d0d-a4ff-00863b833e43}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

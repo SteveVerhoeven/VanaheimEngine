@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <queue>
 
 enum class ErrorLevel
 {
@@ -11,8 +12,8 @@ enum class ErrorLevel
 class DebugLogger final
 {
 	public:		
-		DebugLogger() = default;
-		~DebugLogger() = default;
+		DebugLogger();
+		~DebugLogger();
 
 		DebugLogger(const DebugLogger&) = delete;
 		DebugLogger& operator=(const DebugLogger&) = delete;
@@ -25,9 +26,12 @@ class DebugLogger final
 		void Log(const ErrorLevel& errorLevel, const std::string& message);
 		void LogHRESULT(HRESULT hr, const std::string& functionName, const std::string& file, const std::string& line);
 
+		std::queue<std::string>& GetMessages() { return m_MessageQueue; }
+
 	protected:
 	private:
 		HANDLE m_ConsoleHandle;
+		std::queue<std::string> m_MessageQueue;
 
 		void CreateConsoleWindow();
 

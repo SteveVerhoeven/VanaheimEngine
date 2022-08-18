@@ -3,7 +3,7 @@
   <ItemGroup>
     <ClCompile Include="VanaheimEngine.cpp" />
     <ClCompile Include="VanaheimPCH.cpp" />
-    <ClCompile Include="Game.cpp">
+    <ClCompile Include="Application.cpp">
       <Filter>General</Filter>
     </ClCompile>
     <ClCompile Include="GameObject.cpp">
@@ -33,16 +33,7 @@
     <ClCompile Include="LineComponent.cpp">
       <Filter>Patterns\Components</Filter>
     </ClCompile>
-    <ClCompile Include="UI.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="Command.cpp">
-      <Filter>Patterns\Command</Filter>
-    </ClCompile>
-    <ClCompile Include="MoveCameraCommand.cpp">
-      <Filter>Patterns\Command</Filter>
-    </ClCompile>
-    <ClCompile Include="RotateCameraCommand.cpp">
       <Filter>Patterns\Command</Filter>
     </ClCompile>
     <ClCompile Include="Cube.cpp">
@@ -108,9 +99,6 @@
     <ClCompile Include="SceneManager.cpp">
       <Filter>Manager</Filter>
     </ClCompile>
-    <ClCompile Include="UIManager.cpp">
-      <Filter>Manager</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics.cpp">
       <Filter>Internal</Filter>
     </ClCompile>
@@ -141,24 +129,6 @@
     <ClCompile Include="Locator.cpp">
       <Filter>Patterns\Locator</Filter>
     </ClCompile>
-    <ClCompile Include="ConsoleUI.cpp">
-      <Filter>UI\General</Filter>
-    </ClCompile>
-    <ClCompile Include="HierarchyUI.cpp">
-      <Filter>UI\General</Filter>
-    </ClCompile>
-    <ClCompile Include="InspectorUI.cpp">
-      <Filter>UI\General</Filter>
-    </ClCompile>
-    <ClCompile Include="ViewportUI.cpp">
-      <Filter>UI\General</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratorUI.cpp">
-      <Filter>UI\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="DemoUI.cpp">
-      <Filter>UI\Test</Filter>
-    </ClCompile>
     <ClCompile Include="OBJWriter.cpp">
       <Filter>Geometry\OBJ</Filter>
     </ClCompile>
@@ -171,9 +141,6 @@
     <ClCompile Include="SceneCameraMovement.cpp">
       <Filter>Patterns\Components\SubComponents</Filter>
     </ClCompile>
-    <ClCompile Include="CameraViewportUI.cpp">
-      <Filter>UI\General</Filter>
-    </ClCompile>
     <ClCompile Include="WindowsUtils.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
@@ -181,7 +148,7 @@
   <ItemGroup>
     <ClInclude Include="VanaheimEngine.h" />
     <ClInclude Include="VanaheimPCH.h" />
-    <ClInclude Include="Game.h">
+    <ClInclude Include="Application.h">
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
@@ -211,16 +178,7 @@
     <ClInclude Include="LineComponent.h">
       <Filter>Patterns\Components</Filter>
     </ClInclude>
-    <ClInclude Include="UI.h">
-      <Filter>UI</Filter>
-    </ClInclude>
     <ClInclude Include="Command.h">
-      <Filter>Patterns\Command</Filter>
-    </ClInclude>
-    <ClInclude Include="MoveCameraCommand.h">
-      <Filter>Patterns\Command</Filter>
-    </ClInclude>
-    <ClInclude Include="RotateCameraCommand.h">
       <Filter>Patterns\Command</Filter>
     </ClInclude>
     <ClInclude Include="DebugLogger.h">
@@ -276,9 +234,6 @@
     </ClInclude>
     <ClInclude Include="OBJParser.h">
       <Filter>Geometry\OBJ</Filter>
-    </ClInclude>
-    <ClInclude Include="UIManager.h">
-      <Filter>Manager</Filter>
     </ClInclude>
     <ClInclude Include="GeneratorManager.h">
       <Filter>Manager</Filter>
@@ -337,24 +292,6 @@
     <ClInclude Include="ResourceData.h">
       <Filter>Manager</Filter>
     </ClInclude>
-    <ClInclude Include="ConsoleUI.h">
-      <Filter>UI\General</Filter>
-    </ClInclude>
-    <ClInclude Include="HierarchyUI.h">
-      <Filter>UI\General</Filter>
-    </ClInclude>
-    <ClInclude Include="InspectorUI.h">
-      <Filter>UI\General</Filter>
-    </ClInclude>
-    <ClInclude Include="ViewportUI.h">
-      <Filter>UI\General</Filter>
-    </ClInclude>
-    <ClInclude Include="DemoUI.h">
-      <Filter>UI\Test</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratorUI.h">
-      <Filter>UI\Test</Filter>
-    </ClInclude>
     <ClInclude Include="OBJWriter.h">
       <Filter>Geometry\OBJ</Filter>
     </ClInclude>
@@ -367,9 +304,6 @@
     <ClInclude Include="SceneCameraMovement.h">
       <Filter>Patterns\Components\SubComponents</Filter>
     </ClInclude>
-    <ClInclude Include="CameraViewportUI.h">
-      <Filter>UI\General</Filter>
-    </ClInclude>
     <ClInclude Include="WindowsUtils.h">
       <Filter>Helpers</Filter>
     </ClInclude>
@@ -377,9 +311,6 @@
   <ItemGroup>
     <Filter Include="General">
       <UniqueIdentifier>{568479d2-3dc0-4852-8cff-df6da8b373a2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI">
-      <UniqueIdentifier>{f2b66333-956d-40e7-bc10-494a2fd7e261}</UniqueIdentifier>
     </Filter>
     <Filter Include="Patterns">
       <UniqueIdentifier>{1135832e-35cb-4d78-a674-17c20f2d2392}</UniqueIdentifier>
@@ -428,12 +359,6 @@
     </Filter>
     <Filter Include="Patterns\Locator">
       <UniqueIdentifier>{b3036e5f-7897-4465-93cd-b113d2613692}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\General">
-      <UniqueIdentifier>{e078a641-8de7-4446-93c7-3f7c54c3d835}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Test">
-      <UniqueIdentifier>{5549de4d-4732-4d30-a3cf-92097af2296e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Geometry\OBJ">
       <UniqueIdentifier>{b5465964-fd1f-497f-be72-3d16000db4ab}</UniqueIdentifier>

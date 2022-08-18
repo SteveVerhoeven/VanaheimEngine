@@ -8,6 +8,9 @@
 #include "Mouse.h"
 #include "SceneSerializer.h"
 
+#include "../Vanir/HierarchyUI.h"
+//#include "../Vanir/Vanir.h"
+
 InputManager::InputManager()
 			 : m_ControllerState()
 			 , m_pInputs(std::vector<InputData*>())
@@ -65,34 +68,44 @@ bool InputManager::ProcessWindowsEvents(MSG& msg)
 }
 bool InputManager::ProcessUIEvents()
 {
-	if (IsKeyDown(int(KeyboardButton::L_CTRL)) && IsKeyDown(int(KeyboardButton::N)))
+	const size_t numberOfInputs{ m_pBaseInputs.size() };
+	for (size_t i{}; i < numberOfInputs; ++i)
 	{
-		Scene* pScene{ Locator::GetSceneManagerService()->CreateNewGameScene() };
-		Locator::GetUIManagerService()->GetUI<HierarchyUI>()->SetActiveScene(pScene);
-	}
-	if (IsKeyDown(int(KeyboardButton::L_CTRL)) && IsKeyDown(int(KeyboardButton::S)))
-	{
-		const std::string filePath{ WindowsUtils::FileDialogs::SaveFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0") };
+		InputData* pInputData{ m_pBaseInputs[i] };
+		const std::vector<KeyboardButton>& keys{ pInputData->keyData.keyboardButtons };
 
-		if (!filePath.empty())
+		if (keys.size() > 1 && IsKeyDown(int(keys[0])) && IsKeyDown(int(keys[1])))
 		{
-			SceneSerializer serializer{};
-			serializer.Serialize(filePath, Locator::GetSceneManagerService()->GetActiveGameScene());
+			pInputData->commandData.pCommand->Execute();
 		}
 	}
-	if (IsKeyDown(int(KeyboardButton::L_CTRL)) && IsKeyDown(int(KeyboardButton::O)))
-	{
-		const std::string filePath{ WindowsUtils::FileDialogs::OpenFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0") };
 
-		if (!filePath.empty())
-		{
-			Scene* pScene{ Locator::GetSceneManagerService()->CreateNewGameScene() };
-			Locator::GetUIManagerService()->GetUI<HierarchyUI>()->SetActiveScene(pScene);
+	//if (IsKeyDown(int(KeyboardButton::L_CTRL)) && IsKeyDown(int(KeyboardButton::N)))
+	//{
+	//	Locator::GetSceneManagerService()->ReplaceCurrentGameSceneByNewOne();
+	//}
+	//if (IsKeyDown(int(KeyboardButton::L_CTRL)) && IsKeyDown(int(KeyboardButton::S)))
+	//{
+	//	const std::string filePath{ WindowsUtils::FileDialogs::SaveFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0") };
 
-			SceneSerializer serializer{};
-			serializer.Deserialize(filePath, pScene);
-		}
-	}
+	//	if (!filePath.empty())
+	//	{
+	//		SceneSerializer serializer{};
+	//		serializer.Serialize(filePath, Locator::GetSceneManagerService()->GetActiveGameScene());
+	//	}
+	//}
+	//if (IsKeyDown(int(KeyboardButton::L_CTRL)) && IsKeyDown(int(KeyboardButton::O)))
+	//{
+	//	const std::string filePath{ WindowsUtils::FileDialogs::OpenFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0") };
+
+	//	if (!filePath.empty())
+	//	{
+	//		Scene* pScene{ Locator::GetSceneManagerService()->ReplaceCurrentGameSceneByNewOne() };
+
+	//		SceneSerializer serializer{};
+	//		serializer.Deserialize(filePath, pScene, nullptr); // TODO: Fix inspectorUI
+	//	}
+	//}
 
 	return true;
 }
@@ -111,7 +124,7 @@ bool InputManager::ProcessGameInput(MSG& msg)
 			// Asking the state of the registered input key for the current scene
 			// ******************************************************************
 			/* GetKeyState - parameters */
-			int nVirtKeyboardKey{ int(pInputData->keyData.keyboardButton) };
+			int nVirtKeyboardKey{ int(pInputData->keyData.keyboardButtons[0]) };
 			int nVirtMouseKey{ int(pInputData->keyData.mouseButton) };
 			// Reference: https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getkeystate
 			
@@ -135,7 +148,7 @@ bool InputManager::ProcessGameInput(MSG& msg)
 
 			if (executeCommand)
 			{
-				Command* pCommand{ GetCommand(pInputData->keyData.keyboardButton) };
+				Command* pCommand{ GetCommand(pInputData->keyData.keyboardButtons[0]) };
 				pCommand->Execute();
 				 
 				return true;
@@ -152,8 +165,26 @@ void InputManager::AddBaseKeyToMap(const ControllerButton& cButton, const Keyboa
 	KeyData keyData{};
 	keyData.buttonState = pressType;
 	keyData.controllerButton = cButton;
-	keyData.keyboardButton = kButton;
+	keyData.keyboardButtons = { kButton };
 	keyData.mouseButton = mButton;
+	CommandData commandData{};
+	commandData.commandName = name;
+	commandData.pCommand = pCommand;
+
+	pInputData->engineKeyInput = true;
+	pInputData->commandData = commandData;
+	pInputData->keyData = keyData;
+
+	m_pBaseInputs.push_back(pInputData);
+}
+void InputManager::AddBaseKeyComboToMap(const std::vector<KeyboardButton>& kButtons, const std::string& name, Command* const pCommand)
+{
+	InputData* pInputData{ new InputData() };
+	KeyData keyData{};
+	keyData.buttonState = ButtonPressType::BUTTON_PRESSED;
+	keyData.controllerButton = ControllerButton::NoAction;
+	keyData.keyboardButtons = kButtons;
+	keyData.mouseButton = MouseButton::NoAction;
 	CommandData commandData{};
 	commandData.commandName = name;
 	commandData.pCommand = pCommand;
@@ -170,7 +201,7 @@ void InputManager::AddKeyToMap(const ControllerButton& cButton, const KeyboardBu
 	KeyData keyData{};
 	keyData.buttonState = pressType;
 	keyData.controllerButton = cButton;
-	keyData.keyboardButton = kButton;
+	keyData.keyboardButtons = { kButton };
 	keyData.mouseButton = mButton;
 	CommandData commandData{};
 	commandData.commandName = name;
@@ -208,7 +239,7 @@ Command* InputManager::GetCommand(const ControllerButton& cButton)
 Command* InputManager::GetCommand(const KeyboardButton& kButton)
 {
 	auto result = std::find_if(m_pBaseInputs.begin(), m_pBaseInputs.end(), [&](InputData* pInputData)
-	{ return pInputData->keyData.keyboardButton == kButton; });
+	{ return pInputData->keyData.keyboardButtons[0] == kButton; });
 
 	if (result != m_pBaseInputs.end())
 		return (*result)->commandData.pCommand;

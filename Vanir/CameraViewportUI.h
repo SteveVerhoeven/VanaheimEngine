@@ -1,6 +1,7 @@
 #pragma once
 #include "UI.h"
-class CameraViewportUI : public UI
+
+class CameraViewportUI final : public UI
 {
 	public:
 		CameraViewportUI();
@@ -11,9 +12,12 @@ class CameraViewportUI : public UI
 		CameraViewportUI(CameraViewportUI&&) = delete;
 		CameraViewportUI& operator=(CameraViewportUI&&) = delete;
 
-	protected:
-		void Initialize() override;
+		void Initialize(const Vanir& vEditor) override;
+		void Update() override;
+		void FixedUpdate() override;
 		void ShowWindow() override;
+
+	protected:	
 
 	private:
 };

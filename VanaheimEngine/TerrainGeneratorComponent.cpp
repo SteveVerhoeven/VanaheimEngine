@@ -9,6 +9,8 @@
 #include "Voxel.h"
 #include "TerrainSettings.h"
 
+#include "../Vanir/InspectorUI.h"
+
 // Timings
 #define Total
 #define Average
@@ -26,7 +28,7 @@ TerrainGeneratorComponent::TerrainGeneratorComponent()
 	m_pNoiseGenerator = Locator::GetGeneratorManagerService()->GetGenerator<NoiseGenerator>();
 
 	// Add Observer
-	Locator::GetUIManagerService()->GetUI<InspectorUI>()->AddObserver(this);
+	//Locator::GetUIManagerService()->GetUI<InspectorUI>()->AddObserver(this);
 
 	CreateTerrainRegions();
 }
@@ -64,7 +66,7 @@ void TerrainGeneratorComponent::onNotify(ObserverEvent event)
 		}	
 	}
 }
-void TerrainGeneratorComponent::GenerateTerrain()
+void TerrainGeneratorComponent::GenerateTerrain(InspectorUI* pInspectorUI)
 {
 	// For now exit if there already is a mesh
 	if (m_pModelComponent->GetMesh() != nullptr)
@@ -85,10 +87,9 @@ void TerrainGeneratorComponent::GenerateTerrain()
 	Texture* pNormalTexture{ pResourceManager->LoadTexture("./Resources/Textures/Landscape/noiseMap.bmp") };
 	Texture* pColorTexture{ pResourceManager->LoadTexture("./Resources/Textures/Landscape/colorMap.bmp") };
 
-	UIManager* pUIManager{ Locator::GetUIManagerService() };
-	InspectorUI* pInspectorUI{ pUIManager->GetUI<InspectorUI>() };
 	if (pInspectorUI)
 	{
+		pInspectorUI->AddObserver(this);
 		pInspectorUI->AddObserver(pNormalTexture);
 		pInspectorUI->AddObserver(pColorTexture);
 	}

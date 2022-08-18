@@ -3,6 +3,7 @@ class Timer;
 class Window;
 class Graphics;
 class UIManager;
+class Application;
 class DebugLogger;
 class SceneManager;
 class InputManager;
@@ -20,7 +21,7 @@ class VanaheimEngine final
 		VanaheimEngine& operator=(VanaheimEngine&&) = delete;
 
 		void Initialize(HINSTANCE instance);
-		void Update();
+		int EngineLoop(Application& vEditor);
 
 	protected:
 	private:

@@ -21,6 +21,9 @@ class InputManager final
 							 const ButtonPressType& pressType, 
 							 const std::string& name, 
 							 Command* const pCommand);
+		void AddBaseKeyComboToMap(const std::vector<KeyboardButton>& kButtons,
+							      const std::string& name,
+							      Command* const pCommand);
 		void AddKeyToMap(const ControllerButton& cButton, 
 						 const KeyboardButton& kButton, 
 						 const MouseButton& mButton,

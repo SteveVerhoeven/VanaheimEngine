@@ -1,4 +1,4 @@
-#include "VanaheimPCH.h"
+#include "VanirPCH.h"
 #include "InspectorUI.h"
 
 #include "Window.h"
@@ -15,8 +15,14 @@ void InspectorUI::SetHighlightedGameObject(GameObject* pGameObject)
 	m_pGameObject = pGameObject;
 }
 
-void InspectorUI::Initialize()
+void InspectorUI::Initialize(const Vanir& /*vEditor*/)
 {}
+void InspectorUI::Update()
+{
+}
+void InspectorUI::FixedUpdate()
+{
+}
 void InspectorUI::ShowWindow()
 {
 	if (!m_RenderUI)
@@ -200,7 +206,7 @@ void InspectorUI::DrawComponents()
 
 		if (ImGui::Button("GenerateTerrain"))
 		{
-			pComponent->GenerateTerrain();
+			pComponent->GenerateTerrain(this);
 		}
 
 		if (rebuildLandscape)

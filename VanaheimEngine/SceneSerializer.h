@@ -12,6 +12,7 @@ namespace YAML
 class Mesh;
 class Scene;
 class Texture;
+class InspectorUI;
 class Material;
 class GameObject;
 class NameComponent;
@@ -31,7 +32,7 @@ class SceneSerializer final
 		SceneSerializer& operator=(SceneSerializer&&) noexcept = delete;
 
 		void Serialize(const std::string& filePath, const Scene* pScene);
-		bool Deserialize(const std::string& filePath, Scene* pScene);
+		bool Deserialize(const std::string& filePath, Scene* pScene, InspectorUI* pInspectorUI);
 
 	protected:
 	private:
@@ -60,7 +61,7 @@ class SceneSerializer final
 		void DeserializeTransformComponent(const YAML::detail::iterator_value& yamlGO, GameObject* pGO);
 		void DeserializeCameraComponent(const YAML::detail::iterator_value& yamlGO, GameObject* pGO);
 		void DeserializeRenderComponent(const YAML::detail::iterator_value& yamlGO, GameObject* pGO);
-		void DeserializeModelComponent(const YAML::detail::iterator_value& yamlGO, GameObject* pGO);
+		void DeserializeModelComponent(const YAML::detail::iterator_value& yamlGO, GameObject* pGO, InspectorUI* pInspectorUI);
 		void DeserializeTerrainGeneratorComponent(const YAML::detail::iterator_value& yamlGO, GameObject* pGO);
 
 		Material* CreateMaterial(const std::string& name, const std::vector<Texture*> pTextures);

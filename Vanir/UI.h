@@ -15,18 +15,21 @@ enum class UIButtonType
 	LIST
 };
 
-class UI : public Subject
+class Vanir;
+class UI
 {		
 	public:
 		UI(const std::string& windowName, const DirectX::XMFLOAT2& position, const DirectX::XMFLOAT2& size);
-		~UI() = default;
+		virtual ~UI() = default;
 
 		UI(const UI&) = delete;
 		UI& operator=(const UI&) = delete;
 		UI(UI&&) = delete;
 		UI& operator=(UI&&) = delete;
 
-		virtual void Initialize() = 0;
+		virtual void Initialize(const Vanir& vEditor) = 0;
+		virtual void Update() = 0;
+		virtual void FixedUpdate() = 0;
 		virtual void ShowWindow() = 0;
 		
 		void ActivateUI() { m_RenderUI = true; }

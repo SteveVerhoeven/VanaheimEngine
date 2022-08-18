@@ -2,6 +2,10 @@
 #include "SceneManager.h"
 #include "Scene.h"
 #include "Graphics.h"
+#include "Application.h"
+
+//#include "../Vanir/InspectorUI.h"
+//#include "../Vanir/Vanir.h"
 
 SceneManager::SceneManager()
 			 : m_pGameScenes(std::vector<Scene*>())
@@ -28,7 +32,6 @@ SceneManager::~SceneManager()
 void SceneManager::Initialize()
 {
 	m_pGraphics = Locator::GetGraphicsService();
-	m_pUIManager = Locator::GetUIManagerService();
 
 	for (Scene* pScene : m_pMenuScenes)
 		pScene->Initialize();
@@ -68,10 +71,10 @@ void SceneManager::LateUpdate()
 	for (Scene* pScene : m_pGameScenes)
 		pScene->LateUpdate();
 }
-void SceneManager::Render()
+void SceneManager::Render(Application& vEditor)
 {	
 	m_pGraphics->ClearBackbuffer();
-	m_pUIManager->BeginFrame();
+	vEditor.Prerender();
 	
 	SetSceneCameraAsMain();
 	m_pGraphics->SetGameRenderTarget();		// Set the render target for the viewport in the UI
@@ -81,7 +84,7 @@ void SceneManager::Render()
 	for (Scene* pScene : m_pGameScenes)
 		pScene->Render();
 	
-	if (SetHighlightedCameraAsMain())
+	if (vEditor.PreSideCamRender())
 	{
 		m_pGraphics->SetCameraRenderTarget();	// Set the render target for the camera viewport in the UI
 		for (Scene* pScene : m_pMenuScenes)
@@ -94,9 +97,9 @@ void SceneManager::Render()
 	}
 	
 	m_pGraphics->SetMainRenderTarget();		// Set the render target for the entire program window
-	m_pUIManager->Render();
+	vEditor.Render();
 
-	m_pUIManager->EndFrame();
+	vEditor.Postrender();
 	m_pGraphics->PresentBackbuffer();
 }
 
@@ -142,7 +145,7 @@ void SceneManager::ActivateMenuSceneByIndex(const size_t sceneIndex)
 	m_MenuActive = true;
 }
 
-Scene* SceneManager::CreateNewGameScene()
+Scene* SceneManager::ReplaceCurrentGameSceneByNewOne()
 {
 	// Old scene
 	Scene* pCurrentScene{ GetActiveGameScene() };
@@ -177,18 +180,4 @@ void SceneManager::SetSceneCameraAsMain()
 	GameObject* pCameraObject{ pScene->GetSceneCamera() };
 
 	Locator::ProvideRenderCameraService(pCameraObject->GetComponent<CameraComponent>());
-}
-bool SceneManager::SetHighlightedCameraAsMain()
-{
-	GameObject* pHighlightedGameObject{ Locator::GetUIManagerService()->GetUI<InspectorUI>()->GetHighlightedCameraGameobject() };
-	if (pHighlightedGameObject == nullptr)
-		return false;
-
-	CameraComponent* pCameraComponent{ pHighlightedGameObject->GetComponent<CameraComponent>() };
-	if (pCameraComponent == nullptr)
-		return false;
-
-	Locator::ProvideRenderCameraService(pCameraComponent);
-
-	return true;
 }

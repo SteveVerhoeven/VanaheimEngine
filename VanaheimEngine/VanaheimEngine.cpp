@@ -1,5 +1,5 @@
 // >----------------------------------< //
-// > Copyright 2021 - Vanaheim Engine < //
+// > Copyright 2022 - Vanaheim Engine < //
 // > Author: Steve Verhoeven		  < //
 // >----------------------------------< //
 #include "VanaheimPCH.h"
@@ -9,6 +9,7 @@
 #include "Timer.h"
 #include "Window.h"
 #include "Graphics.h"
+#include "Application.h"
 
 VanaheimEngine::VanaheimEngine()
 			   : m_pTimer(nullptr)
@@ -26,7 +27,6 @@ VanaheimEngine::~VanaheimEngine()
 	DELETE_POINTER(m_pTimer);
 	DELETE_POINTER(m_pWindow);
 	DELETE_POINTER(m_pGraphics);
-	DELETE_POINTER(m_pUIManager);
 	DELETE_POINTER(m_pDebugLogger);
 	DELETE_POINTER(m_pSceneManager);
 	DELETE_POINTER(m_pInputManager);
@@ -42,9 +42,40 @@ void VanaheimEngine::Initialize(HINSTANCE instance)
 	InitializeLocator();
 	InitializeEngineUI();
 }
-void VanaheimEngine::Update()
+int VanaheimEngine::EngineLoop(Application& vEditor)
 {
-	m_pTimer->Update();
+	const float timeEachUpdate{ m_pTimer->GetMsEachUpdate() };
+
+	MSG msg{};
+	while (msg.message != WM_QUIT)
+	{
+		// Update engine
+		m_pTimer->Update();
+
+		const float elapsedSec{ m_pTimer->GetElapsedTime() };
+
+		// Update input
+		msg = m_pInputManager->ProcessInput(elapsedSec);
+
+		if (msg.message == WM_QUIT)
+			break;
+
+		// Update game
+		while (m_pTimer->GetLag() >= timeEachUpdate)
+		{
+			vEditor.FixedUpdate();
+			m_pSceneManager->FixedUpdate(timeEachUpdate);
+			m_pTimer->SubtractFixedUpdateFromLag();
+		}
+		vEditor.Update();
+		m_pSceneManager->Update(elapsedSec);
+		m_pSceneManager->LateUpdate();
+
+		// Render game
+		m_pSceneManager->Render(vEditor);
+	}
+
+	return msg.wParam;
 }
 
 void VanaheimEngine::InitializeLocator()
@@ -52,8 +83,8 @@ void VanaheimEngine::InitializeLocator()
 	Locator::ProvideGraphicsService(m_pGraphics);
 	Locator::ProvideWindowService(m_pWindow);
 	
-	m_pUIManager = new UIManager(m_pWindow);
-	Locator::ProvideUIManagerService(m_pUIManager);
+	//m_pUIManager = new UIManager(m_pWindow);
+	//Locator::ProvideUIManagerService(m_pUIManager);
 
 	m_pTimer = new Timer();
 	Locator::ProvideTimerService(m_pTimer);
@@ -76,7 +107,7 @@ void VanaheimEngine::InitializeLocator()
 }
 void VanaheimEngine::InitializeEngineUI()
 {
-	InspectorUI* pInspectorUI{ new InspectorUI() };
+	/*InspectorUI* pInspectorUI{ new InspectorUI() };
 	m_pUIManager->AddUI(pInspectorUI);
 
 	ConsoleUI* pConsoleUI{ new ConsoleUI() };
@@ -89,12 +120,12 @@ void VanaheimEngine::InitializeEngineUI()
 	m_pUIManager->AddUI(pHierarchyUI);
 
 	CameraViewportUI* pCameraViewportUI{ new CameraViewportUI() };
-	m_pUIManager->AddUI(pCameraViewportUI);
+	m_pUIManager->AddUI(pCameraViewportUI);*/
 }
 
 void VanaheimEngine::Render()
 {
-	m_pGraphics->ClearBackbuffer();
-	Locator::GetSceneManagerService()->Render();
-	m_pGraphics->PresentBackbuffer();
+	/*m_pGraphics->ClearBackbuffer();
+	Locator::GetSceneManagerService()->Render(null, NULL);
+	m_pGraphics->PresentBackbuffer();*/
 }
