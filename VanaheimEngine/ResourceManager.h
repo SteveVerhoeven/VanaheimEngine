@@ -22,17 +22,27 @@ class ResourceManager final
 
 		void Initialize();
 		
+		/***/
 		Mesh* Load3DMesh(const std::string& name, const std::string& path);
+		/***/
 		Mesh_Base* Load3DMesh(Mesh_Base* pMesh, GameObject* pParentGO);
+		/***/
 		template <class T>
 		T* LoadMaterial(T* material);
-		Texture* LoadTexture(const std::string& filePath);
-
+		/***/
+		Texture* LoadTexture(const std::string& filePath, const bool isEditorResource = false);
+		/***/
 		void Store3DMesh(Mesh* pMesh, const std::string& name);
-
+		/***/
 		void ResetInstancedMeshes();
-
+		/***/
 		std::vector<TextureData*> GetTextures() { return m_pTextures; }
+		/***/
+		void ClearResources(const bool keepEditorResources);
+		/***/
+		void RemoveMesh(Mesh* pMesh);
+		/***/
+		void RemoveMaterial(Material* pMaterial);
 
 	private:
 		std::vector<MeshData*> m_p3DMeshes;

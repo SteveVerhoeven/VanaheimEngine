@@ -167,7 +167,7 @@ namespace YAML
 			const size_t nodeSize{ pNode.size() };
 			for (size_t i{}; i < nodeSize; ++i)
 			{
-				pRhs.push_back(pResourceManager->LoadTexture(pNode[i].as<std::string>()));
+				pRhs.push_back(pResourceManager->LoadTexture(pNode[i].as<std::string>(), false));
 			}
 
 			return true;
@@ -258,6 +258,10 @@ void SceneSerializer::Serialize(const std::string& filePath, const Scene* pScene
 }
 bool SceneSerializer::Deserialize(const std::string& filePath, Scene* pScene, InspectorUI* pInspectorUI)
 {	
+	// Clear Resources from this scene
+	ResourceManager* pResourceManager{ Locator::GetResourceManagerService() };
+	pResourceManager->ClearResources(true);
+
 	// Open files stream
 	std::ifstream stream(filePath);
 	std::stringstream sstream;
@@ -442,7 +446,7 @@ void SceneSerializer::SerializeMesh(YAML::Emitter& out, ModelComponent* pModelCo
 		const std::vector<uint32_t>& indices{ ReadBufferData<uint32_t>(pIBuffer, sizeIBuffer, pMesh->m_AmountIndices) };
 
 		OBJWriter objWriter{};
-		const std::string newFilePath{ objWriter.WriteOBJ("Crap", "./Resources/Meshes/", vertices, indices) };
+		const std::string newFilePath{ objWriter.WriteOBJ("Crap", "../VanaheimEngine/Resources/Meshes/", vertices, indices) };
 
 		out << YAML::Key << "FilePath" << YAML::Value << newFilePath;
 	}

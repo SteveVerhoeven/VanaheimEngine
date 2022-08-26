@@ -18,11 +18,9 @@ void HierarchyUI::Initialize(const Vanir& vEditor)
 	m_pInspectorUI = vEditor.GetUI<InspectorUI>();
 }
 void HierarchyUI::Update()
-{
-}
+{}
 void HierarchyUI::FixedUpdate()
-{
-}
+{}
 void HierarchyUI::ShowWindow()
 {
 	if (!m_RenderUI)

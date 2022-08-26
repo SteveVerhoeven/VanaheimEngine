@@ -2,7 +2,7 @@
 #include "Material_GPUInstance.h"
 
 Material_GPUInstance::Material_GPUInstance()
-					 : Material("./Resources/Shaders/PosCol3D_GPU_Instance.fx", "GPUInstance")
+					 : Material("../VanaheimEngine/Resources/Shaders/PosCol3D_GPU_Instance.fx", "GPUInstance")
 {}
 Material_GPUInstance::~Material_GPUInstance()
 {}

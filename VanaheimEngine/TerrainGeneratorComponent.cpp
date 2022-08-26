@@ -69,8 +69,11 @@ void TerrainGeneratorComponent::onNotify(ObserverEvent event)
 void TerrainGeneratorComponent::GenerateTerrain(InspectorUI* pInspectorUI)
 {
 	// For now exit if there already is a mesh
-	if (m_pModelComponent->GetMesh() != nullptr)
-		return;
+	Mesh* pMesh{ m_pModelComponent->GetMesh() };
+	if(pMesh != nullptr)
+	{
+		Locator::GetResourceManagerService()->RemoveMesh(pMesh);
+	}
 
 	std::vector<std::vector<float>> noiseMap{};
 	GenerateNoiseMap(noiseMap);
@@ -79,13 +82,13 @@ void TerrainGeneratorComponent::GenerateTerrain(InspectorUI* pInspectorUI)
 	CreateVertices();
 	CreateIndices();
 
-	Mesh* pMesh{ new Mesh() };
+	pMesh = new Mesh();
 	pMesh->Initialize(m_Vertices, m_Indices);
 	Locator::GetResourceManagerService()->Store3DMesh(pMesh, "Landscape_1");
 
 	ResourceManager* pResourceManager{ Locator::GetResourceManagerService() };
-	Texture* pNormalTexture{ pResourceManager->LoadTexture("./Resources/Textures/Landscape/noiseMap.bmp") };
-	Texture* pColorTexture{ pResourceManager->LoadTexture("./Resources/Textures/Landscape/colorMap.bmp") };
+	Texture* pNormalTexture{ pResourceManager->LoadTexture("../VanaheimEngine/Resources/Textures/Landscape/noiseMap.bmp") };
+	Texture* pColorTexture{ pResourceManager->LoadTexture("../VanaheimEngine/Resources/Textures/Landscape/colorMap.bmp") };
 
 	if (pInspectorUI)
 	{
@@ -102,7 +105,7 @@ void TerrainGeneratorComponent::GenerateTerrain(InspectorUI* pInspectorUI)
 	pModelComponent->SetMesh(pMesh);
 	pModelComponent->AddMaterial(pMaterial);
 
-	pMesh->PostInitialize(pMaterial);
+	pMesh->PostInitialize(pModelComponent->GetMaterial());
 
 	m_pParentObject->GetComponent<RenderComponent>()->EnableRenderComponent();
 }
@@ -131,7 +134,7 @@ void TerrainGeneratorComponent::GenerateNoiseMap(std::vector<std::vector<float>>
 	noiseMap = Normalize2DVector(noiseMap);
 
 	// Texture
-	ImageGenerator::GenerateImage(noiseMap, "./Resources/Textures/Landscape/noiseMap.bmp", m_MapSize);
+	ImageGenerator::GenerateImage(noiseMap, "../VanaheimEngine/Resources/Textures/Landscape/noiseMap.bmp", m_MapSize);
 }
 void TerrainGeneratorComponent::GenerateColorMap(const std::vector<std::vector<float>>& noiseMap)
 {
@@ -157,7 +160,7 @@ void TerrainGeneratorComponent::GenerateColorMap(const std::vector<std::vector<f
 	}
 
 	// Texture
-	ImageGenerator::GenerateImage(colorMap, "./Resources/Textures/Landscape/colorMap.bmp", m_MapSize);
+	ImageGenerator::GenerateImage(colorMap, "../VanaheimEngine/Resources/Textures/Landscape/colorMap.bmp", m_MapSize);
 }
 
 void TerrainGeneratorComponent::GenerateOffsets(std::vector<DirectX::XMFLOAT3>& offsets, const DirectX::XMFLOAT3& personalOffset)

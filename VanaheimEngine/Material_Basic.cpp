@@ -2,7 +2,7 @@
 #include "Material_Basic.h"
 
 Material_Basic::Material_Basic()
-			   : Material("./Resources/Shaders/PosCol3D_MeshTest.fx", "BASIC")
+			   : Material("../VanaheimEngine/Resources/Shaders/PosCol3D_MeshTest.fx", "BASIC")
 {}
 Material_Basic::~Material_Basic()
 {}

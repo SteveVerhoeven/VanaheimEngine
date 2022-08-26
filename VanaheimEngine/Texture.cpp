@@ -7,8 +7,12 @@
 #include <algorithm>
 
 Texture::Texture(const std::string& filePath)
+		: Texture(filePath, false)
+{}
+Texture::Texture(const std::string& filePath, const bool isEditorResource)
 		: m_pShaderResourceView(nullptr)
 		, m_Path(filePath)
+		, m_EditorResource(isEditorResource)
 {
 	Initialize(filePath);
 }

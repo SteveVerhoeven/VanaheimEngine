@@ -171,7 +171,32 @@ Scene* SceneManager::ReplaceCurrentGameSceneByNewOne()
 	SetActiveGameSceneIndex(m_pGameScenes.size() - 1);
 	pNewScene->ActivateScene();
 
+	// Delete Resources from old scene
+	Locator::GetResourceManagerService()->ClearResources(true);
+
 	return m_pGameScenes[m_ActiveGameSceneIndex];
+}
+
+Scene* SceneManager::CreateNewGameScene()
+{
+	// New Scene
+	Scene* pNewScene{ new Scene() };
+	m_pGameScenes.emplace_back(pNewScene);
+
+	return pNewScene;
+}
+
+void SceneManager::DestroyOldGameScene(Scene* pScene)
+{
+	std::vector<Scene*>::iterator result = std::find(m_pGameScenes.begin(), m_pGameScenes.end(), pScene);
+	m_pGameScenes.erase(result);
+	DELETE_POINTER(pScene);
+}
+
+void SceneManager::ActivateNewScene(Scene* pToActivateScene)
+{
+	SetActiveGameSceneIndex(m_pGameScenes.size() - 1);
+	pToActivateScene->ActivateScene();
 }
 
 void SceneManager::SetSceneCameraAsMain()

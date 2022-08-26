@@ -18,31 +18,11 @@ ResourceManager::ResourceManager()
 {}
 ResourceManager::~ResourceManager()
 {
-	for (MeshData* pMeshData : m_p3DMeshes)
-		DELETE_POINTER(pMeshData);
-	for (MaterialData* pMaterialData : m_p3DMaterials)
-		DELETE_POINTER(pMaterialData);
-	for (TextureData* pTextureData : m_pTextures)
-		DELETE_POINTER(pTextureData);
-
-	m_p3DMeshes.clear();
-	m_p3DMaterials.clear();
-	m_pTextures.clear();
+	ClearResources(false);
 }
 
 void ResourceManager::Initialize()
 {}
-
-//Mesh* ResourceManager::Get3DMesh(const std::string& name)
-//{
-//	auto result{ std::find_if(m_p3DMeshes.begin(), m_p3DMeshes.end(), [&](MeshData* pMeshData)
-//	{ return pMeshData->name == name; }) };
-//	
-//	// If the mesh is found return it
-//	if (result != m_p3DMeshes.end())
-//		return (*result)->pMesh;
-//	return nullptr;
-//}
 
 Mesh* ResourceManager::Load3DMesh(const std::string& name, const std::string& path)
 {
@@ -114,15 +94,19 @@ Mesh_Base* ResourceManager::Load3DMesh(Mesh_Base* pMesh, GameObject* pParentGO)
 	// Return the pointer to the mesh
 	return pMesh;
 }
-
-Texture* ResourceManager::LoadTexture(const std::string& filePath)
+Texture* ResourceManager::LoadTexture(const std::string& filePath, const bool isEditorResource)
 {
+	std::ifstream myFile{};
+	myFile.open(filePath);
+	if(!myFile.is_open())
+		LOG_FATAL("Texture file path does not exist!!!");
+
 	int textureID{};
 	if (TextureAlreadyLoaded(filePath, textureID))
 		return m_pTextures[textureID]->pTexture;
 
 	// If it does not exist
-	Texture* pTexture{ new Texture(filePath) };
+	Texture* pTexture{ new Texture(filePath, isEditorResource) };
 
 	// Store the texture
 	TextureData* pTextureData{ new TextureData() };
@@ -250,4 +234,84 @@ void ResourceManager::ResetInstancedMeshes()
 {
 	for (MeshData* pMeshData : m_p3DMeshes)
 		pMeshData->pMesh->SetIsRendered(false);
+}
+
+void ResourceManager::ClearResources(const bool keepEditorResources)
+{
+	for(MeshData* pMeshData : m_p3DMeshes)
+		DELETE_POINTER(pMeshData);
+	for(MaterialData* pMaterialData : m_p3DMaterials)
+		DELETE_POINTER(pMaterialData);
+
+	m_p3DMeshes.clear();
+	m_p3DMaterials.clear();
+
+	m_MaterialFreeId = 0;
+	m_MeshFreeId = 0;
+
+	if(keepEditorResources)
+	{
+		m_pTextures.erase(std::remove_if(m_pTextures.begin(), m_pTextures.end(), [&](TextureData* pTextureData)
+		{
+			if(pTextureData->pTexture->GetIsEditorResource() == false)
+			{
+				DELETE_POINTER(pTextureData);
+				return true;
+			}
+			return false;
+		}), m_pTextures.end());
+
+		m_TextureFreeId = m_pTextures.size();
+	}
+	else
+	{
+		for(TextureData* pTextureData : m_pTextures)
+		{
+			DELETE_POINTER(pTextureData);
+		}	
+
+		m_pTextures.clear();
+	}
+	
+}
+
+void ResourceManager::RemoveMesh(Mesh* pMesh)
+{
+	// Check if you find the name in the map
+	std::vector<MeshData*>::iterator result{ std::find_if(m_p3DMeshes.begin(), m_p3DMeshes.end(), [&](MeshData* pMeshData)
+	{
+		if(pMeshData->pMesh == pMesh)
+		{
+			return true;
+		}
+		return false;
+	}) };
+
+	// Did you find the mesh already of not
+	if(result != m_p3DMeshes.end())
+	{
+		MeshData* pMeshData = *result;
+		m_p3DMeshes.erase(result);
+		DELETE_POINTER(pMeshData);
+	}
+}
+void ResourceManager::RemoveMaterial(Material* pMaterial)
+{
+	// Check if you find the name in the map
+	auto result{ std::find_if(m_p3DMaterials.begin(), m_p3DMaterials.end(), [&](MaterialData* pMaterialData)
+	{
+		if(pMaterialData->pMaterial == pMaterial)
+		{
+			return true;
+		}
+		return false;
+	}) };
+
+	// Did you find the material already of not
+	if(result != m_p3DMaterials.end())
+	{
+		MaterialData* pMaterialData = *result;
+		m_p3DMaterials.erase(result);
+		DELETE_POINTER(pMaterialData);
+	}
 }

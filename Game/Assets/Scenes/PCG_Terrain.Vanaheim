@@ -1,0 +1,62 @@
+Scene: Scene
+GameObjects:
+  - GameObject: 1235456871354987412
+    NameComponent:
+      Name: Terrain
+    TransformComponent:
+      LocalPosition: [-36, 10, 0]
+      LocalRotation: [0, 0, 0, 1]
+      LocalScale: [1, 1, 1]
+      WorldPosition: [-36, 10, 0]
+      WorldRotation: [-0, 0, -0, 1]
+      WorldScale: [1, 1, 1]
+      Forward: [0, 0, 1]
+      Right: [1, 0, 0]
+      Up: [0, 1, 0]
+      WorldUp: [0, 1, 0]
+      World: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -36, 10, 0, 1]
+    RenderComponent:
+      RenderComponent: 1
+    ModelComponent:
+      Mesh:
+        FilePath: ../VanaheimEngine/Resources/Meshes/Crap.obj
+      Material:
+        MaterialType: class Material_ProcGen
+        MaterialName: ProceduralGenerator
+        MaterialPath: ../VanaheimEngine/Resources/Shaders/PosCol3D_ProceduralGenerator.fx
+      Textures: [../VanaheimEngine/Resources/Textures/Landscape/noiseMap.bmp, ../VanaheimEngine/Resources/Textures/Landscape/colorMap.bmp]
+      FilePath: ""
+    TerrainGeneratorComponent:
+      Seed: 1
+      Octaves: 5
+      Lacunarity: 2.29999995
+      Scale: 32.2400017
+      Persistence: 0.448000014
+      Mapsize: [100, 100]
+  - GameObject: 1235456871354987412
+    NameComponent:
+      Name: Side camera
+    TransformComponent:
+      LocalPosition: [35.7000008, 14.3000002, -77.5999985]
+      LocalRotation: [0, -49.2999954, 0, 1]
+      LocalScale: [1, 1, 1]
+      WorldPosition: [35.7000008, 14.3000002, -77.5999985]
+      WorldRotation: [-0, -0.417074084, -0, 0.908872485]
+      WorldScale: [1, 1, 1]
+      Forward: [-0.758134305, 0, 0.652098417]
+      Right: [0.652098417, 0, 0.758134305]
+      Up: [0, 1, -0]
+      WorldUp: [0, 1, 0]
+      World: [0.652098417, 0, 0.758134305, 0, 0, 1, 0, 0, -0.758134305, 0, 0.652098417, 0, 35.7000008, 14.3000002, -77.5999985, 1]
+    CameraComponent:
+      IsMainCamera: false
+      Near: 0.100000001
+      Far: 5000
+      FOV: 0.785398185
+      View: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      Projection: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      ViewProjection: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      ViewInverse: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      ViewProjectionInverse: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+    RenderComponent:
+      RenderComponent: 0

@@ -43,6 +43,8 @@ class InputManager final
 		Command* GetCommand(const ControllerButton& cButton);
 		// Retrieve the command from a Keyboard button
 		Command* GetCommand(const KeyboardButton& kButton);
+		// Retrieve the command from Keyboard button combo
+		Command* GetCommand(const std::vector<KeyboardButton>& kButtons);
 		// Retrieve the command from a Keyboard button
 		Command* GetCommand(const MouseButton& mButton);
 

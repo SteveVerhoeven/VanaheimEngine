@@ -246,6 +246,17 @@ Command* InputManager::GetCommand(const KeyboardButton& kButton)
 
 	return nullptr;
 }
+Command* InputManager::GetCommand(const std::vector<KeyboardButton>& kButtons)
+{
+	auto result = std::find_if(m_pBaseInputs.begin(), m_pBaseInputs.end(), [&](InputData* pInputData)
+	{ return pInputData->keyData.keyboardButtons[0] == kButtons[0] && 
+			 pInputData->keyData.keyboardButtons[1] == kButtons[1]; });
+
+	if(result != m_pBaseInputs.end())
+		return (*result)->commandData.pCommand;
+
+	return nullptr;
+}
 Command* InputManager::GetCommand(const MouseButton& mButton)
 {
 	auto result = std::find_if(m_pBaseInputs.begin(), m_pBaseInputs.end(), [&](InputData* pInputData)

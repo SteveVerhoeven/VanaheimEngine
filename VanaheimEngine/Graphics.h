@@ -25,6 +25,8 @@ class Graphics final
 		void SetGameRenderTarget();
 		void SetCameraRenderTarget();
 
+		void SetFullScreenState();
+
 	protected:
 	private:
 		HWND m_Window;

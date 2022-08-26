@@ -15,12 +15,6 @@
     <ClCompile Include="ConsoleUI.cpp">
       <Filter>Windows\Specialized</Filter>
     </ClCompile>
-    <ClCompile Include="DemoUI.cpp">
-      <Filter>Windows\Specialized</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratorUI.cpp">
-      <Filter>Windows\Specialized</Filter>
-    </ClCompile>
     <ClCompile Include="HierarchyUI.cpp">
       <Filter>Windows\Specialized</Filter>
     </ClCompile>
@@ -45,6 +39,15 @@
     <ClCompile Include="RotateCameraCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
+    <ClCompile Include="DemoUI.cpp">
+      <Filter>Windows\Demo</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratorUI.cpp">
+      <Filter>Windows\Demo</Filter>
+    </ClCompile>
+    <ClCompile Include="ContentBrowserUI.cpp">
+      <Filter>Windows\Specialized</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Vanir.h">
@@ -58,12 +61,6 @@
       <Filter>Windows\Specialized</Filter>
     </ClInclude>
     <ClInclude Include="ConsoleUI.h">
-      <Filter>Windows\Specialized</Filter>
-    </ClInclude>
-    <ClInclude Include="DemoUI.h">
-      <Filter>Windows\Specialized</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratorUI.h">
       <Filter>Windows\Specialized</Filter>
     </ClInclude>
     <ClInclude Include="HierarchyUI.h">
@@ -90,6 +87,15 @@
     <ClInclude Include="RotateCameraCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="DemoUI.h">
+      <Filter>Windows\Demo</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratorUI.h">
+      <Filter>Windows\Demo</Filter>
+    </ClInclude>
+    <ClInclude Include="ContentBrowserUI.h">
+      <Filter>Windows\Specialized</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Editor">
@@ -103,6 +109,9 @@
     </Filter>
     <Filter Include="Commands">
       <UniqueIdentifier>{f3c5b136-597f-4d0d-a4ff-00863b833e43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windows\Demo">
+      <UniqueIdentifier>{543c0862-7bee-4eeb-9930-1631f762bfcf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

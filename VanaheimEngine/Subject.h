@@ -15,6 +15,8 @@ class Subject
 
 		void AddObserver(Observer* pObserver) { m_pObservers.push_back(pObserver); }
 		void RemoveObserver(Observer* pObserver) { m_pObservers.erase(std::find(m_pObservers.begin(), m_pObservers.end(), pObserver)); }
+		void RemoveObservers() 
+		{ m_pObservers.erase(m_pObservers.begin(), m_pObservers.end()); }
 
 	protected:
 		void Notify(const ObserverEvent& event);

@@ -58,6 +58,9 @@ void Vanir::PostInitialize()
     CameraViewportUI* pCameraViewportUI{ new CameraViewportUI() };
     AddUI(pCameraViewportUI);
 
+    ContentBrowserUI* pContentBrowserUI{ new ContentBrowserUI() };
+    AddUI(pContentBrowserUI);
+
     InitializeUIs();
 
     // Create editor shortcuts
@@ -190,10 +193,10 @@ void Vanir::InitDockSpace()
     static bool opt_fullscreen = true;
     static bool opt_padding = false;
     //static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_HiddenTabBar;
+    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_NoResize;
     dockspace_flags |= ImGuiDockNodeFlags_AutoHideTabBar;
-    dockspace_flags |= ImGuiDockNodeFlags_NoResize;
-    dockspace_flags |= ImGuiDockNodeFlags_NoTabBar;
+    //dockspace_flags |= ImGuiDockNodeFlags_HiddenTabBar;
+    //dockspace_flags |= ImGuiDockNodeFlags_NoTabBar;
 
     // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
     // because it would be confusing to have two docking targets within each others.
@@ -302,8 +305,8 @@ void Vanir::EditMenu()
         }
         if (ImGui::MenuItem("Fullscreen"))
         {
-            //Graphics* pGraphics{ Locator::GetGraphicsService() };
-            //pGraphics->SetFullScreen(true);
+            Graphics* pGraphics{ Locator::GetGraphicsService() };
+            pGraphics->SetFullScreenState();
             ImGui::CloseCurrentPopup();
         }
 
@@ -334,6 +337,10 @@ void Vanir::WindowMenu()
         // Camera Viewport
         CameraViewportUI* pCameraViewportUI{ GetUI<CameraViewportUI>() };
         ImGui::Checkbox("Camera viewport", pCameraViewportUI->CanRenderUI());
+
+        // Content Browser
+        ContentBrowserUI* pContentBrowserUI{ GetUI<ContentBrowserUI>() };
+        ImGui::Checkbox("Content browser", pContentBrowserUI->CanRenderUI());
 
         ImGui::EndMenu();
     }
@@ -400,8 +407,38 @@ void Vanir::SetThemeColors()
 
 Scene* Vanir::CreateNewScene(SceneManager* pSceneManager)
 {
-    Scene* pScene{ pSceneManager->ReplaceCurrentGameSceneByNewOne() };
-    Locator::GetEditorService()->GetUI<HierarchyUI>()->SetActiveScene(pScene);
+    // Old scene
+    Scene* pCurrentScene{ pSceneManager->GetActiveGameScene() };
 
-    return pScene;
+    // New Scene
+    Scene* pNewScene{ pSceneManager->CreateNewGameScene() };
+
+    // Get old active scene & deactivate that one
+    pCurrentScene->DeactivateScene();
+
+    // Set scene camera
+    GameObject* pCameraGameObject{ pCurrentScene->GetSceneCamera() };
+    pNewScene->SetSceneCamera(pCameraGameObject);
+    Locator::ProvideRenderCameraService(pCameraGameObject->GetComponent<CameraComponent>());
+
+    // Destroy old active scene
+    pSceneManager->DestroyOldGameScene(pCurrentScene);   
+
+    // Activate new scene
+    pSceneManager->ActivateNewScene(pNewScene);
+
+    // Delete Resources from old scene
+    Locator::GetResourceManagerService()->ClearResources(true);
+
+    // Set the new scene so that the hierarchy can draw the objects
+    Locator::GetEditorService()->GetUI<HierarchyUI>()->SetActiveScene(pNewScene);
+
+    /** Remove observers from inspectorUI */
+    // Get InspectorUI
+    InspectorUI* pInspectorUI{ Locator::GetEditorService()->GetUI<InspectorUI>() };
+
+    // Remove them from the observer list
+    pInspectorUI->RemoveObservers();
+
+    return pSceneManager->GetActiveGameScene();
 }

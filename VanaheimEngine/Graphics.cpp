@@ -468,6 +468,16 @@ void Graphics::SetCameraRenderTarget()
 	m_pDeviceContext->PSSetShaderResources(0, 0, &pShaderRSV);
 	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView_Camera, m_pDepthStencilViewCamera);
 }
+void Graphics::SetFullScreenState()
+{
+	BOOL isFullScreen{};
+	m_pSwapChain->GetFullscreenState(&isFullScreen, NULL);
+
+	if (!isFullScreen)
+		m_pSwapChain->SetFullscreenState(true, NULL);
+	else
+		m_pSwapChain->SetFullscreenState(false, NULL);
+}
 void Graphics::SetMainRenderTarget()
 {
 	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView_Main, m_pDepthStencilViewGame);

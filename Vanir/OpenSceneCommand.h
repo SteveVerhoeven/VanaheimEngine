@@ -4,10 +4,14 @@
 class OpenSceneCommand final : public Command
 {
 	public:
-		OpenSceneCommand() = default;
+		OpenSceneCommand();
 
 		void Execute() override;
 
+		void SetPath(const std::filesystem::path& scenePath) { m_Path = scenePath; }
+
 	private:
+		std::filesystem::path m_Path;
+
 		void OpenScene();
 };

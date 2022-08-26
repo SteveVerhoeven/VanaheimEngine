@@ -5,13 +5,20 @@
 #include "InspectorUI.h"
 #include "Vanir.h"
 
+OpenSceneCommand::OpenSceneCommand()
+				 : m_Path("")
+{}
+
 void OpenSceneCommand::Execute()
 {
 	OpenScene();
 }
 void OpenSceneCommand::OpenScene()
 {
-	const std::string filePath{ WindowsUtils::FileDialogs::OpenFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0") };
+	if(m_Path.extension() != ".Vanaheim")
+		return;
+
+	const std::string filePath{ (m_Path != "") ? m_Path.string() : WindowsUtils::FileDialogs::OpenFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0")};
 
 	if (!filePath.empty())
 	{

@@ -7,7 +7,7 @@ ID3DX11EffectShaderResourceVariable* Material_ProcGen::m_pNoiseSRVvariable{ null
 ID3DX11EffectShaderResourceVariable* Material_ProcGen::m_pColorSRVvariable{ nullptr };
 
 Material_ProcGen::Material_ProcGen()
-				 : Material("./Resources/Shaders/PosCol3D_ProceduralGenerator.fx", "ProceduralGenerator")
+				 : Material("../VanaheimEngine/Resources/Shaders/PosCol3D_ProceduralGenerator.fx", "ProceduralGenerator")
 				 , m_pTextures(std::vector<Texture*>())
 {}
 Material_ProcGen::~Material_ProcGen()

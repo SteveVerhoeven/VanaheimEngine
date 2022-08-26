@@ -33,6 +33,7 @@
 #include "HierarchyUI.h"
 #include "ViewportUI.h"
 #include "CameraViewportUI.h"
+#include "ContentBrowserUI.h"
 
 #include "ResourceManager.h"
 #include "SceneManager.h"

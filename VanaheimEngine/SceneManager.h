@@ -42,6 +42,9 @@ class SceneManager final
 		bool GetGameIsActie() const { return m_GameActive; }
 
 		Scene* ReplaceCurrentGameSceneByNewOne();
+		Scene* CreateNewGameScene();
+		void DestroyOldGameScene(Scene* pToDestroyScene);
+		void ActivateNewScene(Scene* pToActivateScene);
 
 	private:
 		bool m_MenuActive;

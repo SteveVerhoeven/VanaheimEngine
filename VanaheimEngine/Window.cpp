@@ -47,11 +47,12 @@ void Window::CreateShowWindow()
 {
 	// Change the size of the actual user window
 	RECT windowRect{};
-	windowRect.left = 100;
+	windowRect.left = 0;
 	windowRect.right = m_Width + windowRect.left;
-	windowRect.top = 100;
+	windowRect.top = 0;
 	windowRect.bottom = m_Height + windowRect.top;
-	AdjustWindowRect(&windowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);
+	DWORD     dwStyleAdjustWindowRect = WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU;
+	AdjustWindowRect(&windowRect, dwStyleAdjustWindowRect, FALSE);
 
 	// CreateWindowA - Reference: https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindowa
 	LPCSTR    lpClassName = m_pName;
@@ -61,7 +62,7 @@ void Window::CreateShowWindow()
 		WS_MINIMIZEBOX: The window has a minimize button. Cannot be combined with the WS_EX_CONTEXTHELP style. The WS_SYSMENU style must also be specified.
 		WS_SYSMENU: The window has a window menu on its title bar. The WS_CAPTION style must also be specified.
 	*/
-	DWORD     dwStyle = WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
+	DWORD     dwStyle = dwStyleAdjustWindowRect;
 	int       X = CW_USEDEFAULT;
 	int       Y = CW_USEDEFAULT;
 	int       nWidth = windowRect.right - windowRect.left;
