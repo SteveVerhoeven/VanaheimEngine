@@ -2,7 +2,6 @@
 #include "SceneCameraMovement.h"
 
 #include "Command.h"
-#include "RotateCameraCommand.h"
 
 SceneCameraMovement::SceneCameraMovement()
 					: m_MouseIsInViewport(nullptr)

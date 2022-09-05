@@ -3,13 +3,11 @@
 #include "InputManager.h"
 
 #include "Command.h"
-#include "RotateCameraCommand.h"
 #include "Window.h"
 #include "Mouse.h"
 #include "SceneSerializer.h"
 
 #include "../Vanir/HierarchyUI.h"
-//#include "../Vanir/Vanir.h"
 
 InputManager::InputManager()
 			 : m_ControllerState()
@@ -276,19 +274,5 @@ void InputManager::ProcessMouseEvents(MSG& msg)
 			m_pMouse->DeactivateMouseInput();
 		else
 			m_pMouse->ActivateMouseInput();
-	}
-
-	// Mouse rotation
-	if (m_pMouse->GetMouseActive() && msg.message == WM_MOUSEMOVE)
-	{
-		POINT mouseMov{ m_pMouse->GetMouseMovement() };
-
-		DirectX::XMFLOAT2 mouse{};
-		mouse.x = float(mouseMov.x);
-		mouse.y = float(mouseMov.y);
-
-		Command* pCommand{ GetCommand(ControllerButton::ButtonLThumbStick) };
-		RotateCameraCommand* pRotateCommand{ dynamic_cast<RotateCameraCommand*>(pCommand) };
-		pRotateCommand->SetMouseMovement(mouse);
 	}
 }

@@ -3,13 +3,11 @@
 
 #include "Scene.h"
 #include "Timer.h"
+#include "Mouse.h"
 
 RotateCameraCommand::RotateCameraCommand()
 					: m_RotatingSpeed(20.f)
-					, m_MouseMovement()
 					, m_pCameraObject(nullptr)
-					, m_TotalYaw(0)
-					, m_TotalPitch(0)
 {}
 
 void RotateCameraCommand::Execute()
@@ -26,13 +24,15 @@ void RotateCameraCommand::Rotate()
 	using namespace DirectX;
 
 	const float elapsedSec{ Locator::GetTimerService()->GetElapsedTime() };
+	
+	const POINT mouseMovementPoint{ Locator::GetInputManagerService()->GetMouse()->GetMouseMovement() };
+	const DirectX::XMFLOAT2 mouseMovement{ (float)mouseMovementPoint.x, (float)mouseMovementPoint.y };
 
 	TransformComponent* pTransformComponent{ m_pCameraObject->GetComponent<TransformComponent>() };
-	
 	DirectX::XMFLOAT4 currentRotation{ pTransformComponent->GetRotation(false) };
 	DirectX::XMFLOAT3 newRotation{};
-	newRotation.x = currentRotation.x + (m_MouseMovement.y * m_RotatingSpeed * elapsedSec);
-	newRotation.y = currentRotation.y + (m_MouseMovement.x * m_RotatingSpeed * elapsedSec);
+	newRotation.x = currentRotation.x + (mouseMovement.y * m_RotatingSpeed * elapsedSec);
+	newRotation.y = currentRotation.y + (mouseMovement.x * m_RotatingSpeed * elapsedSec);
 	newRotation.z = currentRotation.z;
 
 	pTransformComponent->Rotate(newRotation);
