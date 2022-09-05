@@ -9,7 +9,7 @@
 #include "OpenSceneCommand.h"
 
 ViewportUI::ViewportUI()
-		   : UI("Viewport", DirectX::XMFLOAT2{ 0.f, 0.f }, DirectX::XMFLOAT2{ 0.f, 0.f })
+		   : UI("Viewport")
 		   , m_MouseInWindow(false)
 {}
 ViewportUI::~ViewportUI()
@@ -30,25 +30,32 @@ void ViewportUI::ShowWindow()
 	PushStyle_RemovePadding();
 
 	// Begin window with these flags
-	ImGuiWindowFlags window_flags = 0;
+	ImGuiWindowFlags window_flags{};
 	window_flags |= ImGuiWindowFlags_NoScrollbar;
-	window_flags |= ImGuiWindowFlags_NoMove;
-	window_flags |= ImGuiWindowFlags_NoTitleBar;
-	window_flags |= ImGuiWindowFlags_NoResize;
-	window_flags |= ImGuiWindowFlags_NoDecoration;
+	window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
 	BeginWindowBase(window_flags);
 
-	// Image
+	// Get the window size
 	ImGuiWindow* pWindow = ImGui::FindWindowByName(m_Name.c_str());
 	const ImVec2 windowSize = pWindow->Size;
 
+	// Calculate the image size;
+	ImVec2 imageSize{};
+	{
+		float height{ windowSize.y };
+		if (!pWindow->DockNode->IsHiddenTabBar())
+			height -= ImGui::GetFrameHeight();
+
+		imageSize = { height / 9 * 16, height };
+	}
+
+	// Set the position of where the image should start drawing
+	if(windowSize.x > imageSize.x)
+		ImGui::SetCursorPosX(windowSize.x / 2 - imageSize.x / 2);
+
+	// Display the image
 	Graphics* pGraphics{ Locator::GetGraphicsService() };
 	ID3D11ShaderResourceView* pSRV{ pGraphics->GetShaderResourceView_Game() };
-
-	const ImVec2 imageSize = { 1280, 720 };
-	if(windowSize.x > imageSize.x)
-		ImGui::SetCursorPosX(windowSize.x / 2 - 1280 / 2);
-
 	ImGui::Image(pSRV, ImVec2{ imageSize.x, imageSize.y });
 
 	// Drag Drop

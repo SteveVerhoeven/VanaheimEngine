@@ -5,7 +5,7 @@
 #include "Mouse.h"
 
 ConsoleUI::ConsoleUI()
-          : UI("Console", DirectX::XMFLOAT2{ 0.f, 0.f }, DirectX::XMFLOAT2{ 0.f, 0.f })
+          : UI("Console")
           , m_InputBuf()
           , m_Items(ImVector<char*>())
           , m_Commands(ImVector<const char*>())
@@ -47,13 +47,7 @@ void ConsoleUI::ShowWindow()
 	if (!m_RenderUI)
 		return;
 
-    ImGuiWindowFlags window_flags = 0;
-    window_flags |= ImGuiWindowFlags_NoScrollbar;
-    window_flags |= ImGuiWindowFlags_NoMove;
-    window_flags |= ImGuiWindowFlags_NoTitleBar;
-    window_flags |= ImGuiWindowFlags_NoResize;
-    window_flags |= ImGuiWindowFlags_NoDecoration;
-
+    ImGuiWindowFlags window_flags{};
     BeginWindowBase(window_flags);
 	Draw();
 	EndWindowBase();

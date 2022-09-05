@@ -5,7 +5,7 @@
 #include "Window.h"
 
 CameraViewportUI::CameraViewportUI()
-				 : UI("CameraViewport", DirectX::XMFLOAT2{ 0.f, 0.f }, DirectX::XMFLOAT2{ 0.f, 0.f })
+				 : UI("CameraViewport")
 {}
 CameraViewportUI::~CameraViewportUI()
 {}
@@ -25,13 +25,7 @@ void CameraViewportUI::ShowWindow()
 
 	PushStyle_RemovePadding();
 
-	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_NoScrollbar;
-	window_flags |= ImGuiWindowFlags_NoMove;
-	window_flags |= ImGuiWindowFlags_NoTitleBar;
-	window_flags |= ImGuiWindowFlags_NoResize;
-	window_flags |= ImGuiWindowFlags_NoDecoration;
-
+	ImGuiWindowFlags window_flags{};
 	BeginWindowBase(window_flags);
 
 	Graphics* pGraphics{ Locator::GetGraphicsService() };

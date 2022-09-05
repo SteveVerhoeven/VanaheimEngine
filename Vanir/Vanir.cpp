@@ -192,22 +192,19 @@ void Vanir::InitDockSpace()
     static bool dockSpaceOpen = false;
     static bool opt_fullscreen = true;
     static bool opt_padding = false;
-    //static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_NoResize;
-    dockspace_flags |= ImGuiDockNodeFlags_AutoHideTabBar;
-    //dockspace_flags |= ImGuiDockNodeFlags_HiddenTabBar;
-    //dockspace_flags |= ImGuiDockNodeFlags_NoTabBar;
+    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
     // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
     // because it would be confusing to have two docking targets within each others.
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
     ImGui::SetNextWindowPos(m_pMainViewport->WorkPos);
     ImGui::SetNextWindowSize(m_pMainViewport->WorkSize);
     ImGui::SetNextWindowViewport(m_pMainViewport->ID);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+    ImGuiWindowFlags window_flags{};
+    window_flags |= ImGuiWindowFlags_NoTitleBar;    // Title: Dockspace
+    window_flags |= ImGuiWindowFlags_MenuBar;       // File, Edit, ...
+    window_flags |= ImGuiWindowFlags_NoDocking;     // Disable docking of the main window
 
     // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
     // and handle the pass-thru hole, so we ask Begin() to not render a background.

@@ -1,8 +1,8 @@
 #include "VanirPCH.h"
 #include "DemoUI.h"
 
-DemoUI::DemoUI(const bool showDemo, const std::string& windowName, const DirectX::XMFLOAT2& position, const DirectX::XMFLOAT2& size)
-	   : UI(windowName, position, size)
+DemoUI::DemoUI(const bool showDemo, const std::string& windowName)
+	   : UI(windowName)
 	   , m_ShowDemo(showDemo)
 {}
 

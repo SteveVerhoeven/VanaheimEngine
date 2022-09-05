@@ -4,7 +4,7 @@
 class DemoUI final : public UI
 {
 	public:
-		DemoUI(const bool showDemo, const std::string& windowName, const DirectX::XMFLOAT2& position, const DirectX::XMFLOAT2& size);
+		DemoUI(const bool showDemo, const std::string& windowName);
 		~DemoUI() = default;
 
 		DemoUI(const DemoUI&) = delete;

@@ -4,7 +4,7 @@
 #include "Vanir.h"
 
 HierarchyUI::HierarchyUI()
-			: UI("Hierarchy", DirectX::XMFLOAT2{ 0.f, 0.f }, DirectX::XMFLOAT2{ 0.f, 0.f })
+			: UI("Hierarchy")
 			, m_pScene(nullptr)
 			, m_pInspectorUI(nullptr)
 			, m_SelectedGameObject(INT32_MAX)
@@ -26,13 +26,7 @@ void HierarchyUI::ShowWindow()
 	if (!m_RenderUI)
 		return;
 
-	ImGuiWindowFlags window_flags = 0;
-	window_flags |= ImGuiWindowFlags_NoScrollbar;
-	window_flags |= ImGuiWindowFlags_NoMove;
-	window_flags |= ImGuiWindowFlags_NoTitleBar;
-	window_flags |= ImGuiWindowFlags_NoResize;
-	window_flags |= ImGuiWindowFlags_NoDecoration;
-
+	ImGuiWindowFlags window_flags{};
 	BeginWindowBase(window_flags);
 	Draw();
 	EndWindowBase();

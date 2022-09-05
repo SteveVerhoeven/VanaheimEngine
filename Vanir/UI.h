@@ -19,7 +19,7 @@ class Vanir;
 class UI
 {		
 	public:
-		UI(const std::string& windowName, const DirectX::XMFLOAT2& position, const DirectX::XMFLOAT2& size);
+		UI(const std::string& windowName);
 		virtual ~UI() = default;
 
 		UI(const UI&) = delete;
@@ -40,8 +40,6 @@ class UI
 	protected:
 		bool m_RenderUI;
 		std::string m_Name;
-		DirectX::XMFLOAT2 m_Position;
-		DirectX::XMFLOAT2 m_Size;
 
 		void BeginWindowBase();
 		void BeginWindowBase(const ImGuiWindowFlags& windowFlags);
