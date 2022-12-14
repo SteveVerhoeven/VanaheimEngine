@@ -9,13 +9,29 @@ This project came to life after having the Programming 4 course in my school. Du
 
 The interest for using DirectX11 comes from the Graphics Programming course given by Matthieu Delaere. His explanation about various topics in this confusing but very interesting world of graphics programming gave me the idea to try and make my own 3D engine.
 
+## Getting Started
+Visual Studio 2022 is preferred.
+#### 1. Download the project
+   Get a copy of the project using your favorite git client.
+
+#### 2. How to use.
+  - Running **Debug** configuration
+    - Download & Install - [Visual Leak Detector](https://kinddragon.github.io/vld/)
+    - Go into the folder '__ProjectScripts'
+    - Execute the '___ProjectGeneration___.bat' or '___ProjectGeneration_start___.bat' file. The second one automatically opens the project.
+    - Open the project if you chose the 1 option for the project generation
+  - Running **Release** configuration
+    - Go into the folder '__ProjectScripts'
+    - Execute the '___ProjectGeneration___.bat' or '___ProjectGeneration_start___.bat' file. The second one automatically opens the project.
+    - Open the project if you chose the 1 option for the project generation
+
 ## Features
 * DirectX11
 * Keyboard & Controller input
 * Noise Generation 
 * Terrain Generation 
 * OBJ parsing 
-* IMGUI 
+* Editor UI (IMGUI) 
 * BMP Image Exporter
 
 ## Patterns: Game Programming Patterns (Book)
