@@ -70,7 +70,7 @@ struct DirectoryNode
 		std::vector<size_t> indices{};
 
 		const size_t nbrOfChildren{ Children.size() };
-		for(size_t i{}; i < Children.size(); ++i)
+		for(size_t i{}; i < nbrOfChildren; ++i)
 		{
 			if(Children[i].HasFlag(State_Flags::DELETE_NODE))
 				indices.emplace_back(i);

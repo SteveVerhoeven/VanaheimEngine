@@ -186,8 +186,8 @@ HRESULT Line::CreateInstanceBufferLengthV2(ID3D11Device* pDevice)
 
 DirectX::XMFLOAT3 Line::GetCornerPosition(const LineCorner& LineCorner, const float sizeXZ, const float sizeY, const LineType& LineType) const
 {
-	const float sizeHalfXZ{ sizeXZ / 2.f };
-	const float sizeHalfY{ sizeY / 2.f };
+	/*const float sizeHalfXZ{ sizeXZ / 2.f };
+	const float sizeHalfY{ sizeY / 2.f };*/
 	switch (LineCorner)
 	{
 		case LineCorner::TOP_LEFT_FRONT:

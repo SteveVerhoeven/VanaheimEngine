@@ -35,7 +35,6 @@ project "Vanir"
 	warnings "Extra"
 	flags "FatalCompileWarnings"
 
-
 	filter "system:windows"
 		system "windows"
 		systemversion "latest"
@@ -80,6 +79,7 @@ project "Vanir"
 		includedirs
 		{
 			-- Mutual
+			"%{IncludeDir.IMGUI}",
 			"%{IncludeDir.DXTEX}",	
 			"%{IncludeDir.DXEFFECTS}",
 			-- Specific
