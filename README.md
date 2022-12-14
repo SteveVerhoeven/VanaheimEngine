@@ -11,17 +11,19 @@ The interest for using DirectX11 comes from the Graphics Programming course give
 
 ## Getting Started
 Visual Studio 2022 is preferred.
-1. Download the project
-Get a copy of the project using your favorite git client.
+#### 1. Download the project
+   Get a copy of the project using your favorite git client.
 
-2. How to use
-2.1. Running **Debug** configuration
-- Download & Install - Visual Leak Detector from 'https://kinddragon.github.io/vld/'
-- Go into the folder '__ProjectScripts'
-- Execute the '___ProjectGeneration___.bat' or '___ProjectGeneration_start___.bat' file. The second one automatically opens the project.
-2.2. Running **Release** configuration
-- Go into the folder '__ProjectScripts'
-- Execute the '___ProjectGeneration___.bat' or '___ProjectGeneration_start___.bat' file. The second one automatically opens the project.
+#### 2. How to use.
+  - Running **Debug** configuration
+    - Download & Install - [Visual Leak Detector](https://kinddragon.github.io/vld/)
+    - Go into the folder '__ProjectScripts'
+    - Execute the '___ProjectGeneration___.bat' or '___ProjectGeneration_start___.bat' file. The second one automatically opens the project.
+    - Open the project if you chose the 1 option for the project generation
+  - Running **Release** configuration
+    - Go into the folder '__ProjectScripts'
+    - Execute the '___ProjectGeneration___.bat' or '___ProjectGeneration_start___.bat' file. The second one automatically opens the project.
+    - Open the project if you chose the 1 option for the project generation
 
 ## Features
 * DirectX11
