@@ -1,5 +1,6 @@
 #include "VanaheimPCH.h"
 #include "OBJParser.h"
+#include <filesystem>
 
 struct VertexCheck
 {
@@ -8,7 +9,80 @@ struct VertexCheck
 	Vertex_Input vertexToCheck;
 };
 
-void OBJParser::LoadModel(const std::string& givenName, const std::string& filePath, std::vector<Vertex_Input>& vBuffer, std::vector<uint32_t>& iBuffer, const Camera* /*pCamera*/)
+void OBJParser::ConvertOBJtoBIN(const std::string& filePath)
+{
+	std::string filePathCopy{ filePath };
+	const std::string binFilePath{ filePathCopy.append(".vemeta")};
+
+	// Load OBJ into buffers (Vertex & Index)
+	std::vector<Vertex_Input> vBuffer{};
+	std::vector<uint32_t> iBuffer{};
+	LoadModel("name", filePath, vBuffer, iBuffer);
+
+	// Convert OBJ to BIN format
+	ConvertToBinFormat(binFilePath, vBuffer, iBuffer);
+}
+
+void OBJParser::ReadMeshMetaData(const std::string& filePath, std::vector<Vertex_Input>& vBuffer, std::vector<uint32_t>& iBuffer)
+{
+	std::ifstream wf(filePath, std::ios::binary);
+	if (!wf)
+	{
+		std::cout << "Cannot open file!" << std::endl;
+		return;
+	}
+
+	// Read in vertex number
+	size_t vertexCount{};
+	wf.read((char*)&vertexCount, sizeof(size_t));
+
+	// Create a vBuffer and reserver the correct amount
+	vBuffer.reserve(vertexCount);
+
+	// Read in all the vertices
+	Vertex_Input vertex{};
+	for (size_t v = 0; v < vertexCount; ++v)
+	{
+		wf.read((char*)&vertex, sizeof(Vertex_Input));
+		vBuffer.emplace_back(vertex);
+	}
+
+	// Read in index number
+	size_t indexCount{};
+	wf.read((char*)&indexCount, sizeof(size_t));
+
+	// Create a iBuffer and reserver the correct amount
+	iBuffer.reserve(indexCount);
+
+	// Read in all the indices
+	uint32_t index{};
+	for (size_t i = 0; i < indexCount; ++i)
+	{
+		wf.read((char*)&index, sizeof(uint32_t));
+		iBuffer.emplace_back(index);
+	}
+}
+
+bool OBJParser::CheckMeshFileExisting(const std::string& binFilePath) const
+{ return std::filesystem::exists(binFilePath); }
+
+void OBJParser::LoadOBJModel(const std::string& filePath, std::vector<Vertex_Input>& vBuffer, std::vector<uint32_t>& iBuffer)
+{
+	std::string filePathCopy{ filePath };
+	filePathCopy.append(".vemeta");
+
+	if (CheckMeshFileExisting(filePathCopy))
+	{
+		ReadMeshMetaData(filePathCopy, vBuffer, iBuffer);
+	}
+	else
+	{
+		ConvertOBJtoBIN(filePath);
+		ReadMeshMetaData(filePathCopy, vBuffer, iBuffer);
+	}
+}
+
+void OBJParser::LoadModel(const std::string& givenName, const std::string& filePath, std::vector<Vertex_Input>& vBuffer, std::vector<uint32_t>& iBuffer)
 {
 	std::vector<DirectX::XMFLOAT3> positions;
 	std::vector<DirectX::XMFLOAT3> normals;
@@ -73,7 +147,7 @@ void OBJParser::LoadModel(const std::string& givenName, const std::string& fileP
 			  >> v3 >> slash >> vt3 >> slash >> vn3;
 
 			Vertex_Input vert0{};
-			vert0.Position	= DirectX::XMFLOAT3{ positions[v1] };
+			vert0.Position = DirectX::XMFLOAT3{ positions[v1] };
 			vert0.Color		= DirectX::XMFLOAT3{ 1.f, 0.f, 0.f };
 
 			Vertex_Input vert1{};
@@ -146,5 +220,29 @@ void OBJParser::checkVertexExists(VertexCheck& vCheck0, VertexCheck& vCheck1, Ve
 
 		if (vCheck0.found && vCheck1.found && vCheck2.found)
 			break;
+	}
+}
+
+void OBJParser::ConvertToBinFormat(const std::string& filePath, std::vector<Vertex_Input>& vBuffer, std::vector<uint32_t>& iBuffer)
+{
+	std::ofstream wf(filePath, std::ios::binary);
+	if (!wf)
+	{
+		std::cout << "Cannot open file!" << std::endl;
+		return;
+	}
+
+	const size_t vBufferSize{ vBuffer.size() };
+	wf.write((char*)&vBufferSize, sizeof(size_t));
+	for (size_t vertex = 0; vertex < vBufferSize; ++vertex)
+	{
+		wf.write((char*)&vBuffer[vertex], sizeof(Vertex_Input));
+	}
+
+	const size_t iBufferSize{ iBuffer.size() };
+	wf.write((char*)&iBufferSize, sizeof(size_t));
+	for (size_t index = 0; index < iBufferSize; ++index)
+	{
+		wf.write((char*)&iBuffer[index], sizeof(uint32_t));
 	}
 }

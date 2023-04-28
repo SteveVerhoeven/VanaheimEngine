@@ -39,7 +39,7 @@ void Mesh_Base::Initialize()
 	std::vector<uint32_t> indices{};
 
 	OBJParser parser{};
-	parser.LoadModel("Triangle", m_FilePath, vertices, indices, nullptr);
+	parser.LoadOBJModel(m_FilePath, vertices, indices);
 
 	DebugLogger* pLogger = Locator::GetDebugLoggerService();
 	ID3D11Device* pDevice{ Locator::GetGraphicsService()->GetDevice() };
