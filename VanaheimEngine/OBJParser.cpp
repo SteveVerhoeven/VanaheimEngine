@@ -97,6 +97,14 @@ void OBJParser::LoadModel(const std::string& givenName, const std::string& fileP
 		return;
 	}
 
+	Vertex_Input vert0{};
+	Vertex_Input vert1{};
+	Vertex_Input vert2{};
+
+	VertexCheck vCheck1{};
+	VertexCheck vCheck2{};
+	VertexCheck vCheck3{};
+
 	std::string line;
 	while (getline(in, line))
 	{
@@ -146,21 +154,18 @@ void OBJParser::LoadModel(const std::string& givenName, const std::string& fileP
 			  >> v2 >> slash >> vt2 >> slash >> vn2
 			  >> v3 >> slash >> vt3 >> slash >> vn3;
 
-			Vertex_Input vert0{};
-			vert0.Position = DirectX::XMFLOAT3{ positions[v1] };
+			vert0.Position  = DirectX::XMFLOAT3{ positions[--v1] };
 			vert0.Color		= DirectX::XMFLOAT3{ 1.f, 0.f, 0.f };
 
-			Vertex_Input vert1{};
-			vert1.Position	= DirectX::XMFLOAT3{ positions[v2] };
+			vert1.Position	= DirectX::XMFLOAT3{ positions[--v2] };
 			vert1.Color		= DirectX::XMFLOAT3{ 0.f, 0.f, 1.f };
 
-			Vertex_Input vert2{};
-			vert2.Position	= DirectX::XMFLOAT3{ positions[v3] };
+			vert2.Position	= DirectX::XMFLOAT3{ positions[--v3] };
 			vert2.Color		= DirectX::XMFLOAT3{ 0.f, 1.f, 0.f };
 
-			VertexCheck vCheck1{};	vCheck1.vertexToCheck = vert0;
-			VertexCheck vCheck2{};	vCheck2.vertexToCheck = vert1;
-			VertexCheck vCheck3{};	vCheck3.vertexToCheck = vert2;
+			vCheck1.vertexToCheck = vert0;
+			vCheck2.vertexToCheck = vert1;
+			vCheck3.vertexToCheck = vert2;
 
 			checkVertexExists(vCheck1, vCheck2, vCheck3, vBuffer);
 			{

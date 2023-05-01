@@ -1,6 +1,8 @@
 #include "GamePCH.h"
 #include "Scene_Game.h"
 
+#include "Material_Basic.h"
+
 Scene_Game::Scene_Game()
 		   : Scene()
 {}
@@ -9,6 +11,13 @@ Scene_Game::~Scene_Game()
 
 void Scene_Game::Initialize()
 {
+	// Terrain 2
+	GameObject* pGameObjectTerrain2{ new GameObject("Object") };
+	ModelComponent* pModelComponent{ new ModelComponent("../VanaheimEngine/Resources/Meshes/vehicle.obj")};
+	pModelComponent->AddMaterial(new Material_Basic());
+	pGameObjectTerrain2->AddComponent(pModelComponent);
+	AddGameObject(pGameObjectTerrain2);
+
 	// Terrain generator
 	GameObject* pGameObjectTerrain{ new GameObject("Terrain")};
 	pGameObjectTerrain->AddComponent(new TerrainGeneratorComponent());
