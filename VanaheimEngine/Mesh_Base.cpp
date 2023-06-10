@@ -39,7 +39,14 @@ void Mesh_Base::Initialize()
 	std::vector<uint32_t> indices{};
 
 	OBJParser parser{};
-	parser.LoadOBJModel(m_FilePath, vertices, indices);
+	if (parser.CheckMeshFileExisting(m_FilePath))
+	{
+		parser.ReadMeshMetaData(m_FilePath, vertices, indices);
+	}
+	else
+	{
+		parser.ConvertOBJtoBIN(m_FilePath);
+	}
 
 	DebugLogger* pLogger = Locator::GetDebugLoggerService();
 	ID3D11Device* pDevice{ Locator::GetGraphicsService()->GetDevice() };

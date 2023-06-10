@@ -13,73 +13,33 @@ void OBJParser::ConvertOBJtoBIN(const std::string& filePath)
 {
 	std::string filePathCopy{ filePath };
 	const std::string binFilePath{ filePathCopy.append(".vemeta")};
+	if (!std::filesystem::exists(binFilePath))
+	{
+		std::cout << "Does not exists \n";
 
-	// Load OBJ into buffers (Vertex & Index)
-	std::vector<Vertex_Input> vBuffer{};
-	std::vector<uint32_t> iBuffer{};
-	LoadModel("name", filePath, vBuffer, iBuffer);
-
-	// Convert OBJ to BIN format
-	ConvertToBinFormat(binFilePath, vBuffer, iBuffer);
+		// Load OBJ into buffers (Vertex & Index)
+		std::vector<Vertex_Input> vBuffer{};
+		std::vector<uint32_t> iBuffer{};
+		LoadModel("name", filePath, vBuffer, iBuffer);
+		
+		// Convert OBJ to BIN format
+		ConvertToBinFormat(binFilePath, vBuffer, iBuffer);
+	}	
+	else
+	{
+		std::cout << "Exists \n";
+	}
 }
 
 void OBJParser::ReadMeshMetaData(const std::string& filePath, std::vector<Vertex_Input>& vBuffer, std::vector<uint32_t>& iBuffer)
 {
-	std::ifstream wf(filePath, std::ios::binary);
-	if (!wf)
-	{
-		std::cout << "Cannot open file!" << std::endl;
-		return;
-	}
 
-	// Read in vertex number
-	size_t vertexCount{};
-	wf.read((char*)&vertexCount, sizeof(size_t));
-
-	// Create a vBuffer and reserver the correct amount
-	vBuffer.reserve(vertexCount);
-
-	// Read in all the vertices
-	Vertex_Input vertex{};
-	for (size_t v = 0; v < vertexCount; ++v)
-	{
-		wf.read((char*)&vertex, sizeof(Vertex_Input));
-		vBuffer.emplace_back(vertex);
-	}
-
-	// Read in index number
-	size_t indexCount{};
-	wf.read((char*)&indexCount, sizeof(size_t));
-
-	// Create a iBuffer and reserver the correct amount
-	iBuffer.reserve(indexCount);
-
-	// Read in all the indices
-	uint32_t index{};
-	for (size_t i = 0; i < indexCount; ++i)
-	{
-		wf.read((char*)&index, sizeof(uint32_t));
-		iBuffer.emplace_back(index);
-	}
 }
 
-bool OBJParser::CheckMeshFileExisting(const std::string& binFilePath) const
-{ return std::filesystem::exists(binFilePath); }
-
-void OBJParser::LoadOBJModel(const std::string& filePath, std::vector<Vertex_Input>& vBuffer, std::vector<uint32_t>& iBuffer)
+bool OBJParser::CheckMeshFileExisting(const std::string& filePath) const
 {
 	std::string filePathCopy{ filePath };
-	filePathCopy.append(".vemeta");
-
-	if (CheckMeshFileExisting(filePathCopy))
-	{
-		ReadMeshMetaData(filePathCopy, vBuffer, iBuffer);
-	}
-	else
-	{
-		ConvertOBJtoBIN(filePath);
-		ReadMeshMetaData(filePathCopy, vBuffer, iBuffer);
-	}
+	return std::filesystem::exists(filePathCopy.append(".vemeta"));
 }
 
 void OBJParser::LoadModel(const std::string& givenName, const std::string& filePath, std::vector<Vertex_Input>& vBuffer, std::vector<uint32_t>& iBuffer)
@@ -96,14 +56,6 @@ void OBJParser::LoadModel(const std::string& givenName, const std::string& fileP
 		std::cout << ("Model \"" + filePath + "\" does not exist.");
 		return;
 	}
-
-	Vertex_Input vert0{};
-	Vertex_Input vert1{};
-	Vertex_Input vert2{};
-
-	VertexCheck vCheck1{};
-	VertexCheck vCheck2{};
-	VertexCheck vCheck3{};
 
 	std::string line;
 	while (getline(in, line))
@@ -154,18 +106,21 @@ void OBJParser::LoadModel(const std::string& givenName, const std::string& fileP
 			  >> v2 >> slash >> vt2 >> slash >> vn2
 			  >> v3 >> slash >> vt3 >> slash >> vn3;
 
-			vert0.Position  = DirectX::XMFLOAT3{ positions[--v1] };
+			Vertex_Input vert0{};
+			vert0.Position	= DirectX::XMFLOAT3{ positions[v1] };
 			vert0.Color		= DirectX::XMFLOAT3{ 1.f, 0.f, 0.f };
 
-			vert1.Position	= DirectX::XMFLOAT3{ positions[--v2] };
+			Vertex_Input vert1{};
+			vert1.Position	= DirectX::XMFLOAT3{ positions[v2] };
 			vert1.Color		= DirectX::XMFLOAT3{ 0.f, 0.f, 1.f };
 
-			vert2.Position	= DirectX::XMFLOAT3{ positions[--v3] };
+			Vertex_Input vert2{};
+			vert2.Position	= DirectX::XMFLOAT3{ positions[v3] };
 			vert2.Color		= DirectX::XMFLOAT3{ 0.f, 1.f, 0.f };
 
-			vCheck1.vertexToCheck = vert0;
-			vCheck2.vertexToCheck = vert1;
-			vCheck3.vertexToCheck = vert2;
+			VertexCheck vCheck1{};	vCheck1.vertexToCheck = vert0;
+			VertexCheck vCheck2{};	vCheck2.vertexToCheck = vert1;
+			VertexCheck vCheck3{};	vCheck3.vertexToCheck = vert2;
 
 			checkVertexExists(vCheck1, vCheck2, vCheck3, vBuffer);
 			{
