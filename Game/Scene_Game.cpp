@@ -11,12 +11,12 @@ Scene_Game::~Scene_Game()
 
 void Scene_Game::Initialize()
 {
-	// Terrain 2
-	GameObject* pGameObjectTerrain2{ new GameObject("Object") };
-	ModelComponent* pModelComponent{ new ModelComponent("../VanaheimEngine/Resources/Meshes/vehicle.obj")};
-	pModelComponent->AddMaterial(new Material_Basic());
-	pGameObjectTerrain2->AddComponent(pModelComponent);
-	AddGameObject(pGameObjectTerrain2);
+	//// Terrain 2
+	//GameObject* pGameObjectTerrain2{ new GameObject("Object") };
+	//ModelComponent* pModelComponent{ new ModelComponent("../VanaheimEngine/Resources/Meshes/vehicle.obj")};
+	//pModelComponent->AddMaterial(new Material_Basic());
+	//pGameObjectTerrain2->AddComponent(pModelComponent);
+	//AddGameObject(pGameObjectTerrain2);
 
 	// Terrain generator
 	GameObject* pGameObjectTerrain{ new GameObject("Terrain")};

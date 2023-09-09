@@ -44,11 +44,11 @@ class SceneSerializer final
 		void SerializeTransformComponent(YAML::Emitter& out, TransformComponent* pTransformComponent);
 		void SerializeCameraComponent(YAML::Emitter& out, CameraComponent* pCameraComponent);
 		void SerializeRenderComponent(YAML::Emitter& out, RenderComponent* pRenderComponent);
-		void SerializeModelComponent(YAML::Emitter& out, ModelComponent* pModelComponent);
+		void SerializeModelComponent(YAML::Emitter& out, ModelComponent* pModelComponent, const std::string& name);
 		void SerializeTerrainGeneratorComponent(YAML::Emitter& out, TerrainGeneratorComponent* pTerrainGeneratorComponent);
 
 		// Helpers for SerializeModelComponent
-		void SerializeMesh(YAML::Emitter& out, ModelComponent* pModelComponent);
+		void SerializeMesh(YAML::Emitter& out, ModelComponent* pModelComponent, const std::string& name);
 		void SerializeMaterial(YAML::Emitter& out, ModelComponent* pModelComponent);
 		void SerializeTexture(YAML::Emitter& out, ModelComponent* pModelComponent);
 		void SerializeID3D11Buffer_Vertices(YAML::Emitter& out, const std::string& bufferName, uint32_t typeAmount, Mesh* pMesh);

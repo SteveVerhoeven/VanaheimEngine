@@ -14,6 +14,7 @@
 #include "Material_ProcGen_GPU.h"
 
 #include "OBJWriter.h"
+#include "OBJParser.h"
 #include "Texture.h"
 
 #include "../Vanir/InspectorUI.h"
@@ -315,9 +316,11 @@ void SceneSerializer::SerializeGameObject(YAML::Emitter& out, GameObject* pGameO
 	out << YAML::BeginMap;
 	out << YAML::Key << "GameObject" << YAML::Value << "1235456871354987412";
 
+	std::string name{};
 	if (pGameObject->HasComponent<NameComponent>())
 	{
 		NameComponent* pNameComponent{ pGameObject->GetComponent<NameComponent>() };
+		name = pNameComponent->GetName();
 		SerializeNameComponent(out, pNameComponent);		
 	}
 	if (pGameObject->HasComponent<TransformComponent>())
@@ -338,7 +341,7 @@ void SceneSerializer::SerializeGameObject(YAML::Emitter& out, GameObject* pGameO
 	if (pGameObject->HasComponent<ModelComponent>())
 	{
 		ModelComponent* pModelComponent{ pGameObject->GetComponent<ModelComponent>() };
-		SerializeModelComponent(out, pModelComponent);
+		SerializeModelComponent(out, pModelComponent, name);
 	}
 	if (pGameObject->HasComponent<TerrainGeneratorComponent>())
 	{
@@ -401,12 +404,12 @@ void SceneSerializer::SerializeRenderComponent(YAML::Emitter& out, RenderCompone
 	out << YAML::Key << "RenderComponent" << YAML::Value << int(pRenderComponent->m_CanRenderComponent);
 	out << YAML::EndMap;
 }
-void SceneSerializer::SerializeModelComponent(YAML::Emitter& out, ModelComponent* pModelComponent)
+void SceneSerializer::SerializeModelComponent(YAML::Emitter& out, ModelComponent* pModelComponent, const std::string& name)
 {
 	out << YAML::Key << "ModelComponent";
 	out << YAML::BeginMap;
 
-	SerializeMesh(out, pModelComponent);
+	SerializeMesh(out, pModelComponent, name);
 	SerializeMaterial(out, pModelComponent);
 	SerializeTexture(out, pModelComponent);
 	out << YAML::Key << "FilePath" << YAML::Value << pModelComponent->GetFilePath();
@@ -428,7 +431,7 @@ void SceneSerializer::SerializeTerrainGeneratorComponent(YAML::Emitter& out, Ter
 	out << YAML::EndMap;
 }
 
-void SceneSerializer::SerializeMesh(YAML::Emitter& out, ModelComponent* pModelComponent)
+void SceneSerializer::SerializeMesh(YAML::Emitter& out, ModelComponent* pModelComponent, const std::string& name)
 {
 	Mesh* pMesh{ pModelComponent->m_pMesh };
 	
@@ -437,18 +440,26 @@ void SceneSerializer::SerializeMesh(YAML::Emitter& out, ModelComponent* pModelCo
 	const std::string& filePath{ pMesh->m_FilePath };
 	if (filePath == "")
 	{
+		// Get the actual vertices from the Vertexbuffer
 		ID3D11Buffer* pVBuffer{ pMesh->m_pVBuffer };
 		size_t sizeVBuffer{ pMesh->m_AmountVertices * sizeof(Vertex_Input) };
 		const std::vector<Vertex_Input>& vertices{ ReadBufferData<Vertex_Input>(pVBuffer, sizeVBuffer, pMesh->m_AmountVertices) };
 
+		// Get the actual indices from the Indexbuffer
 		ID3D11Buffer* pIBuffer{ pMesh->m_pIBuffer };
 		size_t sizeIBuffer{ pMesh->m_AmountIndices * sizeof(uint32_t) };
 		const std::vector<uint32_t>& indices{ ReadBufferData<uint32_t>(pIBuffer, sizeIBuffer, pMesh->m_AmountIndices) };
+		
+		// Create filepath to write the newly created terrain to
+		const std::string filePathBase{ "../VanaheimEngine/Resources/Meshes/" + name + ".obj" };
+		std::string filePathCopy{ filePathBase };
+		const std::string binFilePath{ filePathCopy.append(".vemeta") };
 
-		OBJWriter objWriter{};
-		const std::string newFilePath{ objWriter.WriteOBJ("Crap", "../VanaheimEngine/Resources/Meshes/", vertices, indices) };
+		// Write the terrain to a vemeta file
+		OBJParser parser{};
+		parser.ConvertToBinFormat(binFilePath, vertices, indices);
 
-		out << YAML::Key << "FilePath" << YAML::Value << newFilePath;
+		out << YAML::Key << "FilePath" << YAML::Value << filePathBase;
 	}
 	else
 	{

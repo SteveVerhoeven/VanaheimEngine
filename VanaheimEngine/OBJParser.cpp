@@ -9,10 +9,26 @@ struct VertexCheck
 	Vertex_Input vertexToCheck;
 };
 
+void OBJParser::LoadOBJModel(const std::string& filePath, std::vector<Vertex_Input>& vBuffer, std::vector<uint32_t>& iBuffer)
+{
+	std::string filePathCopy{ filePath };
+	filePathCopy.append(".vemeta");
+
+	if (CheckMeshFileExisting(filePathCopy))
+	{
+		ReadMeshMetaData(filePathCopy, vBuffer, iBuffer);
+	}
+	else
+	{
+		ConvertOBJtoBIN(filePath);
+		ReadMeshMetaData(filePathCopy, vBuffer, iBuffer);
+	}
+}
+
 void OBJParser::ConvertOBJtoBIN(const std::string& filePath)
 {
 	std::string filePathCopy{ filePath };
-	const std::string binFilePath{ filePathCopy.append(".vemeta")};
+	const std::string binFilePath{ filePathCopy.append(".vemeta") };
 
 	// Load OBJ into buffers (Vertex & Index)
 	std::vector<Vertex_Input> vBuffer{};
@@ -65,22 +81,6 @@ void OBJParser::ReadMeshMetaData(const std::string& filePath, std::vector<Vertex
 
 bool OBJParser::CheckMeshFileExisting(const std::string& binFilePath) const
 { return std::filesystem::exists(binFilePath); }
-
-void OBJParser::LoadOBJModel(const std::string& filePath, std::vector<Vertex_Input>& vBuffer, std::vector<uint32_t>& iBuffer)
-{
-	std::string filePathCopy{ filePath };
-	filePathCopy.append(".vemeta");
-
-	if (CheckMeshFileExisting(filePathCopy))
-	{
-		ReadMeshMetaData(filePathCopy, vBuffer, iBuffer);
-	}
-	else
-	{
-		ConvertOBJtoBIN(filePath);
-		ReadMeshMetaData(filePathCopy, vBuffer, iBuffer);
-	}
-}
 
 void OBJParser::LoadModel(const std::string& givenName, const std::string& filePath, std::vector<Vertex_Input>& vBuffer, std::vector<uint32_t>& iBuffer)
 {
@@ -228,7 +228,7 @@ void OBJParser::checkVertexExists(VertexCheck& vCheck0, VertexCheck& vCheck1, Ve
 	}
 }
 
-void OBJParser::ConvertToBinFormat(const std::string& filePath, std::vector<Vertex_Input>& vBuffer, std::vector<uint32_t>& iBuffer)
+void OBJParser::ConvertToBinFormat(const std::string& filePath, const std::vector<Vertex_Input>& vBuffer, const std::vector<uint32_t>& iBuffer)
 {
 	std::ofstream wf(filePath, std::ios::binary);
 	if (!wf)

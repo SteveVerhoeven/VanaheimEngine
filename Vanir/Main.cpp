@@ -19,19 +19,25 @@
 // - https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-winmain
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*nShowCmd*/)
 {	
+	// Create the engine object & Initialize it
 	VanaheimEngine vEngine{};
 	vEngine.Initialize(hInstance);
 
+	// Create the editor object & Initialize it
 	Vanir vanir{ "Vanir the Vaneheim Editor" };
 	vanir.Initialize();
 
+	// Create the game object & Initialize it
 	VGame game{ "Totally awesome game" };
 	game.Initialize();
 
+	// Post initialize game & editor
 	game.PostInitialize();
 	vanir.PostInitialize();
 	
+	// Provide the editor to the locator
 	Locator::ProvideEditorService(&vanir);
 
+	// Run the engine loop
 	return vEngine.EngineLoop(vanir);
 }
