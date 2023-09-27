@@ -15,10 +15,12 @@ void OpenSceneCommand::Execute()
 }
 void OpenSceneCommand::OpenScene()
 {
-	if(m_Path.extension() != ".Vanaheim")
-		return;
+	//if(m_Path.extension() != ".Vanaheim")
+	//	return;
 
-	const std::string filePath{ (m_Path != "") ? m_Path.string() : WindowsUtils::FileDialogs::OpenFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0")};
+	//const std::string filePath{ (m_Path != "") ? m_Path.string() : WindowsUtils::FileDialogs::OpenFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0")};
+	const std::string filePath{ WindowsUtils::FileDialogs::OpenFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0") };
+
 
 	if (!filePath.empty())
 	{

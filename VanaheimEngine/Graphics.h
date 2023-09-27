@@ -25,7 +25,16 @@ class Graphics final
 		void SetGameRenderTarget();
 		void SetCameraRenderTarget();
 
-		void SetFullScreenState();
+		void SetFullscreen(const bool isFullscreen)
+		{
+			m_pSwapChain->SetFullscreenState(isFullscreen, NULL);
+		}
+		bool GetIsFullscreen() const
+		{
+			BOOL isFullScreen{};
+			m_pSwapChain->GetFullscreenState(&isFullScreen, NULL);
+			return (bool)isFullScreen;
+		}
 
 	protected:
 	private:

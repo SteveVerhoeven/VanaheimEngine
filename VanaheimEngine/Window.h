@@ -17,6 +17,12 @@ class Window final
 		int GetWindowWidth() const { return m_Width; }
 		int GetWindowHeight() const { return m_Height; }
 
+		void SetFullScreen(const bool setFullScreen);
+		bool GetIsFullScreen() const;
+
+		void MinimizeWindow();
+		void MaximizeWindow(const bool restore);
+
 	private:
 		const char* m_pName;
 		int m_Height;
