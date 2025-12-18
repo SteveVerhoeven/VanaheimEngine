@@ -2,8 +2,8 @@
 #include "UI.h"
 
 UI::UI(const std::string& windowName)
-   : m_Name(windowName)
-   , m_RenderUI(true)
+   : m_RenderUI(true)
+   , m_Name(windowName)
 {}
 
 void UI::BeginWindowBase()

@@ -26,7 +26,10 @@
 #include "RotateCameraCommand.h"
 
 Vanir::Vanir(const std::string& name)
-	  : Application(name)
+      : Application(name)
+      , m_EngineFullScreen(false)
+      , m_pTitlebarUI(nullptr)
+      , m_pMenubarUI(nullptr)
       , m_pWindow(nullptr)
       , m_pMainViewport(nullptr)
       , m_pUIs(std::vector<UI*>())
@@ -84,13 +87,25 @@ void Vanir::PostInitialize()
     ContentBrowserUI* pContentBrowserUI{ new ContentBrowserUI() };
     AddUI(pContentBrowserUI);
 
+    m_pTitlebarUI = new TitlebarUI();
+    AddUI(m_pTitlebarUI);
+
+    m_pMenubarUI = new MenubarUI();
+    AddUI(m_pMenubarUI);
+
     InitializeUIs();
+
+    // Create editor commands
+    CreateNewSceneCommand* pCreateNewSceneCommand = new CreateNewSceneCommand(pHierarchyUI, pInspectorUI);
+    SaveSceneCommand* pSaveSceneCommand = new SaveSceneCommand();
+    OpenSceneCommand* pOpenSceneCommand = new OpenSceneCommand();
+    m_pMenubarUI->SetCNSC(pCreateNewSceneCommand);
 
     // Create editor shortcuts
     InputManager* pInputManager{ Locator::GetInputManagerService() };
-    pInputManager->AddBaseKeyComboToMap({ KeyboardButton::L_CTRL, KeyboardButton::N }, "", new CreateNewSceneCommand());
-    pInputManager->AddBaseKeyComboToMap({ KeyboardButton::L_CTRL, KeyboardButton::S }, "", new SaveSceneCommand());
-    pInputManager->AddBaseKeyComboToMap({ KeyboardButton::L_CTRL, KeyboardButton::O }, "", new OpenSceneCommand());
+    pInputManager->AddBaseKeyComboToMap({ KeyboardButton::L_CTRL, KeyboardButton::N }, "", pCreateNewSceneCommand);
+    pInputManager->AddBaseKeyComboToMap({ KeyboardButton::L_CTRL, KeyboardButton::S }, "", pSaveSceneCommand);
+    pInputManager->AddBaseKeyComboToMap({ KeyboardButton::L_CTRL, KeyboardButton::O }, "", pOpenSceneCommand);
 }
 
 void Vanir::Update()
@@ -149,7 +164,6 @@ void Vanir::Postrender()
     }
 }
 
-
 void Vanir::InitializeImGui(Window* pWindow, Graphics* pGraphics)
 {
     IMGUI_CHECKVERSION();
@@ -197,26 +211,15 @@ void Vanir::ShutdownImGui()
 
 void Vanir::OpenDockSpace()
 {
-    InitDockSpace();
+    bool useCustomTitleBar = true;
 
-    if (ImGui::BeginMenuBar())
-    {
-        FileMenu();
-        EditMenu();
-        WindowMenu();
-        ToolMenu();
+    InitDockSpace(useCustomTitleBar);
 
-        ImGui::EndMenuBar();
-    }
+    if (useCustomTitleBar)
+        m_pMenubarUI->Render(useCustomTitleBar);
 }
-void Vanir::InitDockSpace()
+void Vanir::InitDockSpace(const bool drawCustomTitleBar)
 {
-    /** Code from ImGui::ShowDemoWIndow() */
-    static bool dockSpaceOpen = false;
-    static bool opt_fullscreen = true;
-    static bool opt_padding = false;
-    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-
     // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
     // because it would be confusing to have two docking targets within each others.
     ImGui::SetNextWindowPos(m_pMainViewport->WorkPos);
@@ -225,28 +228,36 @@ void Vanir::InitDockSpace()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGuiWindowFlags window_flags{};
-    window_flags |= ImGuiWindowFlags_NoTitleBar;    // Title: Dockspace
-    window_flags |= ImGuiWindowFlags_MenuBar;       // File, Edit, ...
-    window_flags |= ImGuiWindowFlags_NoDocking;     // Disable docking of the main window
+    window_flags |= ImGuiWindowFlags_NoDocking;
+    window_flags |= ImGuiWindowFlags_NoTitleBar;
+    window_flags |= ImGuiWindowFlags_NoCollapse;
+    window_flags |= ImGuiWindowFlags_NoResize;
+    window_flags |= ImGuiWindowFlags_NoMove;
+    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+    window_flags |= ImGuiWindowFlags_NoNavFocus;
+    window_flags |= ImGuiWindowFlags_NoScrollbar;
+    window_flags |= ImGuiWindowFlags_NoScrollWithMouse;
 
-    // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
-    // and handle the pass-thru hole, so we ask Begin() to not render a background.
-    if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-        window_flags |= ImGuiWindowFlags_NoBackground;
+    if (!(drawCustomTitleBar) && true)
+        window_flags |= ImGuiWindowFlags_MenuBar;
 
-    // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-    // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-    // all active windows docked into it will lose their parent and become undocked.
-    // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
-    // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::Begin("DockSpace", &opt_fullscreen, window_flags);
-    if (!opt_padding)
-        ImGui::PopStyleVar();
+    const bool isMaximized = true;
 
-    if (opt_fullscreen)
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, isMaximized ? ImVec2(6.0f, 6.0f) : ImVec2(1.0f, 1.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 3.0f);
+            ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
+            ImGui::Begin("DockSpace", nullptr, window_flags);
+            ImGui::PopStyleColor(); // MenuBarBg
         ImGui::PopStyleVar(2);
+    ImGui::PopStyleVar(2);
 
+    if (drawCustomTitleBar)
+    {
+        float titleBarHeight{};
+        m_pTitlebarUI->Render(drawCustomTitleBar, titleBarHeight, m_pMenubarUI);
+        ImGui::SetCursorPosY(titleBarHeight);
+    }
+    
     // Submit the DockSpace
     ImGuiStyle& style = ImGui::GetStyle();
     const float minWinSizeX{ style.WindowMinSize.x };
@@ -256,134 +267,9 @@ void Vanir::InitDockSpace()
     if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
     {
         ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
     }
     style.WindowMinSize.x = minWinSizeX;
-}
-void Vanir::FileMenu()
-{
-    if (ImGui::BeginMenu("File"))
-    {
-        SceneManager* pSceneManager{ Locator::GetSceneManagerService() };
-        if (ImGui::MenuItem("New", "Ctrl+N"))
-        {
-            CreateNewScene(pSceneManager);
-        }
-        if (ImGui::MenuItem("Open...", "Ctrl+O"))
-        {
-            const std::string filePath{ WindowsUtils::FileDialogs::OpenFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0") };
-
-            if (!filePath.empty())
-            {
-                Scene* pScene = CreateNewScene(pSceneManager);
-
-                SceneSerializer serializer{};
-                serializer.Deserialize(filePath, pScene, GetUI<InspectorUI>());
-            }
-
-            ImGui::CloseCurrentPopup();
-        }
-        if (ImGui::MenuItem("Save As...", "Ctrl+S"))
-        {
-            const std::string filePath{ WindowsUtils::FileDialogs::SaveFile("Vanaheim Scene (*.Vanaheim)\0*.Vanaheim\0") };
-
-            if (!filePath.empty())
-            {
-                SceneSerializer serializer{};
-                serializer.Serialize(filePath, pSceneManager->GetActiveGameScene());
-            }
-        }
-        if (ImGui::MenuItem("Exit"))
-        {
-            Locator::GetInputManagerService()->QuitGame();
-            ImGui::CloseCurrentPopup();
-        }
-
-        ImGui::EndMenu();
-    }
-}
-void Vanir::EditMenu()
-{
-    if (ImGui::BeginMenu("Edit"))
-    {
-        if (ImGui::BeginMenu("Window size"))
-        {
-            //Graphics* pGraphics{ Locator::GetGraphicsService() };
-            if (ImGui::MenuItem("1920x1080"))
-            {
-                //pGraphics->SetWindowDimensions(1920, 1080);
-                //pGraphics->ResizeWindow({ 1920, 1080 });
-                ImGui::CloseCurrentPopup();
-            }
-            if (ImGui::MenuItem("2560x1080"))
-            {
-                //pGraphics->SetWindowDimensions(2560, 1080);
-                //pGraphics->ResizeWindow({ 2560, 1080 });
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::EndMenu();
-        }
-        if (ImGui::MenuItem("Fullscreen"))
-        {
-            Graphics* pGraphics{ Locator::GetGraphicsService() };
-            pGraphics->SetFullScreenState();
-            ImGui::CloseCurrentPopup();
-        }
-
-        ImGui::EndMenu();
-    }
-}
-void Vanir::WindowMenu()
-{
-    if (ImGui::BeginMenu("Window"))
-    {
-        // Open or Close UI windows
-        // Viewport
-        ViewportUI* pViewport{ GetUI<ViewportUI>() };
-        ImGui::Checkbox("Viewport", pViewport->CanRenderUI());
-
-        // Inspector
-        InspectorUI* pInspector{ GetUI<InspectorUI>() };
-        ImGui::Checkbox("Inspector", pInspector->CanRenderUI());
-
-        // Console
-        ConsoleUI* pConsole{ GetUI<ConsoleUI>() };
-        ImGui::Checkbox("Console", pConsole->CanRenderUI());
-
-        // Scene hierarchy
-        HierarchyUI* pHierarchy{ GetUI<HierarchyUI>() };
-        ImGui::Checkbox("Hierarchy", pHierarchy->CanRenderUI());
-
-        // Camera Viewport
-        CameraViewportUI* pCameraViewportUI{ GetUI<CameraViewportUI>() };
-        ImGui::Checkbox("Camera viewport", pCameraViewportUI->CanRenderUI());
-
-        // Content Browser
-        ContentBrowserUI* pContentBrowserUI{ GetUI<ContentBrowserUI>() };
-        ImGui::Checkbox("Content browser", pContentBrowserUI->CanRenderUI());
-
-        ImGui::EndMenu();
-    }
-}
-void Vanir::ToolMenu()
-{
-    if (ImGui::BeginMenu("Tool"))
-    {
-        if (ImGui::MenuItem("Close scene"))
-        {
-            Scene* pScene = Locator::GetSceneManagerService()->GetActiveGameScene();
-
-            std::vector<GameObject*> pGameObjects{ pScene->GetObjects() };
-
-            const size_t objectCount{ pGameObjects.size() };
-            for (size_t i{}; i < objectCount; ++i)
-                pGameObjects[i]->SetRemoveFlag();
-
-            ImGui::CloseCurrentPopup();
-        }
-
-        ImGui::EndMenu();
-    }
 }
 void Vanir::CloseDockSpace()
 {
@@ -395,7 +281,7 @@ void Vanir::SetThemeColors()
     const float alpha{ 1.f };
 
     ImGuiStyle& style{ ImGui::GetStyle() };
-    ImVec4(&colors)[55]{ style.Colors };
+    ImVec4(&colors)[55] { style.Colors };
     colors[ImGuiCol_WindowBg] = ImVec4{ 0.1f, 0.105f, 0.11f, alpha };
 
     // Headers
@@ -423,42 +309,4 @@ void Vanir::SetThemeColors()
     colors[ImGuiCol_TitleBg] = ImVec4{ 0.15f, 0.1505f, 0.151f, alpha };
     colors[ImGuiCol_TitleBgActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, alpha };
     colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.15f, 0.1501f, 0.151f, alpha };
-}
-
-Scene* Vanir::CreateNewScene(SceneManager* pSceneManager)
-{
-    // Old scene
-    Scene* pCurrentScene{ pSceneManager->GetActiveGameScene() };
-
-    // New Scene
-    Scene* pNewScene{ pSceneManager->CreateNewGameScene() };
-
-    // Get old active scene & deactivate that one
-    pCurrentScene->DeactivateScene();
-
-    // Set scene camera
-    GameObject* pCameraGameObject{ pCurrentScene->GetSceneCamera() };
-    pNewScene->SetSceneCamera(pCameraGameObject);
-    Locator::ProvideRenderCameraService(pCameraGameObject->GetComponent<CameraComponent>());
-
-    // Destroy old active scene
-    pSceneManager->DestroyOldGameScene(pCurrentScene);   
-
-    // Activate new scene
-    pSceneManager->ActivateNewScene(pNewScene);
-
-    // Delete Resources from old scene
-    Locator::GetResourceManagerService()->ClearResources(true);
-
-    // Set the new scene so that the hierarchy can draw the objects
-    Locator::GetEditorService()->GetUI<HierarchyUI>()->SetActiveScene(pNewScene);
-
-    /** Remove observers from inspectorUI */
-    // Get InspectorUI
-    InspectorUI* pInspectorUI{ Locator::GetEditorService()->GetUI<InspectorUI>() };
-
-    // Remove them from the observer list
-    pInspectorUI->RemoveObservers();
-
-    return pSceneManager->GetActiveGameScene();
 }

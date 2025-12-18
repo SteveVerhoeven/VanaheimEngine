@@ -17,7 +17,7 @@
 #include "imgui_impl_metal.h"
 #if TARGET_OS_OSX
 #include "imgui_impl_osx.h"
-@interface AppViewController : NSViewController<NSWindowDelegate>
+@interface AppViewController : NSViewController
 @end
 #else
 @interface AppViewController : UIViewController
@@ -56,20 +56,10 @@
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-    //ImGui::StyleColorsLight();
-
-    // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-    ImGuiStyle& style = ImGui::GetStyle();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-        style.WindowRounding = 0.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-    }
+    //ImGui::StyleColorsClassic();
 
     // Setup Renderer backend
     ImGui_ImplMetal_Init(_device);
@@ -110,8 +100,15 @@
     self.mtkView.delegate = self;
 
 #if TARGET_OS_OSX
+    // Add a tracking area in order to receive mouse events whenever the mouse is within the bounds of our view
+    NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect:NSZeroRect
+                                                                options:NSTrackingMouseMoved | NSTrackingInVisibleRect | NSTrackingActiveAlways
+                                                                  owner:self
+                                                               userInfo:nil];
+    [self.view addTrackingArea:trackingArea];
+
     ImGui_ImplOSX_Init(self.view);
-    [NSApp activateIgnoringOtherApps:YES];
+
 #endif
 }
 
@@ -127,6 +124,8 @@
     CGFloat framebufferScale = view.window.screen.scale ?: UIScreen.mainScreen.scale;
 #endif
     io.DisplayFramebufferScale = ImVec2(framebufferScale, framebufferScale);
+
+    io.DeltaTime = 1 / float(view.preferredFramesPerSecond ?: 60);
 
     id<MTLCommandBuffer> commandBuffer = [self.commandQueue commandBuffer];
 
@@ -200,13 +199,6 @@
 	// Present
     [commandBuffer presentDrawable:view.currentDrawable];
     [commandBuffer commit];
-
-    // Update and Render additional Platform Windows
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-        ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
-    }
 }
 
 -(void)mtkView:(MTKView*)view drawableSizeWillChange:(CGSize)size
@@ -219,18 +211,20 @@
 
 #if TARGET_OS_OSX
 
-- (void)viewWillAppear
-{
-    [super viewWillAppear];
-    self.view.window.delegate = self;
-}
-
-- (void)windowWillClose:(NSNotification *)notification
-{
-    ImGui_ImplMetal_Shutdown();
-    ImGui_ImplOSX_Shutdown();
-    ImGui::DestroyContext();
-}
+// Forward Mouse events to Dear ImGui OSX backend.
+-(void)mouseDown:(NSEvent *)event           { ImGui_ImplOSX_HandleEvent(event, self.view); }
+-(void)rightMouseDown:(NSEvent *)event      { ImGui_ImplOSX_HandleEvent(event, self.view); }
+-(void)otherMouseDown:(NSEvent *)event      { ImGui_ImplOSX_HandleEvent(event, self.view); }
+-(void)mouseUp:(NSEvent *)event             { ImGui_ImplOSX_HandleEvent(event, self.view); }
+-(void)rightMouseUp:(NSEvent *)event        { ImGui_ImplOSX_HandleEvent(event, self.view); }
+-(void)otherMouseUp:(NSEvent *)event        { ImGui_ImplOSX_HandleEvent(event, self.view); }
+-(void)mouseMoved:(NSEvent *)event          { ImGui_ImplOSX_HandleEvent(event, self.view); }
+-(void)mouseDragged:(NSEvent *)event        { ImGui_ImplOSX_HandleEvent(event, self.view); }
+-(void)rightMouseMoved:(NSEvent *)event     { ImGui_ImplOSX_HandleEvent(event, self.view); }
+-(void)rightMouseDragged:(NSEvent *)event   { ImGui_ImplOSX_HandleEvent(event, self.view); }
+-(void)otherMouseMoved:(NSEvent *)event     { ImGui_ImplOSX_HandleEvent(event, self.view); }
+-(void)otherMouseDragged:(NSEvent *)event   { ImGui_ImplOSX_HandleEvent(event, self.view); }
+-(void)scrollWheel:(NSEvent *)event         { ImGui_ImplOSX_HandleEvent(event, self.view); }
 
 #else
 
@@ -294,8 +288,9 @@
                                                     backing:NSBackingStoreBuffered
                                                       defer:NO];
         self.window.contentViewController = rootViewController;
+        [self.window orderFront:self];
         [self.window center];
-        [self.window makeKeyAndOrderFront:self];
+        [self.window becomeKeyWindow];
     }
     return self;
 }

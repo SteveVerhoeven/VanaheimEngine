@@ -163,13 +163,15 @@ Scene* SceneManager::ReplaceCurrentGameSceneByNewOne()
 	Locator::ProvideRenderCameraService(pCameraGameObject->GetComponent<CameraComponent>());
 
 	// Destroy old active scene
-	std::vector<Scene*>::iterator result = std::find(m_pGameScenes.begin(), m_pGameScenes.end(), pCurrentScene);
-	m_pGameScenes.erase(result);
-	DELETE_POINTER(pCurrentScene);
+	//std::vector<Scene*>::iterator result = std::find(m_pGameScenes.begin(), m_pGameScenes.end(), pCurrentScene);
+	//m_pGameScenes.erase(result);
+	//DELETE_POINTER(pCurrentScene);
+	DestroyOldGameScene(pCurrentScene);
 
 	// Activate new scene
-	SetActiveGameSceneIndex(m_pGameScenes.size() - 1);
-	pNewScene->ActivateScene();
+	//SetActiveGameSceneIndex(m_pGameScenes.size() - 1);
+	//pNewScene->ActivateScene();
+	ActivateNewScene(pNewScene);
 
 	// Delete Resources from old scene
 	Locator::GetResourceManagerService()->ClearResources(true);

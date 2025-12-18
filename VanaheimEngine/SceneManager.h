@@ -5,6 +5,8 @@ class Scene;
 class Graphics;
 class UIManager;
 class Application;
+class HierarchyUI;
+class InspectorUI;
 class SceneManager final
 {
 	public:

@@ -1,6 +1,7 @@
 #include "VanaheimPCH.h"
 #include "Graphics.h"
 #include "Window.h"
+#include "Application.h"
 
 #include "backends\imgui_impl_dx11.h"
 #include "backends\imgui_impl_win32.h"
@@ -467,16 +468,6 @@ void Graphics::SetCameraRenderTarget()
 	ID3D11ShaderResourceView* pShaderRSV{ NULL };
 	m_pDeviceContext->PSSetShaderResources(0, 0, &pShaderRSV);
 	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView_Camera, m_pDepthStencilViewCamera);
-}
-void Graphics::SetFullScreenState()
-{
-	BOOL isFullScreen{};
-	m_pSwapChain->GetFullscreenState(&isFullScreen, NULL);
-
-	if (!isFullScreen)
-		m_pSwapChain->SetFullscreenState(true, NULL);
-	else
-		m_pSwapChain->SetFullscreenState(false, NULL);
 }
 void Graphics::SetMainRenderTarget()
 {

@@ -13,6 +13,7 @@
 #include "VanaheimEngine.h"
 #include "Vanir.h"
 #include "VGame.h"
+#include "Window.h"
 
 // Application Entry Point - References:
 // - https://docs.microsoft.com/en-us/windows/win32/learnwin32/winmain--the-application-entry-point
@@ -35,6 +36,9 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 	game.PostInitialize();
 	vanir.PostInitialize();
 	
+	// Set engine to fullscreen standard
+	//Locator::GetWindowService()->SetFullScreen(true);
+
 	// Provide the editor to the locator
 	Locator::ProvideEditorService(&vanir);
 

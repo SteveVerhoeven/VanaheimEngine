@@ -48,6 +48,12 @@
     <ClCompile Include="ContentBrowserUI.cpp">
       <Filter>Windows\Specialized</Filter>
     </ClCompile>
+    <ClCompile Include="MenubarUI.cpp">
+      <Filter>Windows\Specialized</Filter>
+    </ClCompile>
+    <ClCompile Include="TitlebarUI.cpp">
+      <Filter>Windows\Specialized</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Vanir.h">
@@ -56,7 +62,6 @@
     <ClInclude Include="UI.h">
       <Filter>Windows</Filter>
     </ClInclude>
-    <ClInclude Include="VanirPCH.h" />
     <ClInclude Include="CameraViewportUI.h">
       <Filter>Windows\Specialized</Filter>
     </ClInclude>
@@ -96,6 +101,13 @@
     <ClInclude Include="ContentBrowserUI.h">
       <Filter>Windows\Specialized</Filter>
     </ClInclude>
+    <ClInclude Include="MenubarUI.h">
+      <Filter>Windows\Specialized</Filter>
+    </ClInclude>
+    <ClInclude Include="TitlebarUI.h">
+      <Filter>Windows\Specialized</Filter>
+    </ClInclude>
+    <ClInclude Include="VanirPCH.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Editor">

@@ -23,6 +23,23 @@ Window::~Window()
 	DestroyWindow(m_Window);
 }
 
+void Window::SetFullScreen(const bool setFullScreen)
+{ Locator::GetGraphicsService()->SetFullscreen(setFullScreen); }
+bool Window::GetIsFullScreen() const
+{ return Locator::GetGraphicsService()->GetIsFullscreen(); }
+
+void Window::MinimizeWindow()
+{
+	PostMessage(m_Window, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+}
+void Window::MaximizeWindow(const bool restore)
+{
+	if (restore)
+		PostMessage(m_Window, WM_SYSCOMMAND, SC_RESTORE, 0);
+	else
+		PostMessage(m_Window, WM_SYSCOMMAND, SC_MAXIMIZE, 0);
+}
+
 void Window::CreateClass()
 {
 	// WNDCLASSEX - Reference: https://docs.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-wndclassexa
@@ -51,7 +68,8 @@ void Window::CreateShowWindow()
 	windowRect.right = m_Width + windowRect.left;
 	windowRect.top = 0;
 	windowRect.bottom = m_Height + windowRect.top;
-	DWORD     dwStyleAdjustWindowRect = WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU;
+	//DWORD     dwStyleAdjustWindowRect = WS_CAPTION | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU;
+	DWORD     dwStyleAdjustWindowRect = WS_BORDER;
 	AdjustWindowRect(&windowRect, dwStyleAdjustWindowRect, FALSE);
 
 	// CreateWindowA - Reference: https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindowa
@@ -72,6 +90,9 @@ void Window::CreateShowWindow()
 	HINSTANCE hInst = m_Instance;
 	LPVOID    lpParam = this;
 	m_Window = CreateWindow(lpClassName, lpWindowName, dwStyle, X, Y, nWidth, nHeight, hWndParent, hMenu, hInst, lpParam);
+
+	// ShowWindow
+	SetWindowLong(m_Window, GWL_STYLE, 0);
 
 	// ShowWindow - Reference: https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
 	ShowWindow(m_Window, SW_SHOWDEFAULT);

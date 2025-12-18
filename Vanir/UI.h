@@ -17,7 +17,7 @@ enum class UIButtonType
 
 class Vanir;
 class UI
-{		
+{	
 	public:
 		UI(const std::string& windowName);
 		virtual ~UI() = default;

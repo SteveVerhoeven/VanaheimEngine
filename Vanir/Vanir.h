@@ -28,9 +28,15 @@ class Vanir final : public Application
 		template <class T>
 		T* GetUI() const;
 
+		void SetFullscreen(const bool isFullscreen) { m_EngineFullScreen = isFullscreen; };
+		bool GetFullscreen() const { return m_EngineFullScreen; };
+
 	protected:
 
 	private:
+		bool m_EngineFullScreen;
+		TitlebarUI* m_pTitlebarUI;
+		MenubarUI* m_pMenubarUI;
 		Window* m_pWindow;
 		ImGuiViewport* m_pMainViewport;
 		std::vector<UI*> m_pUIs;
@@ -41,18 +47,12 @@ class Vanir final : public Application
 
 		// Docking
 		void OpenDockSpace();
-		void InitDockSpace();
-		void FileMenu();
-		void EditMenu();
-		void WindowMenu();
-		void ToolMenu();
+		void InitDockSpace(const bool drawCustomTitleBar);
+
 		void CloseDockSpace();
 
 		//Style
 		void SetThemeColors();
-
-		// Scenes
-		Scene* CreateNewScene(SceneManager* pSceneManager);
 };
 
 template<class T>

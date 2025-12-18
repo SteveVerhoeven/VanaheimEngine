@@ -13,6 +13,7 @@
 #include <string>
 #include <iomanip>
 #include <vector>
+#include <functional>
 
 // ----------------------------
 // DirectX includes
@@ -34,6 +35,8 @@
 #include "ViewportUI.h"
 #include "CameraViewportUI.h"
 #include "ContentBrowserUI.h"
+#include "TitlebarUI.h"
+#include "MenubarUI.h"
 
 #include "ResourceManager.h"
 #include "SceneManager.h"
