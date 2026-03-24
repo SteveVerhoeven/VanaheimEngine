@@ -454,7 +454,7 @@ void Graphics::ClearBackbuffer()
 }
 void Graphics::PresentBackbuffer()
 {
-	m_pSwapChain->Present(0, 0);
+	m_pSwapChain->Present(0, DXGI_PRESENT_DO_NOT_WAIT);
 }
 
 void Graphics::SetGameRenderTarget()

@@ -48,6 +48,7 @@ class NoiseGenerator final : public Generator
 		float Fade(const float t);
 		int Increment(const int num);
 		float Gradient(const bool useOriginalPerlinFunction, const int hash, const float x, const float y, const float z);
+		float Gradient(const int hash, const float x, const float y, const float z);
 		float Lerp(const float a, const float b, const float x);
 		float GetBillowNoise(const float fractalNoise);
 		float GetRidgedNoise(const float billowNoise);

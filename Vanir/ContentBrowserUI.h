@@ -2,6 +2,7 @@
 #include "UI.h"
 #include <filesystem> // C++17
 
+class Texture;
 enum State_Flags
 {
 	IDLE = 0,
@@ -84,47 +85,50 @@ struct DirectoryNode
 	}
 };
 
-class Texture;
+struct CachedFile
+{
+	std::string FileName;
+	std::filesystem::path Path;
+	bool IsDirectory;
+	Texture* Icon; // Pointer to one of the pre-loaded icons
+};
+
 class ContentBrowserUI final : public UI
 {
-	public:
-		ContentBrowserUI();
-		~ContentBrowserUI();
+public:
+	ContentBrowserUI();
+	~ContentBrowserUI() = default;
 
-		ContentBrowserUI(const ContentBrowserUI&) = delete;
-		ContentBrowserUI& operator=(const ContentBrowserUI&) = delete;
-		ContentBrowserUI(ContentBrowserUI&&) = delete;
-		ContentBrowserUI& operator=(ContentBrowserUI&&) = delete;
+	void Initialize(const Vanir& vEditor) override;
+	void Update() override;
+	void FixedUpdate() override;
+	void ShowWindow() override;
 
-		void Initialize(const Vanir& vEditor) override;
-		void Update() override;
-		void FixedUpdate() override;
-		void ShowWindow() override;
+private:
+	bool m_UIChanged;
+	std::filesystem::path m_CurrentDirectory;
 
-	protected:
+	// Pre-loaded icons
+	Texture* m_pDirectoryIcon;
+	Texture* m_pFileIcon;
+	Texture* m_pSceneIcon;
+	Texture* m_pMeshIcon;
 
-	private:		
-		std::filesystem::path m_CurrentDirectory;
-		Texture* m_pDirectoryIcon;
-		Texture* m_pFileIcon;
-		Texture* m_pSceneIcon;
-		Texture* m_pTextureIcon;
-		Texture* m_pMeshIcon;
-		DirectoryNode m_RootNode;
+	DirectoryNode m_RootNode;
+	std::vector<CachedFile> m_DirectoryCache;
 
-		void Draw();
-		void DrawBackButton();
-		void DrawFolderHierarchy();
-		void DrawFoldersAndFiles(const float rowHeight);
-		void DrawFoldersAndFilesRecursively(const std::filesystem::directory_entry& dirEntry, const ImGuiTreeNodeFlags& flags);
-		void DrawSliders(float& padding, float& thumbnailSize, const float rowHeight);
+	void Draw();
+	void DrawBackButton();
+	void DrawFolderHierarchy();
+	void DrawFoldersAndFiles(const float rowHeight);
+	void DrawSliders(float& padding, float& thumbnailSize, const float rowHeight);
 
-		Texture* ChooseWhichIcon(const std::filesystem::directory_entry& directoryEntry);
-		void DragDrop(const std::filesystem::path& relativePath);
+	Texture* ChooseWhichIcon(const std::filesystem::directory_entry& entry);
+	void DragDrop(const std::filesystem::path& relativePath);
+	void RefreshCache();
 
-		// Tree
-		DirectoryNode CreateDirectryNodeTreeFromPath(const std::filesystem::path& rootPath);
-		void RecursivelyAddDirectoryNodes(DirectoryNode& parentNode, std::filesystem::directory_iterator directoryIterator);
-		void AddDirectory(DirectoryNode& parentNode, const std::filesystem::directory_entry& entry);
-		void RecursivelyDisplayDirectoryNode(DirectoryNode& parentNode);
+	DirectoryNode CreateDirectryNodeTreeFromPath(const std::filesystem::path& rootPath);
+	void RecursivelyAddDirectoryNodes(DirectoryNode& parentNode, std::filesystem::directory_iterator directoryIterator);
+	void AddDirectory(DirectoryNode& parentNode, const std::filesystem::directory_entry& entry);
+	void RecursivelyDisplayDirectoryNode(DirectoryNode& parentNode);
 };

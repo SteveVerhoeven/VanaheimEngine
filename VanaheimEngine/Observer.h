@@ -15,6 +15,7 @@ enum class ObserverEvent
 
 	// Procedural Generator
 	REBUILD_LANDSCAPE,
+	REBUILD_LANDSCAPE_NOT_SIZE,
 
 	INCREASE_XRES,
 	DECREASE_XRES,

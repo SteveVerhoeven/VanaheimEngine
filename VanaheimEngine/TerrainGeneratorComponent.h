@@ -72,8 +72,8 @@ class TerrainGeneratorComponent final : public Component, public Observer
 		void CreateTerrainRegions();
 		
 		// Generating
-		void GenerateNoiseMap(std::vector<std::vector<float>>& noiseMap);
-		void GenerateColorMap(const std::vector<std::vector<float>>& noiseMap);
+		void GenerateNoiseMap(std::vector<float>& noiseMap);
+		void GenerateColorMap(const std::vector<float>& noiseMap);
 
 		// Helpers
 		void GenerateOffsets(std::vector<DirectX::XMFLOAT3>& offsets, const DirectX::XMFLOAT3& personalOffset);		

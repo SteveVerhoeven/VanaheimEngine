@@ -91,9 +91,10 @@ float NoiseGenerator::GetPerlinNoise(const float xCoord, const float yCoord, con
 {
 	// Reference: https://adrianb.io/2014/08/09/perlinnoise.html
 
-	int xi = (int)xCoord & 255;       // Calculate the "unit cube" that the point asked will be located in
-	int yi = (int)yCoord & 255;       // The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
-	int zi = (int)zCoord & 255;       // plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
+	int xi = (int)xCoord & 255; // Calculate the "unit cube" that the point asked will be located in
+	int yi = (int)yCoord & 255; // The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
+	int zi = (int)zCoord & 255; // plus 1. Next we calculate the location (from 0.0 to 1.0) in that cube.
+
 	float xf = xCoord - (int)xCoord;
 	float yf = yCoord - (int)yCoord;
 	float zf = zCoord - (int)zCoord;
@@ -113,14 +114,13 @@ float NoiseGenerator::GetPerlinNoise(const float xCoord, const float yCoord, con
 	bbb = m_Permutation[m_Permutation[m_Permutation[Increment(xi)] + Increment(yi)] + Increment(zi)];
 
 	float x1, x2, y1, y2;
-	x1 = Lerp(Gradient(true, aaa, xf, yf, zf),          // The gradient function calculates the dot product between a pseudorandom
-		Gradient(true, baa, xf - 1, yf, zf),      // gradient vector and the vector from the input coordinate to the 8
-		u);										// surrounding points in its unit cube.
-	x2 = Lerp(Gradient(true, aba, xf, yf - 1, zf),      // This is all then lerped together as a sort of weighted average based on the faded (u,v,w)
-		Gradient(true, bba, xf - 1, yf - 1, zf),  // values we made earlier.
+	x1 = Lerp(Gradient(true, aaa, xf, yf, zf), // The gradient function calculates the dot product between a pseudorandom
+		Gradient(true, baa, xf - 1, yf, zf), // gradient vector and the vector from the input coordinate to the 8
+		u); // surrounding points in its unit cube.
+	x2 = Lerp(Gradient(true, aba, xf, yf - 1, zf), // This is all then lerped together as a sort of weighted average based on the faded (u,v,w)
+		Gradient(true, bba, xf - 1, yf - 1, zf), // values we made earlier.
 		u);
 	y1 = Lerp(x1, x2, v);
-
 	x1 = Lerp(Gradient(true, aab, xf, yf, zf - 1),
 		Gradient(true, bab, xf - 1, yf, zf - 1),
 		u);
@@ -130,8 +130,10 @@ float NoiseGenerator::GetPerlinNoise(const float xCoord, const float yCoord, con
 	y2 = Lerp(x1, x2, v);
 
 	// Returns a value between 0 and 1.
-	return (Lerp(y1, y2, w) + 1) / 2;					// For convenience we bind the result to 0 - 1 (theoretical min/max before is [-1, 1])
+	return (Lerp(y1, y2, w) + 1) / 2; // For convenience we bind the result to 0 - 1 (theoretical min/max before is [-1, 1])
 }
+
+
 float NoiseGenerator::Fade(const float t)
 {
 	// Fade function as defined by Ken Perlin.  This eases coordinate values
@@ -194,6 +196,18 @@ float NoiseGenerator::Gradient(const bool useOriginalPerlinFunction,
 	}
 
 	return gradient;
+}
+float NoiseGenerator::Gradient(const int hash, const float x, const float y, const float z)
+{
+	// Take the hash (from your permutation table) and look at the last 4 bits
+	int h = hash & 15;
+
+	// Convert the 4 bits into one of the 12 gradient directions
+	float u = h < 8 ? x : y;
+	float v = h < 4 ? y : (h == 12 || h == 14 ? x : z);
+
+	// Use bit manipulation to determine the sign and return the dot product
+	return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
 }
 float NoiseGenerator::Lerp(const float a, const float b, const float x)
 {

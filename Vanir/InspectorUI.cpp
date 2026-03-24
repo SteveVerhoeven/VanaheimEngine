@@ -204,9 +204,7 @@ void InspectorUI::DrawComponents()
 		}
 
 		if (rebuildLandscape)
-		{
 			Notify(ObserverEvent::REBUILD_LANDSCAPE);
-		}
 	});
 }
 void InspectorUI::AddComponent()

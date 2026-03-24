@@ -63,6 +63,35 @@ std::vector<std::vector<T>> Normalize2DVector(std::vector<std::vector<T>> vector
 
 	return vector;
 }
+template <typename T>
+std::vector<T> Normalize1DVector(std::vector<T> vector)
+{
+	// Handle empty vectors to avoid errors
+	if (vector.empty()) return vector;
+
+	// 1. Find min and max in a single pass (O(n))
+	const auto [minIt, maxIt] = std::minmax_element(vector.begin(), vector.end());
+	const T minValue = *minIt;
+	const T maxValue = *maxIt;
+
+	const T range = maxValue - minValue;
+
+	// 2. Avoid division by zero if all elements are the same
+	// For floating point types, we check against a small epsilon
+	if (range <= std::numeric_limits<T>::epsilon())
+	{
+		return vector;
+	}
+
+	// 3. Remap values to [0.0, 1.0]
+	// Note: We cast to T to ensure type consistency
+	for (T& value : vector)
+	{
+		value = Remap(value, minValue, maxValue);
+	}
+
+	return vector;
+}
 
 inline float ConvertBytesToKiloBytes(const unsigned int bytes)
 {

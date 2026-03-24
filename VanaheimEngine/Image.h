@@ -16,8 +16,8 @@ class Image final
 		
 		DirectX::XMFLOAT3 GetColor(const size_t x, const size_t y) const { return m_Colors[size_t(y * m_Dimensions.x + x)]; }
 		void SetColor(const DirectX::XMFLOAT3& color, const size_t x, const size_t y) { m_Colors[size_t(y * m_Dimensions.x + x)] = color; }
-		void SetColor(const std::vector<std::vector<float>>& noiseMap);
-		void SetColor(const std::vector<std::vector<DirectX::XMFLOAT3>>& noiseMap);
+		void SetColor(const std::vector<float>& noiseMap);
+		void SetColor(const std::vector<DirectX::XMFLOAT3>& noiseMap);
 
 	protected:
 	private:

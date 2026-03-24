@@ -227,7 +227,7 @@ void GS(point VS_OUTPUT vertices[1], inout TriangleStream<VS_OUTPUT> triStream)
 	// Top layer
 	CreateVoxel(vertices[0], modifier, triStream, 0.f);
 	// Bottom layer
-	//CreateVoxel(vertices[0], modifier, triStream, heightDiff);
+	CreateVoxel(vertices[0], modifier, triStream, heightDiff);
 }
 
 // ------------------------

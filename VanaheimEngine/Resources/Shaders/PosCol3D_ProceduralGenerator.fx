@@ -9,7 +9,7 @@ int gSubLevelVoxels = 96;
 
 SamplerState samLinear
 {
-	Filter = MIN_MAG_MIP_POINT;
+	Filter = MIN_MAG_MIP_LINEAR;
 	AddressU = Clamp;// or Mirror or Clamp or Border
 	AddressV = Clamp;// or Mirror or Clamp or Border
 };

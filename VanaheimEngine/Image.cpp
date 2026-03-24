@@ -122,31 +122,41 @@ void Image::ExportImage(const std::string & path)
 	fileStream.close();
 }
 
-
-void Image::SetColor(const std::vector<std::vector<float>>& noiseMap)
+void Image::SetColor(const std::vector<float>& noiseMap)
 {
-	for (int y{}; y < m_Dimensions.y; ++y)
-	{
-		for (int x{}; x < m_Dimensions.x; ++x)
-		{
-			const float value{ noiseMap[(size_t)y][(size_t)x] };
+	// 1. Pre-calculate or cache dimensions to avoid repeated member access
+	const size_t width = static_cast<size_t>(m_Dimensions.x);
+	const size_t height = static_cast<size_t>(m_Dimensions.y);
+	const size_t totalPixels = width * height;
 
-			DirectX::XMFLOAT3 color{};
-			color.x = value;
-			color.y = value;
-			color.z = value;
-			SetColor(color, (size_t)x, (size_t)y);
-		}
+	// Safety check to prevent out-of-bounds access
+	if (noiseMap.size() < totalPixels) 
+		return;
+
+	// 2. Use a single loop for contiguous data (Fastest)
+	// This removes the overhead of nested loops and Y-offset math.
+	for (size_t i = 0; i < totalPixels; ++i)
+	{
+		const float value = noiseMap[i];
+
+		// Directly assign to the DirectX struct
+		DirectX::XMFLOAT3 color{ value, value, value };
+
+		// 3. Map linear index back to X and Y for your internal SetColor call
+		// If your Image class has a linear SetColor(index), use that instead!
+		SetColor(color, i % width, i / width);
 	}
 }
-void Image::SetColor(const std::vector<std::vector<DirectX::XMFLOAT3>>& colorMap)
+void Image::SetColor(const std::vector<DirectX::XMFLOAT3>& colorMap)
 {
-	for (int y{}; y < m_Dimensions.y; ++y)
+	const size_t totalPixels = static_cast<size_t>(m_Dimensions.x) * m_Dimensions.y;
+
+	for (size_t i = 0; i < totalPixels; ++i)
 	{
-		for (int x{}; x < m_Dimensions.x; ++x)
-		{
-			const DirectX::XMFLOAT3 value{ colorMap[(size_t)y][(size_t)x] };
-			SetColor(value, (size_t)x, (size_t)y);
-		}
+		// Calculate 2D coordinates from the 1D index
+		size_t x = i % m_Dimensions.x;
+		size_t y = i / m_Dimensions.x;
+
+		SetColor(colorMap[i], x, y);
 	}
 }

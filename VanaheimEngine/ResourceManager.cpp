@@ -38,7 +38,6 @@ Mesh* ResourceManager::Load3DMesh(const std::string& name, const std::string& pa
 
 		pMesh->IncrementInstanceCount();
 		return pMesh;
-		//return m_p3DMeshes[meshID]->pMesh;
 	}
 
 	// If it does not exist
